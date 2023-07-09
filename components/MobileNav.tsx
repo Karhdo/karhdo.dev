@@ -1,9 +1,17 @@
 import { useState } from 'react'
-import Link from './Link'
+import clsx from 'clsx'
+
 import headerNavLinks from '@/data/headerNavLinks'
+
+import Link from './Link'
 
 const MobileNav = () => {
   const [navShow, setNavShow] = useState(false)
+
+  const className = clsx(
+    `sm:hidden fixed w-full h-screen inset-0 bg-gray-200 dark:bg-slate-800 opacity-95 z-50 transition-transform transform ease-in-out duration-300`,
+    navShow ? 'translate-x-0' : 'translate-x-full'
+  )
 
   const onToggleNav = () => {
     setNavShow((status) => {
@@ -37,14 +45,10 @@ const MobileNav = () => {
           />
         </svg>
       </button>
-      <div
-        className={`fixed top-0 left-0 z-10 h-full w-full transform bg-gray-200 opacity-95 duration-300 ease-in-out dark:bg-gray-800 ${
-          navShow ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
+      <div className={className}>
         <div className="flex justify-end">
           <button
-            className="mr-5 mt-11 h-8 w-8 rounded"
+            className="mr-5 mt-4 h-8 w-8 rounded"
             aria-label="Toggle Menu"
             onClick={onToggleNav}
           >
