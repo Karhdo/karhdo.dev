@@ -14,10 +14,10 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between bg-white/75 py-4 backdrop-blur dark:bg-dark/75">
+    <header className="supports-backdrop-blur:bg-white/95 sticky top-0 z-40 flex items-center justify-between py-4 dark:bg-dark/75">
       <Link href="/" aria-label={siteMetadata.headerTitle} className="flex items-center">
         <div className="animate-wave">
-          <Logo className="fill-dark dark:fill-white"/>
+          <Logo className="fill-dark dark:fill-white" />
         </div>
         <div className="group ml-2 text-xl font-bold transition duration-300">
           Karhdo.dev
