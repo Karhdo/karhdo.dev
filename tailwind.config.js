@@ -1,6 +1,6 @@
 // @ts-check
-const { fontFamily } = require('tailwindcss/defaultTheme')
-const colors = require('tailwindcss/colors')
+const { fontFamily } = require('tailwindcss/defaultTheme');
+const colors = require('tailwindcss/colors');
 
 // ../node_modules/pliny/dist/**/*.mjs is needed for monorepo setup
 /** @type {import("tailwindcss/types").Config } */
@@ -18,6 +18,21 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      keyframes: {
+        'wave-animation': {
+          '0%': { transform: 'rotate(0deg)' },
+          '10%': { transform: 'rotate(14deg)' },
+          '20%': { transform: 'rotate(-8deg)' },
+          '30%': { transform: 'rotate(14deg)' },
+          '40%': { transform: 'rotate(-4deg)' },
+          '50%': { transform: 'rotate(10deg)' },
+          '60%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
+      },
+      animation: {
+        wave: 'wave-animation 2.5s linear infinite',
+      },
       spacing: {
         '9/16': '56.25%',
       },
@@ -169,4 +184,4 @@ module.exports = {
     },
   },
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
-}
+};

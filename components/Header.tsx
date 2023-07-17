@@ -1,26 +1,28 @@
 import { useRouter } from 'next/router';
-import { useTheme } from 'next-themes';
 import clsx from 'clsx';
 
 import siteMetadata from '@/data/siteMetadata';
 import headerNavLinks from '@/data/headerNavLinks';
 
+import Logo from 'public/static/images/logo.svg';
+
 import Link from './Link';
-import Image from './Image';
 import MobileNav from './MobileNav';
 import ThemeSwitch from './ThemeSwitch';
 
 const Header = () => {
   const router = useRouter();
 
-  const { theme } = useTheme();
-
-  const logoPath = theme === 'dark' ? '/static/images/logo-white.svg' : '/static/images/logo-black.svg';
-
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between bg-white/75 py-4 backdrop-blur dark:bg-dark/75">
-      <Link href="/" aria-label={siteMetadata.headerTitle} className="duration-y transform  transition hover:scale-95">
-        <Image src={logoPath} alt="Karhdo's Logo" width={180} height={180} />
+      <Link href="/" aria-label={siteMetadata.headerTitle} className="flex items-center">
+        <div className="animate-wave">
+          <Logo className="fill-dark dark:fill-white"/>
+        </div>
+        <div className="group ml-2 text-xl font-bold transition duration-300">
+          Karhdo.dev
+          <span className="block h-0.5 max-w-0 bg-black transition-all duration-500 group-hover:max-w-full dark:bg-white"></span>
+        </div>
       </Link>
       <div className="flex items-center text-base leading-5">
         <div className="hidden sm:block">

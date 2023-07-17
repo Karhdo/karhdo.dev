@@ -1,5 +1,5 @@
-import Document, { Html, Head, Main, NextScript } from 'next/document'
-import siteMetadata from '@/data/siteMetadata'
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+import siteMetadata from '@/data/siteMetadata';
 
 class MyDocument extends Document {
   render() {
@@ -18,16 +18,22 @@ class MyDocument extends Document {
 
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-          <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+          />
         </Head>
         <body className="bg-white text-black antialiased dark:bg-dark dark:text-white">
           <Main />
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
 
-export default MyDocument
+export default MyDocument;
