@@ -9,6 +9,8 @@ import Heading from '@/components/homepage/Heading';
 import TypedBios from '@/components/homepage/TypedBios';
 import ShortDescription from '@/components/homepage/ShortDescription';
 import BlogLinks from '@/components/homepage/BlogLinks';
+import ProfileCard from '@/components/homepage/ProfileCard';
+import Twemoji from '@/components/Twemoji';
 import { PageSEO } from '@/components/SEO';
 
 import type { Blog } from 'contentlayer/generated';
@@ -41,10 +43,15 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               <TypedBios />
               <ShortDescription />
               <BlogLinks />
-              <p className="my-8 flex"></p>
+              <p className="my-8 flex">
+                <span className="mr-2">Happy reading</span>
+                <Twemoji emoji="clinking-beer-mugs" />
+              </p>
             </div>
           </div>
-          <div className="hidden xl:block"></div>
+          <div className="hidden xl:block">
+            <ProfileCard />
+          </div>
         </div>
       </div>
 
