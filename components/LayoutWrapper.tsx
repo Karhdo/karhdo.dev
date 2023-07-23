@@ -1,4 +1,4 @@
-import { Inter } from '@next/font/google';
+import { Outfit } from '@next/font/google';
 import SectionContainer from './SectionContainer';
 import Footer from './Footer';
 import { ReactNode } from 'react';
@@ -8,7 +8,7 @@ interface Props {
   children: ReactNode;
 }
 
-const inter = Inter({
+const inter = Outfit({
   subsets: ['latin'],
 });
 

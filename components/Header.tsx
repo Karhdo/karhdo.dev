@@ -14,14 +14,14 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <header className="supports-backdrop-blur:bg-white/95 sticky top-0 z-40 flex items-center justify-between py-4 dark:bg-dark/75">
+    <header className="supports-backdrop-blur:bg-white/95 supports-backdrop-blur sticky top-0 z-40 flex items-center justify-between py-4 dark:bg-dark/75">
       <Link href="/" aria-label={siteMetadata.headerTitle} className="flex items-center">
         <div className="animate-wave">
           <Logo className="fill-dark dark:fill-white" />
         </div>
         <div className="group ml-2 text-xl font-bold transition duration-300">
           Karhdo.dev
-          <span className="block h-0.5 max-w-0 bg-black transition-all duration-500 group-hover:max-w-full dark:bg-white"></span>
+          <span className="block h-0.5 max-w-0 bg-black transition-all duration-500 group-hover:max-w-[85%] dark:bg-white"></span>
         </div>
       </Link>
       <div className="flex items-center text-base leading-5">
@@ -33,8 +33,8 @@ const Header = () => {
               className={clsx(
                 'mx-1 rounded px-2 py-1 font-medium text-gray-900 dark:text-gray-100 sm:px-3 sm:py-2',
                 router.pathname.startsWith(link.href)
-                  ? 'bg-gray-200 dark:bg-blue-950'
-                  : 'hover:bg-gray-200 dark:hover:bg-blue-950'
+                  ? 'bg-gray-200 dark:bg-primary-500'
+                  : 'hover:bg-gray-200 dark:hover:bg-primary-500'
               )}
               data-umami-event={`nav-${link.href.replace('/', '')}`}
             >

@@ -4,6 +4,7 @@
 const siteMetadata = {
   title: 'Next.js Starter Blog',
   author: 'Tails Azimuth',
+  fullName: 'Do Trong Khanh',
   headerTitle: "Karhdo's Blog",
   description: 'A blog created with Next.js and Tailwind.css',
   language: 'en-us',
@@ -79,6 +80,6 @@ const siteMetadata = {
   //     indexName: 'docsearch',
   //   },
   // },
-}
+};
 
-module.exports = siteMetadata
+module.exports = siteMetadata;
