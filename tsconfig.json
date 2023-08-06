@@ -18,6 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "@/types/*": ["types/*"],
+      "@/utils/*": ["utils/*"],
+      "@/constants/*": ["constants/*"],
       "@/components/*": ["components/*"],
       "@/data/*": ["data/*"],
       "@/layouts/*": ["layouts/*"],
