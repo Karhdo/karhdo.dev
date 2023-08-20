@@ -1,10 +1,6 @@
 import siteMetadata from '@/data/siteMetadata';
 import Twemoji from '@/components/Twemoji';
-
-import Briefcase from 'public/static/favicons/briefcase.svg';
-import MapPin from 'public/static/favicons/map-pin.svg';
-import Envelope from 'public/static/favicons/envelope.svg';
-import ArrowTopRightOnSquare from 'public/static/favicons/arrow-top-right-on-square.svg';
+import Icon from '@/components/Icon';
 
 const ProfileCardInfo = () => {
   return (
@@ -13,7 +9,7 @@ const ProfileCardInfo = () => {
       <h5 className="text-gray-700 dark:text-gray-400">Learner | Builder</h5>
       <div className="mb-2 mt-2 space-y-3">
         <div className="flex items-center">
-          <Briefcase className="w-5" />
+          <Icon name="briefcase" size={20} strokeWidth={1} />
           <p className="px-2">
             Fullstack Engineer @{' '}
             <a className="hover:underline" target="_blank" href="https://younetmedia.com/" rel="noreferrer">
@@ -22,50 +18,53 @@ const ProfileCardInfo = () => {
           </p>
         </div>
         <div className="flex items-center">
-          <MapPin className="w-5" />
+          <Icon name="map-pin" size={20} strokeWidth={1} />
           <p className="px-2">
             Binh Thanh - Ho Chi Minh, <Twemoji emoji="viet-nam-vietnam-flag" />
           </p>
         </div>
         <div className="flex items-center">
-          <Envelope className="w-5" />
+          <Icon name="mail" size={20} strokeWidth={1} />
           <p className="px-2">
             <a href={`mailto:${siteMetadata.email}`}>{siteMetadata.email}</a>
           </p>
         </div>
-        <div className="flex items-center">
-          <ArrowTopRightOnSquare className="w-5" />
-          <p className="space-x-1.5 px-2">
-            <a
-              target="_blank"
-              href={siteMetadata.github}
-              rel="noreferrer"
-              className="hover:underline"
-              data-umami-event="profile-card-github"
-            >
-              gh/{siteMetadata.socialAccounts.github}
-            </a>
-            <span className="text-gray-400 dark:text-gray-500">|</span>
-            <a
-              target="_blank"
-              href={siteMetadata.linkedin}
-              rel="noreferrer"
-              className="hover:underline"
-              data-umami-event="profile-card-linkedin"
-            >
-              in/{siteMetadata.socialAccounts.linkedin}
-            </a>
-            <span className="text-gray-400 dark:text-gray-500">|</span>
-            <a
-              target="_blank"
-              href={siteMetadata.facebook}
-              rel="noreferrer"
-              className="hover:underline"
-              data-umami-event="profile-card-facebook"
-            >
-              fb/{siteMetadata.socialAccounts.facebook}
-            </a>
-          </p>
+        <div className="flex items-center gap-1.5">
+          <a
+            target="_blank"
+            href={siteMetadata.github}
+            rel="noreferrer"
+            className="flex items-center text-sm hover:underline"
+            data-umami-event="profile-card-github"
+          >
+            <Icon name="github" size={20} strokeWidth={1} />
+            <span className="ml-px text-gray-500">/</span>
+            <span className="ml-0.5">{siteMetadata.socialAccounts.github}</span>
+          </a>
+          <span className="text-gray-400 dark:text-gray-500">|</span>
+          <a
+            target="_blank"
+            href={siteMetadata.linkedin}
+            rel="noreferrer"
+            className="flex items-center text-sm hover:underline"
+            data-umami-event="profile-card-linkedin"
+          >
+            <Icon name="linkedin" size={20} strokeWidth={1} />
+            <span className="ml-px text-gray-500">/</span>
+            <span className="ml-0.5">{siteMetadata.socialAccounts.linkedin}</span>
+          </a>
+          <span className="text-gray-400 dark:text-gray-500">|</span>
+          <a
+            target="_blank"
+            href={siteMetadata.linkedin}
+            rel="noreferrer"
+            className="flex items-center text-sm hover:underline"
+            data-umami-event="profile-card-facebook"
+          >
+            <Icon name="facebook" size={20} strokeWidth={1} />
+            <span className="ml-px text-gray-500">/</span>
+            <span className="ml-0.5">{siteMetadata.socialAccounts.facebook}</span>
+          </a>
         </div>
       </div>
     </div>

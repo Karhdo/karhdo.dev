@@ -34,7 +34,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
     <>
       <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
 
-      <div className="mt-8 divide-y divide-gray-200 dark:divide-gray-700 md:mt-16">
+      <div className="mt-8 divide-y divide-gray-200 dark:divide-gray-700 md:mt-8">
         <div className="space-y-2 md:my-4 md:space-y-5 md:pb-8 md:pt-6 xl:grid xl:grid-cols-3">
           <div className="md:pr-8 xl:col-span-2">
             <Greeting />
