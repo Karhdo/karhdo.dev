@@ -1,6 +1,7 @@
 import siteMetadata from '@/data/siteMetadata';
 import Twemoji from '@/components/Twemoji';
-import Icon from '@/components/Icon';
+
+import { Briefcase, MapPin, Mail, Linkedin, Github, Facebook } from 'lucide-react';
 
 const ProfileCardInfo = () => {
   return (
@@ -9,7 +10,7 @@ const ProfileCardInfo = () => {
       <h5 className="text-gray-700 dark:text-gray-400">Learner | Builder</h5>
       <div className="mb-2 mt-2 space-y-3">
         <div className="flex items-center">
-          <Icon name="briefcase" size={20} strokeWidth={1} />
+          <Briefcase size={20} strokeWidth={1} />
           <p className="px-2">
             Fullstack Engineer @{' '}
             <a className="hover:underline" target="_blank" href="https://younetmedia.com/" rel="noreferrer">
@@ -18,13 +19,13 @@ const ProfileCardInfo = () => {
           </p>
         </div>
         <div className="flex items-center">
-          <Icon name="map-pin" size={20} strokeWidth={1} />
+          <MapPin name="map-pin" size={20} strokeWidth={1} />
           <p className="px-2">
             Binh Thanh - Ho Chi Minh, <Twemoji emoji="viet-nam-vietnam-flag" />
           </p>
         </div>
         <div className="flex items-center">
-          <Icon name="mail" size={20} strokeWidth={1} />
+          <Mail size={20} strokeWidth={1} />
           <p className="px-2">
             <a href={`mailto:${siteMetadata.email}`}>{siteMetadata.email}</a>
           </p>
@@ -37,7 +38,7 @@ const ProfileCardInfo = () => {
             className="flex items-center text-sm hover:underline"
             data-umami-event="profile-card-github"
           >
-            <Icon name="github" size={20} strokeWidth={1} />
+            <Github size={20} strokeWidth={1} />
             <span className="ml-px text-gray-500">/</span>
             <span className="ml-0.5">{siteMetadata.socialAccounts.github}</span>
           </a>
@@ -49,7 +50,7 @@ const ProfileCardInfo = () => {
             className="flex items-center text-sm hover:underline"
             data-umami-event="profile-card-linkedin"
           >
-            <Icon name="linkedin" size={20} strokeWidth={1} />
+            <Linkedin size={20} strokeWidth={1} />
             <span className="ml-px text-gray-500">/</span>
             <span className="ml-0.5">{siteMetadata.socialAccounts.linkedin}</span>
           </a>
@@ -61,7 +62,7 @@ const ProfileCardInfo = () => {
             className="flex items-center text-sm hover:underline"
             data-umami-event="profile-card-facebook"
           >
-            <Icon name="facebook" size={20} strokeWidth={1} />
+            <Facebook size={20} strokeWidth={1} />
             <span className="ml-px text-gray-500">/</span>
             <span className="ml-0.5">{siteMetadata.socialAccounts.facebook}</span>
           </a>
