@@ -1,0 +1,20 @@
+.resume .prose h2 {
+  scroll-margin-top: 100px
+}
+
+.resume .table-of-content .false {
+  margin-bottom: 4px;
+}
+
+.resume .table-of-content li:hover {
+  color: #111827;
+}
+
+.content h3, 
+.content ul {
+  margin-top: 4px !important;
+} 
+
+.content p {
+  margin: 0px !important;
+}
