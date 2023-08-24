@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { SpotifyNowPlayingData } from '@/types/index';
 
-import { getSpotifyNowPlaying } from '../..//libs/spotify';
+import { getSpotifyNowPlaying } from '@/libs/spotify';
 
 export default async function fetchNowPlaying(_req: NextApiRequest, res: NextApiResponse) {
   const response = await getSpotifyNowPlaying();
