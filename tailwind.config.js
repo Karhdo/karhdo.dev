@@ -71,7 +71,8 @@ module.exports = {
       colors: {
         primary: colors.sky,
         gray: colors.neutral,
-        dark: '#10172a',
+        malibu: '#61afef',
+        dark: '#282c34',
         spotify: '#1DB954',
       },
       typography: (theme) => ({
@@ -79,7 +80,7 @@ module.exports = {
           css: {
             color: theme('colors.gray.700'),
             a: {
-              color: theme('colors.primary.500'),
+              color: '#61afef',
               '&:hover': {
                 color: `${theme('colors.primary.600')} !important`,
               },

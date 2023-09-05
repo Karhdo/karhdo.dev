@@ -33,8 +33,8 @@ const Header = () => {
               className={clsx(
                 'mx-1 rounded px-2 py-1 font-medium text-gray-900 dark:text-gray-100 sm:px-3 sm:py-2',
                 router.pathname.startsWith(link.href)
-                  ? 'bg-gray-200 dark:bg-primary-500'
-                  : 'hover:bg-gray-200 dark:hover:bg-primary-500'
+                  ? 'bg-gray-200 dark:bg-malibu'
+                  : 'hover:bg-gray-200 dark:hover:bg-malibu'
               )}
               data-umami-event={`nav-${link.href.replace('/', '')}`}
             >
