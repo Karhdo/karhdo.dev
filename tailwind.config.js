@@ -69,9 +69,9 @@ module.exports = {
         sans: ['Outfit', ...fontFamily.sans],
       },
       colors: {
-        primary: colors.sky,
+        primary: '#61afef',
+        sky: colors.sky,
         gray: colors.neutral,
-        malibu: '#61afef',
         dark: '#282c34',
         spotify: '#1DB954',
       },
@@ -80,11 +80,11 @@ module.exports = {
           css: {
             color: theme('colors.gray.700'),
             a: {
-              color: '#61afef',
+              color: theme('colors.primary'),
               '&:hover': {
-                color: `${theme('colors.primary.600')} !important`,
+                color: `${theme('colors.sky.600')} !important`,
               },
-              code: { color: theme('colors.primary.400') },
+              code: { color: theme('colors.sky.400') },
             },
             h1: {
               fontWeight: '700',
@@ -148,11 +148,11 @@ module.exports = {
           css: {
             color: theme('colors.gray.300'),
             a: {
-              color: theme('colors.primary.500'),
+              color: theme('colors.primary'),
               '&:hover': {
-                color: `${theme('colors.primary.400')} !important`,
+                color: `${theme('colors.sky.400')} !important`,
               },
-              code: { color: theme('colors.primary.400') },
+              code: { color: theme('colors.sky.400') },
             },
             h1: {
               fontWeight: '700',
