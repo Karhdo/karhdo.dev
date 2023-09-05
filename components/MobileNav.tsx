@@ -1,37 +1,33 @@
-import { useState } from 'react'
-import clsx from 'clsx'
+import { useState } from 'react';
+import clsx from 'clsx';
 
-import headerNavLinks from '@/data/headerNavLinks'
+import headerNavLinks from '@/data/headerNavLinks';
 
-import Link from './Link'
+import Link from './Link';
 
 const MobileNav = () => {
-  const [navShow, setNavShow] = useState(false)
+  const [navShow, setNavShow] = useState(false);
 
   const className = clsx(
-    `sm:hidden fixed w-full h-screen inset-0 bg-gray-200 dark:bg-slate-800 opacity-95 z-50 transition-transform transform ease-in-out duration-300`,
+    `sm:hidden fixed w-full h-screen inset-0 bg-gray-200 dark:bg-dark opacity-95 z-50 transition-transform transform ease-in-out duration-300`,
     navShow ? 'translate-x-0' : 'translate-x-full'
-  )
+  );
 
   const onToggleNav = () => {
     setNavShow((status) => {
       if (status) {
-        document.body.style.overflow = 'auto'
+        document.body.style.overflow = 'auto';
       } else {
         // Prevent scrolling
-        document.body.style.overflow = 'hidden'
+        document.body.style.overflow = 'hidden';
       }
-      return !status
-    })
-  }
+      return !status;
+    });
+  };
 
   return (
     <div className="sm:hidden">
-      <button
-        className="ml-1 mr-1 h-8 w-8 rounded py-1"
-        aria-label="Toggle Menu"
-        onClick={onToggleNav}
-      >
+      <button className="ml-1 mr-1 h-8 w-8 rounded py-1" aria-label="Toggle Menu" onClick={onToggleNav}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -47,11 +43,7 @@ const MobileNav = () => {
       </button>
       <div className={className}>
         <div className="flex justify-end">
-          <button
-            className="mr-5 mt-4 h-8 w-8 rounded"
-            aria-label="Toggle Menu"
-            onClick={onToggleNav}
-          >
+          <button className="mr-1 mt-5 h-8 w-8 rounded" aria-label="Toggle Menu" onClick={onToggleNav}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -81,7 +73,7 @@ const MobileNav = () => {
         </nav>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MobileNav
+export default MobileNav;
