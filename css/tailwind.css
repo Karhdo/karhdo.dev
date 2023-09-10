@@ -26,6 +26,14 @@
   @apply my-5;
 }
 
+.prose blockquote {
+  background: #ebebeb;
+}
+
+.dark .dark\:prose-dark blockquote {
+  background: #5c6370;
+}
+
 /* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
