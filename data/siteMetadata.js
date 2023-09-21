@@ -3,7 +3,7 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
   title: "Karhdo's Blog - Karhdo's Coding Adventure",
-  author: 'Tails Azimuth',
+  author: 'Trong Khanh',
   fullName: 'Do Trong Khanh',
   headerTitle: "Karhdo's Blog",
   description: 'A blog created with Next.js and Tailwind.css',

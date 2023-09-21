@@ -1,19 +1,43 @@
-const projectsData = [
+import type { Project } from '@/types/data'
+
+const projectsData: Project[] = [
   {
-    title: 'A Search Engine',
-    description: `What if you could look up any information in the world? Webpages, images, videos
-    and more. Google has many features to help you find exactly what you're looking
-    for.`,
-    imgSrc: '/static/images/google.png',
-    href: 'https://www.google.com',
+    type: 'work',
+    title: 'EcomHeat - Manage Market Share, Monitor Sales Performance, Optimize Store Operation',
+    description: 'The pioneering E-commerce data intelligence platform in Vietnam for brands with the most granular data information.',
+    imgSrc: '/static/images/ecom-heat.png',
+    url: 'https://youneteci.com/en/eci-ecomheat/?ref=karhdo.dev',
+    builtWith: ['React', 'Bootstrap', 'FeathersJS', 'MySQL', 'RabbitMQ'],
   },
   {
-    title: 'The Time Machine',
-    description: `Imagine being able to travel back in time or to the future. Simple turn the knob
-    to the desired date and press "Go". No more worrying about lost keys or
-    forgotten headphones with this simple yet affordable solution.`,
-    imgSrc: '/static/images/time-machine.jpg',
-    href: '/blog/the-time-machine',
+    type: 'work',
+    title: 'Military 7A Bidding',
+    description: 'Creating a web-based system designed for the efficient management of bidding packages related to medical supplies information.',
+    imgSrc: '/static/images/military-7a-bidding.png',
+    builtWith: ['NestJS', 'PosgreSQL', 'JWT', 'VueJS', 'Tailwind'],
+  },
+  {
+    type: 'self',
+    title: 'Personal website',
+    imgSrc: '/static/images/karhdo-blog.png',
+    repo: 'karhdo.dev',
+    builtWith: ['Next.js', 'Tailwind', 'Typescript'],
+  },
+  {
+    type: 'self',
+    title: 'Website Selling Food',
+    description: 'This website enables users to select fruits online. (Final project of web application development).',
+    imgSrc: '/static/images/website-selling-food.png',
+    url: 'https://github.com/ZiDuck/Website-Selling-Food',
+    builtWith: ['PHP', 'Laravel', 'MySQL', 'VueJS', 'Bootstrap'],
+  },
+  {
+    type: 'self',
+    title: 'Simulate Basic Geometry',
+    description: 'Explore the World of Basic 3D Modeling Simulations on Our Website.',
+    imgSrc: '/static/images/simulate-geometry.png',
+    repo: 'geometry-simulation',
+    builtWith: ['Javascript', 'Jquery', 'ThreeJS'],
   },
 ]
 

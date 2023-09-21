@@ -56,6 +56,10 @@ module.exports = {
         'music-bar-3': 'music-bar-3 .8s linear infinite',
         'music-bar-4': 'music-bar-4 .8s linear infinite',
       },
+      boxShadow: {
+        nextjs: '0 8px 20px rgb(0,0,0,0.12)',
+        'nextjs-dark': '0 8px 20px rgb(255,255,255,0.12)',
+      },
       spacing: {
         '9/16': '56.25%',
       },

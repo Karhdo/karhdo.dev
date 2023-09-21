@@ -3,6 +3,7 @@ import type { Authors } from 'contentlayer/generated';
 import { TOCInline } from 'pliny/ui/TOCInline';
 import { Toc } from 'pliny/mdx-plugins/remark-toc-headings';
 
+import siteMetadata from '@/data/siteMetadata';
 import { PageSEO } from '@/components/SEO';
 import ScrollTopAndComment from '@/components/ScrollTopAndComment';
 
@@ -13,13 +14,13 @@ interface Props {
 }
 
 export default function AuthorLayout({ children, content, toc }: Props) {
-  const { name } = content;
+  const {author, headerTitle} = siteMetadata;
 
   const description = "My professional career, experiences, and skills.";
 
   return (
     <>
-      <PageSEO title={`Resume - ${name} - Karhdo's Blog`} description={description} />
+      <PageSEO title={`Resume - ${author} - ${headerTitle}`} description={description} />
 
       <ScrollTopAndComment showScrollToComment={false} />
 
