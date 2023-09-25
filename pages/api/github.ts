@@ -1,21 +1,21 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { GraphqlResponseError, graphql, type GraphQlQueryResponseData } from '@octokit/graphql'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { GraphqlResponseError, graphql, type GraphQlQueryResponseData } from '@octokit/graphql';
 
-import siteMetadata from '@/data/siteMetadata'
+import siteMetadata from '@/data/siteMetadata';
 
 export default async function fetchGithubRepo(req: NextApiRequest, res: NextApiResponse) {
-  let repo = req.query.repo as string
+  let repo = req.query.repo as string;
   if (!repo) {
-    return res.status(400).json({ message: 'Missing repo query param' })
+    return res.status(400).json({ message: 'Missing repo query param' });
   }
 
   if (!process.env.GITHUB_API_TOKEN) {
-    return res.status(500).json({ message: 'Missing `GITHUB_API_TOKEN` env variable' })
+    return res.status(500).json({ message: 'Missing `GITHUB_API_TOKEN` env variable' });
   }
 
-  let owner = siteMetadata.socialAccounts.github
+  let owner = siteMetadata.socialAccounts.github;
   if (repo.includes('/')) {
-    [owner, repo] = repo.split('/')
+    [owner, repo] = repo.split('/');
   }
 
   try {
@@ -57,26 +57,23 @@ export default async function fetchGithubRepo(req: NextApiRequest, res: NextApiR
           authorization: `token ${process.env.GITHUB_API_TOKEN}`,
         },
       }
-    )
+    );
 
     repository.languages = repository.languages.edges.map((edge) => {
       return {
         color: edge.node.color,
         name: edge.node.name,
-      }
-    })
+      };
+    });
 
-    repository.repositoryTopics = repository.repositoryTopics.edges.map(
-      (edge) => edge.node.topic.name
-    )
+    repository.repositoryTopics = repository.repositoryTopics.edges.map((edge) => edge.node.topic.name);
 
-    return res.status(200).json({ message: 'ok', repository })
+    return res.status(200).json({ message: 'ok', repository });
   } catch (error) {
     if (error instanceof GraphqlResponseError) {
-      return res.status(500).json({ message: error.errors[0].message })
+      return res.status(500).json({ message: error.errors[0].message });
     }
 
-    return res.status(500).json({ message: 'Unable to fetch repo data' + error?.toString() })
+    return res.status(500).json({ message: 'Unable to fetch repo data' + error?.toString() });
   }
 }
-

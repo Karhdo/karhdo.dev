@@ -1,20 +1,16 @@
-import { find } from 'lodash'
-import { ExternalLink, GitFork, Github, Star } from 'lucide-react'
+import { find } from 'lodash';
+import { ExternalLink, GitFork, Github, Star } from 'lucide-react';
 
-import type { GithubRepository } from '@/types/server'
+import type { GithubRepository } from '@/types/server';
 
 export default function GithubRepo({ repo }: { repo: GithubRepository }) {
-
-  const mainLanguage = find(repo.languages, language => language.name !== 'CSS');
+  const mainLanguage = find(repo.languages, (language) => language.name !== 'CSS');
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-1.5">
-          <span
-            className="inline-block h-4 w-4 rounded-full"
-            style={{ backgroundColor: mainLanguage.color }}
-          />
+          <span className="inline-block h-4 w-4 rounded-full" style={{ backgroundColor: mainLanguage.color }} />
           <span>{mainLanguage.name}</span>
         </div>
         <div className="flex items-center space-x-1.5">
@@ -52,6 +48,5 @@ export default function GithubRepo({ repo }: { repo: GithubRepository }) {
         </a>
       </div>
     </div>
-  )
+  );
 }
-
