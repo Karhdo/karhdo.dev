@@ -14,9 +14,9 @@ interface Props {
 }
 
 export default function AuthorLayout({ children, content, toc }: Props) {
-  const {author, headerTitle} = siteMetadata;
+  const { author, headerTitle } = siteMetadata;
 
-  const description = "My professional career, experiences, and skills.";
+  const description = 'My professional career, experiences, and skills.';
 
   return (
     <>
@@ -29,9 +29,7 @@ export default function AuthorLayout({ children, content, toc }: Props) {
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             Resume
           </h1>
-          <p className="text-base text-gray-500 dark:text-gray-400 md:text-lg md:leading-7">
-            {description}
-          </p>
+          <p className="text-base text-gray-500 dark:text-gray-400 md:text-lg md:leading-7">{description}</p>
         </header>
 
         <div className="border border-t border-gray-200 dark:border-gray-700" />
@@ -42,7 +40,7 @@ export default function AuthorLayout({ children, content, toc }: Props) {
           </div>
 
           <div className="hidden border-l border-gray-300 md:block" />
-          <div className="content prose prose-slate grow table-auto border-collapse space-y-5 leading-6 text-gray-900">
+          <div className="content prose prose-slate grow table-auto border-collapse space-y-5 text-justify leading-6 text-gray-900">
             {children}
           </div>
         </main>

@@ -1,5 +1,5 @@
 .resume .prose h2 {
-  scroll-margin-top: 100px
+  scroll-margin-top: 100px;
 }
 
 .resume .table-of-content .false {
@@ -10,10 +10,14 @@
   color: #111827;
 }
 
-.content h3, 
+.content {
+  min-width: 75%;
+}
+
+.content h3,
 .content ul {
   margin-top: 4px !important;
-} 
+}
 
 .content p {
   margin: 0px !important;
