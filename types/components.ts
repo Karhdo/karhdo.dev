@@ -1,6 +1,6 @@
-import type readingTime from 'reading-time'
+import type readingTime from 'reading-time';
 
-import type projectsData from '@/data/projectsData'
+import type projectsData from '@/data/projectsData';
 
 export type TwemojiProps = {
   emoji: string;
@@ -8,18 +8,18 @@ export type TwemojiProps = {
   className?: string;
 };
 
-export type ProjectDataType = (typeof projectsData)[0]
+export type ProjectDataType = (typeof projectsData)[0];
 
 export interface ProjectCardProps {
-  project: ProjectDataType
+  project: ProjectDataType;
 }
 
-export type ReadingTime = ReturnType<typeof readingTime>
+export type ReadingTime = ReturnType<typeof readingTime>;
 
 export interface BlogMetaProps {
   date: string;
   slug: string;
-  readingTime: ReadingTime,
+  readingTime: ReadingTime;
 }
 
 export interface ViewCounterProps {
