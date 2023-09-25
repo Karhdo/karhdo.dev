@@ -1,10 +1,11 @@
-import type { Project } from '@/types/data'
+import type { Project } from '@/types/data';
 
 const projectsData: Project[] = [
   {
     type: 'work',
     title: 'EcomHeat - Manage Market Share, Monitor Sales Performance, Optimize Store Operation',
-    description: 'The pioneering E-commerce data intelligence platform in Vietnam for brands with the most granular data information.',
+    description:
+      'The pioneering E-commerce data intelligence platform in Vietnam for brands with the most granular data information.',
     imgSrc: '/static/images/ecom-heat.png',
     url: 'https://youneteci.com/en/eci-ecomheat/?ref=karhdo.dev',
     builtWith: ['React', 'Bootstrap', 'FeathersJS', 'MySQL', 'RabbitMQ'],
@@ -12,7 +13,8 @@ const projectsData: Project[] = [
   {
     type: 'work',
     title: 'Military 7A Bidding',
-    description: 'Creating a web-based system designed for the efficient management of bidding packages related to medical supplies information.',
+    description:
+      'Creating a web-based system designed for the efficient management of bidding packages related to medical supplies information.',
     imgSrc: '/static/images/military-7a-bidding.png',
     builtWith: ['NestJS', 'PosgreSQL', 'JWT', 'VueJS', 'Tailwind'],
   },
@@ -26,9 +28,8 @@ const projectsData: Project[] = [
   {
     type: 'self',
     title: 'Website Selling Food',
-    description: 'This website enables users to select fruits online. (Final project of web application development).',
     imgSrc: '/static/images/website-selling-food.png',
-    url: 'https://github.com/ZiDuck/Website-Selling-Food',
+    repo: 'Website-Selling-Food',
     builtWith: ['PHP', 'Laravel', 'MySQL', 'VueJS', 'Bootstrap'],
   },
   {
@@ -39,6 +40,6 @@ const projectsData: Project[] = [
     repo: 'geometry-simulation',
     builtWith: ['Javascript', 'Jquery', 'ThreeJS'],
   },
-]
+];
 
-export default projectsData
+export default projectsData;
