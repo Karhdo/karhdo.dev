@@ -15,9 +15,9 @@ const inter = Outfit({
 const LayoutWrapper = ({ children }: Props) => {
   return (
     <SectionContainer>
-      <div className={`${inter.className} flex h-screen flex-col justify-between font-sans`}>
+      <div className={`${inter.className} relative flex h-screen flex-col justify-between font-sans`}>
         <Header />
-        <main className="mb-auto">{children}</main>
+        <main className="mb-auto mt-16">{children}</main>
         <Footer />
       </div>
     </SectionContainer>
