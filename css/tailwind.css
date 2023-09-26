@@ -34,6 +34,10 @@
   background: #5c6370;
 }
 
+#comments-container .giscus-frame {
+  @apply w-full;
+}
+
 /* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
