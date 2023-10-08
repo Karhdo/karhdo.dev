@@ -15,13 +15,13 @@ interface Props {
 export default function AuthorLayout({ children, content }: Props) {
   const { name, avatar, occupation, company, email, twitter, linkedin, github } = content;
 
-  const description = 'My professional career, experiences, and skills.';
+  const { title, headerTitle } = siteMetadata;
 
-  const { author, headerTitle } = siteMetadata;
+  const description = 'My professional career, experiences, and skills.';
 
   return (
     <>
-      <PageSEO title={`About - ${author} - ${headerTitle}`} description={`${description}`} />
+      <PageSEO title={`About - ${headerTitle} - ${title}`} description={description} />
 
       <div className="about divide-y divide-gray-200 dark:divide-gray-700">
         <div className="space-y-2 pb-8 pt-6 md:space-y-5">

@@ -30,9 +30,11 @@ export const getStaticProps = async () => {
 };
 
 export default function Home({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { headerTitle, title, description } = siteMetadata;
+
   return (
     <>
-      <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
+      <PageSEO title={`${headerTitle} - ${title}`} description={description} />
 
       <div className="mt-8 divide-y divide-gray-200 dark:divide-gray-700 md:mt-8">
         <div className="space-y-2 md:my-4 md:space-y-5 md:pb-8 md:pt-6 xl:grid xl:grid-cols-3">

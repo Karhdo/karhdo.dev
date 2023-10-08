@@ -5,7 +5,7 @@ import ProjectCard from '@/components/ProjectCard';
 import { PageSEO } from '@/components/SEO';
 
 export default function Projects() {
-  const { author, headerTitle } = siteMetadata;
+  const { title, headerTitle } = siteMetadata;
 
   const description = 'My open-source side projects and stuff that I built with my colleagues at work';
 
@@ -14,7 +14,7 @@ export default function Projects() {
 
   return (
     <>
-      <PageSEO title={`Projects - ${author} - ${headerTitle}`} description={`${description}`} />
+      <PageSEO title={`Projects - ${headerTitle} - ${title}`} description={description} />
 
       <div className="dark:divide-gray divide-y divide-gray-200">
         <div className="space-y-2 pb-8 pt-6 md:space-y-5">

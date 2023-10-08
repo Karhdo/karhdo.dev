@@ -14,13 +14,13 @@ interface Props {
 }
 
 export default function AuthorLayout({ children, content, toc }: Props) {
-  const { author, headerTitle } = siteMetadata;
+  const { title, headerTitle } = siteMetadata;
 
   const description = 'My professional career, experiences, and skills.';
 
   return (
     <>
-      <PageSEO title={`Resume - ${author} - ${headerTitle}`} description={description} />
+      <PageSEO title={`Resume - ${headerTitle} - ${title}`} description={description} />
 
       <ScrollTopAndComment showScrollToComment={false} />
 

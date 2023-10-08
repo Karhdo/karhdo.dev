@@ -1,11 +1,10 @@
 import useSWR from 'swr';
 
+import Spotify from 'public/static/icons/spotify.svg';
+
 import { fetcher } from '@/utils/fetcher';
 import type { SpotifyNowPlayingData } from '@/types/index';
-
 import MusicBar from '@/components/homepage/MusicBar';
-
-import Spotify from 'public/static/favicons/spotify.svg';
 
 const SpotifyNowPlaying = () => {
   const response = useSWR('/api/spotify', fetcher);
