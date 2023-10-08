@@ -1,12 +1,12 @@
 // @ts-check
-
 /** @type {import("pliny/config").PlinyConfig } */
+
 const siteMetadata = {
-  title: "Karhdo's Blog - Karhdo's Coding Adventure",
+  title: "Karhdo's Coding Adventure",
   author: 'Trong Khanh',
   fullName: 'Do Trong Khanh',
   headerTitle: "Karhdo's Blog",
-  description: 'A blog created with Next.js and Tailwind.css',
+  description: 'My desire to practice my skills and share my acquired knowledge fuels my endeavors.',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
@@ -18,7 +18,7 @@ const siteMetadata = {
   github: 'https://github.com/Karhdo',
   facebook: 'https://www.facebook.com/karhdo.dev/',
   linkedin: 'https://www.linkedin.com/in/karhdo/',
-  twitter: 'https://twitter.com/Twitter',
+  twitter: 'https://twitter.com/karhdo',
   youtube: 'https://youtube.com',
   locale: 'en-US',
   socialAccounts: {
