@@ -73,10 +73,10 @@ module.exports = {
         sans: ['Outfit', ...fontFamily.sans],
       },
       colors: {
-        primary: '#61afef',
+        primary: '#7aa2f7',
         sky: colors.sky,
         gray: colors.neutral,
-        dark: '#282c34',
+        dark: '#1A1B26',
         spotify: '#1DB954',
         coral: '#EF596F',
       },
@@ -112,7 +112,7 @@ module.exports = {
               backgroundColor: theme('colors.gray.800'),
             },
             code: {
-              color: theme('colors.coral'),
+              color: '#BB9AF7',
               backgroundColor: theme('colors.gray.100'),
               paddingLeft: '4px',
               paddingRight: '4px',
