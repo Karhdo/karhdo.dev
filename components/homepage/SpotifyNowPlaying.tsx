@@ -12,7 +12,7 @@ const SpotifyNowPlaying = () => {
   const { songUrl, title, artist } = (response.data as SpotifyNowPlayingData) || {};
 
   return (
-    <div className="flex items-center gap-2 bg-slate-700/20 px-3 py-2 dark:bg-sky-700/20">
+    <div className="my-3 flex max-w-[540px] items-center gap-2 rounded bg-slate-700/20 px-3 py-2 dark:bg-sky-700/20">
       <Spotify className="w-6 flex-shrink-0 text-spotify" />
 
       <div className="inline-flex truncate">

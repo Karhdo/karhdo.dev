@@ -1,4 +1,5 @@
 import { InferGetStaticPropsType } from 'next';
+import Snowfall from 'react-snowfall';
 
 import siteMetadata from '@/data/siteMetadata';
 
@@ -9,9 +10,10 @@ import Heading from '@/components/homepage/Heading';
 import TypedBios from '@/components/homepage/TypedBios';
 import ShortDescription from '@/components/homepage/ShortDescription';
 import BlogLinks from '@/components/homepage/BlogLinks';
-import ProfileCard from '@/components/homepage/ProfileCard';
+import SpotifyNowPlaying from '@/components/homepage/SpotifyNowPlaying';
 import Twemoji from '@/components/Twemoji';
 import { PageSEO } from '@/components/SEO';
+import Image from '@/components/Image';
 
 import type { Blog } from 'contentlayer/generated';
 
@@ -33,26 +35,35 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
   const { headerTitle, title, description } = siteMetadata;
 
   return (
-    <>
+    <div className="relative">
+      <Snowfall
+        snowflakeCount={60}
+        style={{
+          zIndex: -1,
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+        }}
+      />
+
       <PageSEO title={`${headerTitle} - ${title}`} description={description} />
 
-      <div className="mt-8 divide-y divide-gray-200 dark:divide-gray-700 md:mt-8">
-        <div className="space-y-2 md:my-4 md:space-y-5 md:pb-8 md:pt-6 xl:grid xl:grid-cols-3">
-          <div className="md:pr-8 xl:col-span-2">
-            <Greeting />
-            <div className="text-lg leading-8 text-gray-600 dark:text-gray-400">
-              <Heading />
-              <TypedBios />
-              <ShortDescription />
-              <BlogLinks />
-              <p className="my-8 flex">
-                <span className="mr-2">Happy reading</span>
-                <Twemoji emoji="clinking-beer-mugs" />
-              </p>
-            </div>
+      <div className="mt-8 dark:divide-gray-700 md:mt-8">
+        <Greeting />
+        <div className="flex flex-col justify-between md:my-4 md:pb-8 xl:flex-row">
+          <div className="max-h-[430px] overflow-hidden rounded-md">
+            <Image src={'/static/images/avatar.jpg'} alt="avatar" width={430} height={350} />
           </div>
-          <div className="hidden xl:block">
-            <ProfileCard />
+          <div className="my-auto flex flex-col text-lg leading-8 text-gray-600 dark:text-gray-400">
+            <Heading />
+            <TypedBios />
+            <ShortDescription />
+            <BlogLinks />
+            <SpotifyNowPlaying />
+            <p className="flex">
+              <span className="mr-2">Happy reading</span>
+              <Twemoji emoji="clinking-beer-mugs" />
+            </p>
           </div>
         </div>
       </div>
@@ -123,6 +134,6 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
           <NewsletterForm />
         </div>
       )} */}
-    </>
+    </div>
   );
 }

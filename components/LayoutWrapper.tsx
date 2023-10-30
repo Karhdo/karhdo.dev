@@ -1,4 +1,5 @@
 import { Outfit } from '@next/font/google';
+
 import SectionContainer from './SectionContainer';
 import Footer from './Footer';
 import { ReactNode } from 'react';
