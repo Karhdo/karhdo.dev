@@ -22,7 +22,7 @@
     "autoprefixer": "^10.4.13",
     "clsx": "^1.2.1",
     "contentlayer": "0.3.0",
-    "esbuild": "0.17.5",
+    "esbuild": "0.17.19",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.2",
     "image-size": "1.0.0",
