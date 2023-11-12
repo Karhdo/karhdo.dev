@@ -109,11 +109,11 @@ module.exports = {
               color: theme('colors.gray.900'),
             },
             pre: {
-              backgroundColor: theme('colors.gray.800'),
+              backgroundColor: '#24283b',
             },
             code: {
               color: '#BB9AF7',
-              backgroundColor: theme('colors.gray.100'),
+              backgroundColor: '#24283b',
               paddingLeft: '4px',
               paddingRight: '4px',
               paddingTop: '2px',
@@ -177,10 +177,10 @@ module.exports = {
               color: theme('colors.gray.100'),
             },
             pre: {
-              backgroundColor: theme('colors.gray.800'),
+              backgroundColor: '#24283b',
             },
             code: {
-              backgroundColor: theme('colors.gray.800'),
+              backgroundColor: '#24283b',
             },
             details: {
               backgroundColor: theme('colors.gray.800'),

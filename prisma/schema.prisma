@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model views {
+model View {
   slug  String @id @db.VarChar(128)
   count BigInt @default(1)
 }

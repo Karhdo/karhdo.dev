@@ -34,9 +34,37 @@
   background: #5c6370;
 }
 
+/* START: CSS Github discussion */
 #comments-container .giscus-frame {
   @apply w-full;
 }
+/* END: CSS Github discussion */
+
+/* START: CSS popular tags */
+.popular-tags .javascript {
+  @apply bg-amber-400;
+}
+
+.popular-tags .typescript {
+  @apply bg-blue-500;
+}
+
+.popular-tags .nestjs {
+  @apply bg-rose-500;
+}
+
+.popular-tags .react {
+  @apply bg-sky-500;
+}
+
+.popular-tags .devops {
+  @apply bg-sky-600;
+}
+
+.popular-tags .database {
+  @apply bg-green-900;
+}
+/* END: CSS popular tags */
 
 /* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
 input:-webkit-autofill,

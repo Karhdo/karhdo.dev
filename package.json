@@ -9,7 +9,8 @@
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
     "prepare": "husky install",
-    "lint": "next lint --fix --dir pages --dir components --dir lib --dir layouts --dir scripts"
+    "lint": "next lint --fix --dir pages --dir components --dir lib --dir layouts --dir scripts",
+    "migrate:postgres": "dotenv -e .env.local -- npx prisma migrate deploy"
   },
   "dependencies": {
     "@next/bundle-analyzer": "13.1.6",
