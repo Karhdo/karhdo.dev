@@ -16,6 +16,7 @@
 
 /* Code block styles */
 .code-highlight {
+  background-color: #24283b;
   @apply float-left min-w-full;
 }
 

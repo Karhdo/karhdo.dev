@@ -15,6 +15,10 @@ import TailwindCSS from 'public/static/icons/tailwind.svg';
 import Typescript from 'public/static/icons/typescript.svg';
 import Umami from 'public/static/icons/umami.svg';
 import Vercel from 'public/static/icons/vercel.svg';
+import NestJS from 'public/static/icons/nestjs.svg';
+import Docker from 'public/static/icons/docker.svg';
+import Postgres from 'public/static/icons/postgres.svg';
+import Mongodb from 'public/static/icons/mongodb.svg';
 
 export const BrandIconsMap = {
   React,
@@ -34,7 +38,13 @@ export const BrandIconsMap = {
   Vercel,
   Railway,
   Spotify,
+  NestJS,
+  Docker,
+  Postgres,
+  Mongodb,
 };
+
+export type BrandIconType = keyof typeof BrandIconsMap;
 
 const BrandIcon = (props: { type: keyof typeof BrandIconsMap; className?: string }) => {
   const { type, className } = props;

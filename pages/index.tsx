@@ -1,26 +1,27 @@
 import { InferGetStaticPropsType } from 'next';
 import Snowfall from 'react-snowfall';
 
+import { formatDate } from 'pliny/utils/formatDate';
+// import { NewsletterForm } from 'pliny/ui/NewsletterForm';
+import { sortedBlogPost, allCoreContent } from 'pliny/utils/contentlayer';
+import { allBlogs } from 'contentlayer/generated';
+
+import type { Blog } from 'contentlayer/generated';
+
 import siteMetadata from '@/data/siteMetadata';
 
 import Tag from '@/components/Tag';
 import Link from '@/components/Link';
+import Twemoji from '@/components/Twemoji';
+import { PageSEO } from '@/components/SEO';
+import Image from '@/components/Image';
 import Greeting from '@/components/homepage/Greeting';
 import Heading from '@/components/homepage/Heading';
 import TypedBios from '@/components/homepage/TypedBios';
 import ShortDescription from '@/components/homepage/ShortDescription';
 import BlogLinks from '@/components/homepage/BlogLinks';
 import SpotifyNowPlaying from '@/components/homepage/SpotifyNowPlaying';
-import Twemoji from '@/components/Twemoji';
-import { PageSEO } from '@/components/SEO';
-import Image from '@/components/Image';
-
-import type { Blog } from 'contentlayer/generated';
-
-import { formatDate } from 'pliny/utils/formatDate';
-import { NewsletterForm } from 'pliny/ui/NewsletterForm';
-import { sortedBlogPost, allCoreContent } from 'pliny/utils/contentlayer';
-import { allBlogs } from 'contentlayer/generated';
+import PopularTags from '@/components/homepage/PopularTags';
 
 const MAX_DISPLAY = 3;
 
@@ -48,6 +49,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
 
       <PageSEO title={`${headerTitle} - ${title}`} description={description} />
 
+      {/* Introduce myself */}
       <div className="mt-8 dark:divide-gray-700 md:mt-8">
         <Greeting />
         <div className="flex flex-col justify-between md:my-4 md:pb-8 xl:flex-row">
@@ -68,19 +70,23 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
         </div>
       </div>
 
+      <PopularTags />
+
+      {/* List all post */}
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
-          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
-            Latest
+        <div className="space-y-2 py-6 md:space-y-5">
+          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">
+            Recent Posts
           </h1>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">{siteMetadata.description}</p>
+          <p className="!mt-2 text-lg leading-7 text-gray-500 dark:text-gray-400">{siteMetadata.description}</p>
         </div>
+
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {!posts.length && 'No posts found.'}
           {posts.slice(0, MAX_DISPLAY).map((post) => {
             const { slug, date, title, summary, tags } = post;
             return (
-              <li key={slug} className="py-8">
+              <li key={slug} className="py-6">
                 <article>
                   <div className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
                     <dl>
@@ -90,7 +96,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                       </dd>
                     </dl>
                     <div className="space-y-5 xl:col-span-3">
-                      <div className="space-y-6">
+                      <div className="space-y-4">
                         <div>
                           <h2 className="text-2xl font-bold leading-8 tracking-tight">
                             <Link href={`/blog/${slug}`} className="text-gray-900 dark:text-gray-100">

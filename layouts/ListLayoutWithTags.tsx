@@ -1,26 +1,33 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import { formatDate } from 'pliny/utils/formatDate';
+import { kebabCase } from 'lodash';
 import { CoreContent } from 'pliny/utils/contentlayer';
 import type { Blog } from 'contentlayer/generated';
+
 import Link from '@/components/Link';
 import Tag from '@/components/Tag';
 import siteMetadata from '@/data/siteMetadata';
+import { TagCounts } from '@/types/server';
 
 interface PaginationProps {
   totalPages: number;
   currentPage: number;
 }
-interface ListLayoutProps {
+
+interface ListLayoutWithTagsProps {
   posts: CoreContent<Blog>[];
+  tagCounts: TagCounts;
   title: string;
   initialDisplayPosts?: CoreContent<Blog>[];
   pagination?: PaginationProps;
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
-  const router = useRouter();
-  const basePath = router.pathname.split('/')[1];
+  const pathname = usePathname();
+
+  const basePath = pathname.split('/')[1];
+
   const prevPage = currentPage - 1 > 0;
   const nextPage = currentPage + 1 <= totalPages;
 
@@ -55,26 +62,78 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
   );
 }
 
-export default function ListLayout({ posts, title, initialDisplayPosts = [], pagination }: ListLayoutProps) {
+export default function ListLayoutWithTags({
+  posts,
+  tagCounts,
+  title,
+  initialDisplayPosts = [],
+  pagination,
+}: ListLayoutWithTagsProps) {
+  const pathname = usePathname();
+
   const [searchValue, setSearchValue] = useState('');
+
   const filteredBlogPosts = posts.filter((post) => {
     const searchContent = post.title + post.summary + post.tags.join(' ');
+
     return searchContent.toLowerCase().includes(searchValue.toLowerCase());
   });
+
+  const tagKeys = Object.keys(tagCounts);
+
+  const sortedTags = tagKeys.sort((a, b) => tagCounts[b] - tagCounts[a]);
 
   // If initialDisplayPosts exist, display it if no searchValue is specified
   const displayPosts = initialDisplayPosts.length > 0 && !searchValue ? initialDisplayPosts : filteredBlogPosts;
 
   return (
-    <>
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
+    <div className="grid grid-cols-4 pt-6">
+      {/*START: List tags*/}
+      <div className="col-span-1">
+        <div className="hidden h-full max-h-screen min-w-[240px] max-w-[240px] flex-wrap overflow-auto rounded bg-gray-200 pt-5 shadow-md dark:bg-[#24283b] dark:shadow-gray-800/40 sm:flex">
+          <div className="px-6 py-4">
+            {pathname.startsWith('/blog') ? (
+              <h3 className="font-bold uppercase text-primary">All Posts</h3>
+            ) : (
+              <Link
+                href={`/blog`}
+                className="font-bold uppercase text-gray-700 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
+              >
+                All Posts
+              </Link>
+            )}
+            <ul>
+              {sortedTags.map((t) => {
+                return (
+                  <li key={t} className="my-3">
+                    {pathname.split('/tags/')[1] === kebabCase(t) ? (
+                      <h3 className="inline px-3 py-2 text-sm font-bold uppercase text-primary">
+                        {`${t} (${tagCounts[t]})`}
+                      </h3>
+                    ) : (
+                      <Link
+                        href={`/tags/${kebabCase(t)}`}
+                        className="px-3 py-2 text-sm font-medium uppercase text-gray-500 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
+                        aria-label={`View posts tagged ${t}`}
+                      >
+                        {`${t} (${tagCounts[t]})`}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </div>
+      {/*END: List tags*/}
+
+      <div className="col-span-3 divide-y divide-gray-200 pl-8 dark:divide-gray-700">
+        {/*START: Header and Search Input*/}
+        <div className="space-y-2 pb-8 md:space-y-5">
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             {title}
           </h1>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
-            I primarily cover web development and tech topics, occasionally sharing insights into my personal life.
-          </p>
           <div className="relative max-w-lg">
             <label>
               <span className="sr-only">Search articles</span>
@@ -102,8 +161,12 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
             </svg>
           </div>
         </div>
+        {/*END: Header and Search Input*/}
+
+        {/*START: List posts*/}
         <ul>
           {!filteredBlogPosts.length && 'No posts found.'}
+
           {displayPosts.map((post) => {
             const { path, date, title, summary, tags } = post;
             return (
@@ -135,10 +198,11 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
             );
           })}
         </ul>
+        {/*END: List posts*/}
       </div>
       {pagination && pagination.totalPages > 1 && !searchValue && (
         <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
       )}
-    </>
+    </div>
   );
 }
