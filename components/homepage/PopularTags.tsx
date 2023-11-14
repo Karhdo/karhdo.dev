@@ -26,7 +26,7 @@ const PopularTags = () => {
           return (
             <Link key={slug} href={href} className={className}>
               <BrandIcon type={iconType} className="h-6 w-6" />
-              <div className="my-auto">{title}</div>
+              <div className="my-auto text-white">{title}</div>
             </Link>
           );
         })}

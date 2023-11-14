@@ -44,7 +44,7 @@ const TypedBios = () => {
           I'm a dog-person <Twemoji emoji="dog" />.
         </li>
         <li>
-          I'm a sport-guy. I love
+          I'm a sporty-guy. I love
           <span className="ml-1">
             <Twemoji emoji="tennis" />, <Twemoji emoji="soccer-ball" />
           </span>
