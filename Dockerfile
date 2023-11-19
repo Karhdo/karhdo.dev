@@ -15,7 +15,9 @@ LABEL author="karhdo <karhdo.trong@gmail.com>"
 WORKDIR /app
 COPY --from=BASE /app/node_modules ./node_modules
 COPY . .
+RUN npx prisma generate
 RUN apk add --no-cache git curl \
+    && yarn add sharp \
     && yarn build \
     && rm -rf node_modules \
     && yarn install --production --frozen-lockfile --ignore-scripts --prefer-offline \
@@ -33,7 +35,8 @@ COPY --from=BUILD /app/next.config.js ./
 # Set mode "standalone" in file "next.config.js"
 COPY --from=BUILD /app/.next/standalone ./
 COPY --from=BUILD /app/.next/static ./.next/static
+COPY --from=BUILD /app/.next/server ./.next/server
 
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["node", "server.js"]
