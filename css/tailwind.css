@@ -26,9 +26,28 @@
   @apply my-5;
 }
 
+/* START: CSS Prose */
+.prose {
+  font-size: 18px;
+}
+
+.prose h2 {
+  font-size: 28px;
+}
+
+.prose h3 {
+  font-size: 24px;
+}
+
+.prose img {
+  margin: 0 auto;
+  border-radius: 12px;
+}
+
 .prose blockquote {
   background: #ebebeb;
 }
+/* END: CSS Prose */
 
 .dark .dark\:prose-dark blockquote {
   background: #5c6370;

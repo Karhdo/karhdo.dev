@@ -21,7 +21,7 @@
 }
 
 .code-line {
-  @apply -mx-4 block border-l-4 border-transparent pl-4 pr-4;
+  @apply -mx-4 block border-l-4 border-transparent pl-4 pr-4 text-base;
 }
 
 .code-line.inserted {
@@ -57,7 +57,7 @@
 }
 
 .token.punctuation {
-  color: rgb(199, 146, 234);
+  color: rgb(122, 162, 247);
 }
 
 .namespace {
@@ -77,7 +77,7 @@
 .token.tag,
 .token.operator,
 .token.keyword {
-  color: rgb(127, 219, 202);
+  color: rgb(125, 207, 255);
 }
 
 .token.boolean {
@@ -115,12 +115,13 @@
   color: rgb(173, 219, 103);
 }
 
-.token.class-name,
 .token.atrule,
 .token.attr-value {
   color: rgb(255, 203, 139);
 }
 
+.token.class-name,
+.token.maybe-class-name,
 .token.regex,
 .token.important,
 .token.variable {
