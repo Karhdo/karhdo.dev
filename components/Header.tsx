@@ -9,6 +9,7 @@ import Logo from 'public/static/images/logo.svg';
 import Link from './Link';
 import MobileNav from './MobileNav';
 import ThemeSwitch from './ThemeSwitch';
+import AnalyticsLink from './AnalyticsLink';
 
 const Header = () => {
   const router = useRouter();
@@ -43,6 +44,7 @@ const Header = () => {
               </Link>
             ))}
           </div>
+          <AnalyticsLink />
           <ThemeSwitch />
           <MobileNav />
         </div>

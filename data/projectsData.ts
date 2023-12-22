@@ -23,7 +23,7 @@ const projectsData: Project[] = [
     title: 'Personal website',
     imgSrc: '/static/images/projects/karhdo-blog.png',
     repo: 'karhdo.dev',
-    builtWith: ['Next.js', 'Tailwind', 'Typescript'],
+    builtWith: ['Next.js', 'Tailwind', 'Typescript', 'Prisma', 'Umami'],
   },
   {
     type: 'self',
