@@ -6,6 +6,25 @@
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+html,
+.lightbox-overlay {
+  width: 100vw;
+}
+
+html.prevent-scroll {
+  overflow-y: hidden;
+}
+
+html.lightbox-loading,
+html.lightbox-loading * {
+  cursor: wait !important;
+}
+
 .task-list-item::before {
   @apply hidden;
 }

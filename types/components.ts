@@ -1,6 +1,15 @@
 import type readingTime from 'reading-time';
+import type { ImageProps as NextImageProps } from 'next/image';
 
 import type projectsData from '@/data/projectsData';
+
+export interface ImageProps extends NextImageProps {
+  shouldOpenLightbox?: boolean;
+}
+
+export interface ImageLightBoxProps extends Pick<NextImageProps, 'src'> {
+  closeLightbox: () => void;
+}
 
 export type TwemojiProps = {
   emoji: string;
