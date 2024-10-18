@@ -1,9 +1,11 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import Image from '@/components/Image';
+import Image from '@/components/ui/Image';
 
 const Avatar = () => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const [style, setStyle] = useState<React.CSSProperties>({});
 

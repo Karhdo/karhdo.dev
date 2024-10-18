@@ -22,14 +22,14 @@ const projectsData: Project[] = [
     type: 'self',
     title: 'Personal website',
     imgSrc: '/static/images/projects/karhdo-blog.png',
-    repo: 'karhdo.dev',
+    repo: 'Karhdo/karhdo.dev',
     builtWith: ['Next.js', 'Tailwind', 'Typescript', 'Prisma', 'Umami'],
   },
   {
     type: 'self',
     title: 'Website Selling Food',
     imgSrc: '/static/images/projects/website-selling-food.png',
-    repo: 'Website-Selling-Food',
+    repo: 'Karhdo/Website-Selling-Food',
     builtWith: ['PHP', 'Laravel', 'MySQL', 'VueJS', 'Bootstrap'],
   },
   {
@@ -37,7 +37,7 @@ const projectsData: Project[] = [
     title: 'Simulate Basic Geometry',
     description: 'Explore the World of Basic 3D Modeling Simulations on Our Website.',
     imgSrc: '/static/images/projects/simulate-geometry.png',
-    repo: 'geometry-simulation',
+    repo: 'Karhdo/geometry-simulation',
     builtWith: ['Javascript', 'Jquery', 'ThreeJS'],
   },
 ];

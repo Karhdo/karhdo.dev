@@ -1,4 +1,3 @@
-// @ts-check
 /** @type {import("pliny/config").PlinyConfig } */
 
 const siteMetadata = {
@@ -29,7 +28,9 @@ const siteMetadata = {
     facebook: 'karhdo.dev',
   },
   analytics: {
-    umamiWebsiteId: '7b7953a7-de2e-4e30-9a29-1a4aee05c627',
+    umamiAnalytics: {
+      umamiWebsiteId: process.env.UMAMI_WEBSITE_ID,
+    },
   },
   newsletter: {
     provider: 'buttondown',
@@ -49,6 +50,13 @@ const siteMetadata = {
       themeURL: '',
       lang: 'en',
       inputPosition: 'top',
+    },
+  },
+  search: {
+    provider: 'kbar',
+    kbarConfig: {
+      // path to load documents to search
+      searchDocumentsPath: `${process.env.BASE_PATH || ''}/search.json`,
     },
   },
 };

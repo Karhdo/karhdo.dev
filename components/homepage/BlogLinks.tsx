@@ -1,5 +1,5 @@
-import Link from '@/components/Link';
-import Twemoji from '@/components/Twemoji';
+import Link from '@/components/ui/Link';
+import Twemoji from '@/components/ui/Twemoji';
 
 const BlogLinks = () => {
   return (

@@ -1,17 +1,18 @@
 import { ReactNode } from 'react';
-import { Comments } from 'pliny/comments';
-import { CoreContent } from 'pliny/utils/contentlayer';
 
+import { CoreContent } from 'pliny/utils/contentlayer';
 import type { Blog } from 'contentlayer/generated';
 
 import siteMetadata from '@/data/siteMetadata';
-import Link from '@/components/Link';
+
+import Link from '@/components/ui/Link';
+import Comments from '@/components/Comments';
 import PageTitle from '@/components/PageTitle';
 import SectionContainer from '@/components/SectionContainer';
-import { BlogSEO } from '@/components/SEO';
 import ScrollTopAndComment from '@/components/ScrollTopAndComment';
-import BlogMeta from '@/components/blog/BlogMeta';
+
 import BlogTags from '@/components/blog/BlogTags';
+import BlogMeta from '@/components/blog/BlogMeta';
 
 interface LayoutProps {
   content: CoreContent<Blog>;
@@ -21,12 +22,10 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, next, prev, children }: LayoutProps) {
-  const { path, slug, date, title, tags, readingTime } = content;
+  const { slug, date, title, tags, readingTime } = content;
 
   return (
     <SectionContainer>
-      <BlogSEO url={`${siteMetadata.siteUrl}/${path}`} {...content} />
-
       <ScrollTopAndComment />
 
       <article>
@@ -52,7 +51,7 @@ export default function PostLayout({ content, next, prev, children }: LayoutProp
             </div>
             {siteMetadata.comments && (
               <div className="pb-6 pt-6 text-center text-gray-700 dark:text-gray-300" id="comment">
-                <Comments commentsConfig={siteMetadata.comments} slug={slug} />
+                <Comments slug={slug} />
               </div>
             )}
 
