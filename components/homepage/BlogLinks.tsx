@@ -25,7 +25,7 @@ const BlogLinks = () => {
             More about me and myself
           </span>
         </Link>
-        <Link href="/resume" className="hover:underline">
+        <Link href="/about" className="hover:underline">
           <Twemoji emoji="briefcase" />
           <span data-umami-event="home-link-resume" className="ml-1.5">
             My career
