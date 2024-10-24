@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import Image from '@/components/Image';
+import Image from '@/components/ui/Image';
 import ProfileInfo from '@/components/homepage/ProfileInfo';
 import SpotifyNowPlaying from '@/components/homepage/SpotifyNowPlaying';
 
 const ProfileCard = () => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const [style, setStyle] = useState<React.CSSProperties>({});
 

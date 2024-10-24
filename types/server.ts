@@ -23,9 +23,7 @@ export interface GithubRepository {
 }
 
 export interface ViewApiResponse {
-  data?: {
-    total: string;
-  };
+  total: string;
 }
 
 export interface TagCounts {

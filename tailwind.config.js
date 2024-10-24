@@ -2,17 +2,14 @@
 const { fontFamily } = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
 
-// ../node_modules/pliny/dist/**/*.mjs is needed for monorepo setup
 /** @type {import("tailwindcss/types").Config } */
 module.exports = {
   content: [
-    '../node_modules/pliny/**/*.{js,ts,tsx}',
-    './node_modules/pliny/**/*.{js,ts,tsx}',
+    './node_modules/pliny/**/*.js',
     './app/**/*.{js,ts,jsx,tsx}',
     './pages/**/*.{js,ts,tsx}',
     './components/**/*.{js,ts,tsx}',
     './layouts/**/*.{js,ts,tsx}',
-    './lib/**/*.{js,ts,tsx}',
     './data/**/*.mdx',
   ],
   darkMode: 'class',
@@ -70,26 +67,36 @@ module.exports = {
         14: '3.5rem',
       },
       fontFamily: {
-        sans: ['Outfit', ...fontFamily.sans],
+        sans: ['var(--font-outfit)', ...fontFamily.sans],
       },
       colors: {
-        primary: '#7aa2f7',
+        primary: {
+          400: '#7aa2f7',
+          500: '#7aa2f7',
+          600: '#7aa2f7',
+        },
         sky: colors.sky,
         gray: colors.neutral,
         dark: '#1A1B26',
         spotify: '#1DB954',
         coral: '#EF596F',
       },
+      zIndex: {
+        60: '60',
+        70: '70',
+        80: '80',
+      },
       typography: (theme) => ({
         DEFAULT: {
           css: {
             color: theme('colors.gray.700'),
             a: {
-              color: theme('colors.primary'),
+              color: theme('colors.primary.500'),
+              'text-underline-offset': '4px',
               '&:hover': {
-                color: `${theme('colors.sky.600')} !important`,
+                color: `${theme('colors.primary.600')}`,
               },
-              code: { color: theme('colors.sky.400') },
+              code: { color: theme('colors.primary.400') },
             },
             h1: {
               fontWeight: '700',

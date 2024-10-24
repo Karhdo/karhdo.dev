@@ -21,6 +21,7 @@
       "@/utils/*": ["utils/*"],
       "@/constants/*": ["constants/*"],
       "@/components/*": ["components/*"],
+      "@/servers/*": ["servers/*"],
       "@/data/*": ["data/*"],
       "@/layouts/*": ["layouts/*"],
       "@/libs/*": ["libs/*"],
@@ -31,13 +32,16 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.js",
+    "**/*.mjs",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.json",
     ".contentlayer/generated",
     ".contentlayer/generated/**/*.json",
     ".next/types/**/*.ts"
