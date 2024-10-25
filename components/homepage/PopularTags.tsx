@@ -1,9 +1,9 @@
 import { map } from 'lodash';
 
 import popularTags from '@/data/popularTags';
-import Link from '@/components/Link';
 
-import BrandIcon from '../BrandIcon';
+import Link from '@/components/ui/Link';
+import BrandIcon from '@/components/ui/BrandIcon';
 
 const PopularTags = () => {
   return (

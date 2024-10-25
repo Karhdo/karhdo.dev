@@ -2,29 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
-}
-
-html {
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-html,
-.lightbox-overlay {
-  width: 100vw;
-}
-
-html.prevent-scroll {
-  overflow-y: hidden;
-}
-
-html.lightbox-loading,
-html.lightbox-loading * {
-  cursor: wait !important;
-}
-
 .task-list-item::before {
   @apply hidden;
 }
@@ -45,38 +22,42 @@ html.lightbox-loading * {
   @apply my-5;
 }
 
-/* START: CSS Prose */
-.prose {
-  font-size: 18px;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-.prose h2 {
-  font-size: 28px;
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
-.prose h3 {
-  font-size: 24px;
+/* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
 }
 
-.prose img {
-  margin: 0 auto;
-  border-radius: 12px;
+.katex-display {
+  overflow: auto hidden;
 }
 
-.prose blockquote {
-  background: #ebebeb;
-}
-/* END: CSS Prose */
-
-.dark .dark\:prose-dark blockquote {
-  background: #5c6370;
+.content-header-link {
+  opacity: 0;
+  margin-left: -24px;
+  padding-right: 4px;
 }
 
-/* START: CSS Github discussion */
-#comments-container .giscus-frame {
-  @apply w-full;
+.content-header:hover .content-header-link,
+.content-header-link:hover {
+  opacity: 1;
 }
-/* END: CSS Github discussion */
+
+.linkicon {
+  display: inline-block;
+  vertical-align: middle;
+}
 
 /* START: CSS popular tags */
 .popular-tags .javascript {
@@ -104,8 +85,30 @@ html.lightbox-loading * {
 }
 /* END: CSS popular tags */
 
-/* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
-input:-webkit-autofill,
-input:-webkit-autofill:focus {
-  transition: background-color 600000s 0s, color 600000s 0s;
+/* START: CSS Prose */
+.prose {
+  font-size: 18px;
 }
+
+.prose h2 {
+  font-size: 28px;
+  margin: 0 0 12px 0;
+}
+
+.prose h3 {
+  font-size: 24px;
+}
+
+.prose img {
+  margin: 0 auto;
+  border-radius: 12px;
+}
+
+.prose blockquote {
+  background: #ebebeb;
+}
+
+.dark .dark\:prose-dark blockquote {
+  background: #5c6370;
+}
+/* END: CSS Prose */

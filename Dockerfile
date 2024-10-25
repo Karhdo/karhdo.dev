@@ -3,7 +3,10 @@ FROM node:18-alpine as BASE
 LABEL author="karhdo <karhdo.trong@gmail.com>"
 
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn/releases /app/.yarn/releases
+COPY prisma/ /app/prisma/
+
 RUN apk add --no-cache git \
     && yarn install --frozen-lockfile \
     && yarn cache clean

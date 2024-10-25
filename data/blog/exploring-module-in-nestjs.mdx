@@ -7,7 +7,7 @@ summary: 'Modules are crucial components at the center of NestJS. In this post, 
 layout: PostSimple
 ---
 
-import Twemoji from './components/Twemoji';
+import Twemoji from './components/ui/Twemoji';
 
 ## Introduction
 
@@ -23,8 +23,7 @@ A module is a class annotated with a `@Module()` decorator. The `@Module()` deco
 
 The decorator `@Module()` takes a single object whose properties describe the module:
 
-```javascript
-// modules/product/product.module.ts
+```ts:modules/product/product.module.ts showLineNumbers
 import { Module } from '@nestjs/common';
 
 import CategoryModule from 'modules/category.module'; // Expose route controller.
@@ -56,8 +55,7 @@ export class ProductModule {}
 
 - To demonstrate this, we'll create the `ProductModule` (responsible for encapsulating Product logic and endpoints).
 
-```javascript
-// modules/product/product.module.ts
+```ts:modules/product/product.module.ts showLineNumbers
 import { Module } from '@nestjs/common';
 
 import ProductController from './product.controller';
@@ -72,8 +70,7 @@ export default class ProductModule {}
 
 - The last thing we need to do is import this module into the root module (the `AppModule`, defined in the `app.module.ts` file).
 
-```javascript
-// app.module.ts
+```ts:app.module.ts showLineNumbers
 import { Module } from '@nestjs/common';
 
 import ProductModule from './product/product.module';
@@ -92,8 +89,7 @@ export class AppModule {}
 
 ![Diagram Shared Module In NestJS](/static/images/blogs/shared-module.png)
 
-```javascript
-// core/logger/logger.module.ts
+```ts:core/logger/logger.module.ts showLineNumbers
 import { Module } from '@nestjs/common';
 
 import LoggerService from './logger.service';
@@ -105,8 +101,7 @@ import LoggerService from './logger.service';
 export default class LoggerModule {}
 ```
 
-```javascript
-// modules/product/product.module.ts
+```ts:modules/product/product.module.ts showLineNumbers
 import { Module } from '@nestjs/common';
 
 import LoggerModule from 'core/logger/logger.module';
@@ -138,8 +133,7 @@ export class ProductModule {}
 
 - `@Global()` decorator make the module global, that you want to provide a set of providers which should be available everywhere:
 
-```javascript
-// core/logger/logger.module.ts
+```ts:core/logger/logger.module.ts showLineNumbers
 import { Module, Global } from '@nestjs/common';
 
 import LoggerService from './logger.service';
@@ -154,8 +148,7 @@ export class LoggerModule {}
 
 - Import **LoggerModule** into **AppModule** (root module):
 
-```javascript
-// app.module.ts
+```ts:app.module.ts showLineNumbers
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
@@ -174,8 +167,7 @@ export class AppModule {}
 
 - Using **LoggerService** in **ProductService** (We do not need to import **LoggerModule** into **ProductModule**):
 
-```javascript
-// modules/product/product.service.ts
+```ts:modules/product/product.service.ts showLineNumbers
 import { Injectable } from '@nestjs/common';
 
 import { LoggerService } from '../../core/logger/logger.service';
@@ -198,8 +190,7 @@ export class ProductService {
 
 - Following is an example of a **dynamic module** definition for a `DatabaseModule`:
 
-```javascript
-// core/database/database.providers.ts
+```ts:core/database/database.providers.ts showLineNumbers
 import { Connection } from './connection.provider';
 
 import { createConnection, Repository } from 'typeorm'; // Assuming TypeORM for database interaction
@@ -227,8 +218,7 @@ export function createDatabaseProviders(options, entities): any[] {
 }
 ```
 
-```javascript
-// core/database/database.module.ts
+```ts:core/database/database.module.ts showLineNumbers
 import { Module, DynamicModule } from '@nestjs/common';
 
 import { createDatabaseProviders } from './database.providers';
@@ -255,7 +245,7 @@ export class DatabaseModule {
 
 - The `DatabaseModule` can be imported and configured in the following manner:
 
-```javascript
+```ts showLineNumbers
 import { Module } from '@nestjs/common';
 
 import { DatabaseModule } from 'core/database/database.module';
