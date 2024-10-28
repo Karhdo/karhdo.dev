@@ -10,8 +10,7 @@ const siteMetadata = {
   language: 'en-us',
   theme: 'system',
   siteUrl: 'https://karhdo.dev',
-  analyticsURL:
-    "https://analytics.us.umami.is/share/LwbQOMMcBOK9zcwU/Karhdo's%20Blog%20-%20Karhdo's%20Coding%20Adventure",
+  analyticsURL: 'https://cloud.umami.is/share/FRhUtf0u9Hcvrzrj/karhdo.dev',
   siteRepo: 'https://github.com/Karhdo/karhdo.dev',
   siteLogo: '/static/images/avatar.jpg',
   image: '/static/images/avatar.jpg',
