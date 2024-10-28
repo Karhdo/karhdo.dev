@@ -1,10 +1,12 @@
+'use client';
+
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import { formatDate } from 'pliny/utils/formatDate';
 import { CoreContent } from 'pliny/utils/contentlayer';
 import type { Blog } from 'contentlayer/generated';
-import Link from '@/components/Link';
-import Tag from '@/components/Tag';
+
+import { Link, Tag } from '@/components/ui';
 import siteMetadata from '@/data/siteMetadata';
 
 interface PaginationProps {
@@ -19,8 +21,8 @@ interface ListLayoutProps {
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
-  const router = useRouter();
-  const basePath = router.pathname.split('/')[1];
+  const pathname = usePathname();
+  const basePath = pathname.split('/')[1];
   const prevPage = currentPage - 1 > 0;
   const nextPage = currentPage + 1 <= totalPages;
 
@@ -58,7 +60,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
 export default function ListLayout({ posts, title, initialDisplayPosts = [], pagination }: ListLayoutProps) {
   const [searchValue, setSearchValue] = useState('');
   const filteredBlogPosts = posts.filter((post) => {
-    const searchContent = post.title + post.summary + post.tags.join(' ');
+    const searchContent = post.title + post.summary + post.tags?.join(' ');
     return searchContent.toLowerCase().includes(searchValue.toLowerCase());
   });
 
@@ -72,9 +74,6 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             {title}
           </h1>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
-            I primarily cover web development and tech topics, occasionally sharing insights into my personal life.
-          </p>
           <div className="relative max-w-lg">
             <label>
               <span className="sr-only">Search articles</span>
@@ -83,7 +82,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                 type="text"
                 onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="Search articles"
-                className="block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-sky-500 focus:ring-sky-500 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-100"
+                className="block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-100"
               />
             </label>
             <svg
@@ -122,11 +121,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                           {title}
                         </Link>
                       </h3>
-                      <div className="flex flex-wrap">
-                        {tags.map((tag) => (
-                          <Tag key={tag} text={tag} />
-                        ))}
-                      </div>
+                      <div className="flex flex-wrap">{tags?.map((tag) => <Tag key={tag} text={tag} />)}</div>
                     </div>
                     <div className="prose max-w-none text-gray-500 dark:text-gray-400">{summary}</div>
                   </div>

@@ -1,5 +1,5 @@
 import siteMetadata from '@/data/siteMetadata';
-import Twemoji from '@/components/Twemoji';
+import Twemoji from '@/components/ui/Twemoji';
 
 import { Briefcase, MapPin, Mail, Linkedin, Github, Facebook } from 'lucide-react';
 

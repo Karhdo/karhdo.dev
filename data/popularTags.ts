@@ -1,4 +1,4 @@
-import { BrandIconType } from '@/components/BrandIcon';
+import { BrandIconType } from '@/components/ui/BrandIcon';
 
 type PopularTag = {
   href: string;

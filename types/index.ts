@@ -1,3 +1,3 @@
-export * from './components';
-export * from './server';
 export * from './data';
+export * from './server';
+export * from './components';
