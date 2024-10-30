@@ -1,8 +1,7 @@
-// @ts-check
 /** @type {import("pliny/config").PlinyConfig } */
 
 const siteMetadata = {
-  title: "Karhdo's Coding Adventure",
+  title: "Karhdo's Blog - Coding Adventure",
   author: 'Trong Khanh',
   fullName: 'Do Trong Khanh',
   headerTitle: "Karhdo's Blog",
@@ -10,7 +9,7 @@ const siteMetadata = {
   language: 'en-us',
   theme: 'system',
   siteUrl: 'https://karhdo.dev',
-  analyticsURL: 'https://cloud.umami.is/share/FRhUtf0u9Hcvrzrj/karhdo.dev',
+  analyticsURL: 'https://analytics.karhdo.dev/share/Z3eSINRnbzydz1gK/karhdo.dev',
   siteRepo: 'https://github.com/Karhdo/karhdo.dev',
   siteLogo: '/static/images/avatar.jpg',
   image: '/static/images/avatar.jpg',
@@ -28,7 +27,9 @@ const siteMetadata = {
     facebook: 'karhdo.dev',
   },
   analytics: {
-    umamiWebsiteId: '7b7953a7-de2e-4e30-9a29-1a4aee05c627',
+    umamiAnalytics: {
+      umamiWebsiteId: process.env.UMAMI_WEBSITE_ID,
+    },
   },
   newsletter: {
     provider: 'buttondown',
@@ -48,6 +49,13 @@ const siteMetadata = {
       themeURL: '',
       lang: 'en',
       inputPosition: 'top',
+    },
+  },
+  search: {
+    provider: 'kbar',
+    kbarConfig: {
+      // path to load documents to search
+      searchDocumentsPath: `${process.env.BASE_PATH || ''}/search.json`,
     },
   },
 };

@@ -1,9 +1,11 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import Image from '@/components/Image';
+import Image from '@/components/ui/Image';
 
 const Avatar = () => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const [style, setStyle] = useState<React.CSSProperties>({});
 
@@ -50,12 +52,12 @@ const Avatar = () => {
 
   return (
     <div
-      className="z-10 scale-100 transition-all duration-200 ease-out hover:z-50 hover:scale-[1.02]"
+      className="z-1 hover:z-2 scale-100 transition-all duration-200 ease-out hover:scale-[1.02]"
       style={{ perspective: '800px' }}
       ref={ref}
     >
       <div style={style} className="max-h-[430px] overflow-hidden rounded-md transition-all duration-200 ease-out">
-        <Image src={'/static/images/avatar.jpg'} shouldOpenLightbox={false} alt="avatar" width={430} height={350} />
+        <Image src={'/static/images/avatar.jpg'} alt="avatar" width={430} height={430} />
       </div>
     </div>
   );

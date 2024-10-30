@@ -1,6 +1,6 @@
 import siteMetadata from '@/data/siteMetadata';
 
-import { Twemoji } from '@/components/Twemoji';
+import Twemoji from '@/components/ui/Twemoji';
 
 const Heading = () => {
   return (

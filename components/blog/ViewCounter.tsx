@@ -1,13 +1,14 @@
+'use client';
+
+import useSWR from 'swr';
 import { useEffect } from 'react';
 
 import type { ViewCounterProps } from '@/types/components';
 import type { ViewApiResponse } from '@/types/server';
 import { fetcher } from '@/utils/fetcher';
 
-const { default: useSWR } = require('swr');
-
 const ViewCounter = ({ slug, className }: ViewCounterProps) => {
-  const { data } = useSWR(`/api/views/${slug}`, fetcher) as ViewApiResponse;
+  const { data } = useSWR<ViewApiResponse>(`/api/views/${slug}`, fetcher);
 
   const views = Number(data?.total || 0);
 

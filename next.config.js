@@ -1,4 +1,4 @@
-const { withContentlayer } = require('next-contentlayer');
+const { withContentlayer } = require('next-contentlayer2');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -7,13 +7,13 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 // You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app us.umami.is;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is;
   style-src 'self' 'unsafe-inline';
   img-src * blob: data:;
-  media-src 'none';
+  media-src *.s3.amazonaws.com;
   connect-src *;
   font-src 'self';
-  frame-src giscus.app
+  frame-src giscus.app *.github.io
 `;
 
 const securityHeaders = [
@@ -54,19 +54,32 @@ const securityHeaders = [
   },
 ];
 
+const output = process.env.EXPORT ? 'export' : undefined;
+const basePath = process.env.BASE_PATH || undefined;
+const unoptimized = process.env.UNOPTIMIZED ? true : undefined;
+
 /**
  * @type {import('next/dist/next-server/server/config').NextConfig}
  **/
 module.exports = () => {
   const plugins = [withContentlayer, withBundleAnalyzer];
   return plugins.reduce((acc, next) => next(acc), {
+    output,
+    basePath,
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    transpilePackages: ['lucide-react'],
     eslint: {
-      dirs: ['pages', 'components', 'lib', 'layouts', 'scripts'],
+      dirs: ['app', 'components', 'layouts', 'scripts'],
     },
-    output: 'standalone',
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'i.scdn.co', // Spotify album covers
+        },
+      ],
+      unoptimized,
+    },
     async headers() {
       return [
         {
@@ -75,10 +88,28 @@ module.exports = () => {
         },
       ];
     },
-    webpack: (config, options) => {
+    webpack: (config) => {
       config.module.rules.push({
         test: /\.svg$/,
-        use: ['@svgr/webpack'],
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              svgoConfig: {
+                plugins: [
+                  {
+                    name: 'prefixIds',
+                    params: {
+                      delim: '__',
+                      prefixIds: true,
+                      prefixClassNames: true,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
       });
 
       return config;
