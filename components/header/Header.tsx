@@ -13,7 +13,7 @@ import Logo from 'public/static/images/logo.svg';
 import MobileNav from './MobileNav';
 import ThemeSwitch from './ThemeSwitch';
 // import SearchButton from './SearchButton';
-import AnalyticsLink from './AnalyticsLink';
+//import AnalyticsLink from './AnalyticsLink';
 
 const Header = () => {
   const pathname = usePathname();
@@ -33,7 +33,7 @@ const Header = () => {
             <Logo className="fill-dark dark:fill-white" />
           </div>
           <div className="group ml-2 text-xl font-bold transition duration-300">
-            Karhdo.dev
+            Coding Tricks
             <span className="block h-0.5 max-w-0 bg-black transition-all duration-500 group-hover:max-w-[85%] dark:bg-white"></span>
           </div>
         </Link>
@@ -62,7 +62,6 @@ const Header = () => {
             className="hidden h-4 w-px shrink-0 bg-gray-200 dark:bg-gray-600 md:block"
           />
           <div className="flex items-center">
-            <AnalyticsLink />
             <ThemeSwitch />
             {/* <SearchButton /> */}
             <MobileNav />

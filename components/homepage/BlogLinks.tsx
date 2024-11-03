@@ -11,10 +11,16 @@ const BlogLinks = () => {
             My writings
           </span>
         </Link>
-        <Link href="/projects" className="hover:underline">
+        {/* <Link href="/projects" className="hover:underline">
           <Twemoji emoji="hammer-and-wrench" />
           <span data-umami-event="home-link-projects" className="ml-1.5">
             What have I built?
+          </span>
+        </Link> */}
+        <Link href="/about" className="hover:underline">
+          <Twemoji emoji="briefcase" />
+          <span data-umami-event="home-link-resume" className="ml-1.5">
+            My career
           </span>
         </Link>
       </div>
@@ -23,12 +29,6 @@ const BlogLinks = () => {
           <Twemoji emoji="face-with-monocle" />
           <span data-umami-event="home-link-about" className="ml-1.5">
             More about me and myself
-          </span>
-        </Link>
-        <Link href="/about" className="hover:underline">
-          <Twemoji emoji="briefcase" />
-          <span data-umami-event="home-link-resume" className="ml-1.5">
-            My career
           </span>
         </Link>
       </div>

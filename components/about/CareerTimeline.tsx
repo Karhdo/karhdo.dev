@@ -2,18 +2,18 @@ import TimelineItem from './TimelineItem';
 
 export const EXPERIENCES = [
   {
-    org: 'Younet Media',
-    url: 'https://younetmedia.com',
-    logo: '/static/images/experiences/younetmedia-logo.png',
-    start: 'Mar 2022',
+    org: 'LoginRadius LLP',
+    url: 'https://loginradius.com/',
+    logo: '/static/images/experiences/lr.png',
+    start: 'June 2019',
     end: 'Present',
-    title: 'Junior Software Engineer',
+    title: 'Engineering Lead',
     icon: 'man-technologist',
     event: 'career-younetmedia',
     details: () => {
       return (
         <ul className="[&>li]:my-2 [&>li]:pl-0">
-          <li>
+          {/* <li>
             Build{' '}
             <a href="https://ecomheat.youneteci.com" rel="noopener noreferrer" target="_blank">
               Ecomheat
@@ -25,24 +25,24 @@ export const EXPERIENCES = [
             Build <strong>AppCore</strong> - Developed and published core NestJS packages, including DatabaseModule,
             CacheModule, RedisModule, ConfigModule and others on npm to accelerate development and deployment across
             multiple projects.
-          </li>
+          </li> */}
         </ul>
       );
     },
   },
   {
-    org: 'QKIT Software',
-    url: 'https://qkit.vn',
-    logo: '/static/images/experiences/qkit-logo.png',
-    start: 'Jan 2021',
-    end: 'Dec 2022',
-    title: 'Fresher Backend Developer',
+    org: 'Q3 Technologies',
+    url: 'https://www.q3tech.com/',
+    logo: '/static/images/experiences/q3.jpg',
+    start: 'Dec 2018',
+    end: 'June 2019',
+    title: 'Senior Software Engineer',
     icon: 'man-technologist',
     event: 'career-qkit',
     details: () => {
       return (
         <ul className="[&>li]:my-2 [&>li]:pl-0">
-          <li>
+          {/* <li>
             <strong>Developed and maintained web applications</strong> for managing company website content, including
             blogs, clients, and recruitment.
           </li>
@@ -51,24 +51,24 @@ export const EXPERIENCES = [
           </li>
           <li>
             <strong>Participated in Agile methodologies </strong> to boost project efficiency and completion rates.
-          </li>
+          </li> */}
         </ul>
       );
     },
   },
   {
-    org: 'University of Information Technology',
-    url: 'https://en.uit.edu.vn',
-    logo: '/static/images/experiences/uit-logo.png',
-    start: 'Aug 2019',
-    end: 'Jun 2023',
-    title: 'Student ad UIT - HCMC (School of Computer Science)',
+    org: 'Infosys Limited',
+    url: 'https://www.infosys.com/',
+    logo: '/static/images/experiences/infosys.png',
+    start: 'Nov 2015',
+    end: 'Nov 2018',
+    title: 'Senior Systems Engineer',
     icon: 'man-technologist',
     event: 'career-qkit',
     details: () => {
       return (
         <ul className="[&>li]:my-2 [&>li]:pl-0">
-          <li>
+          {/* <li>
             Get a good degree at <strong>School of Computer Science</strong>
           </li>
           <li>
@@ -76,7 +76,7 @@ export const EXPERIENCES = [
             {''}
             <strong>Software Engineering</strong> , particularly in web and app development. This decision has shaped
             who I am today.
-          </li>
+          </li> */}
         </ul>
       );
     },

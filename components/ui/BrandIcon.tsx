@@ -19,6 +19,7 @@ import NestJS from 'public/static/icons/nestjs.svg';
 import Docker from 'public/static/icons/docker.svg';
 import Postgres from 'public/static/icons/postgres.svg';
 import Mongodb from 'public/static/icons/mongodb.svg';
+import Go from 'public/static/icons/go.svg';
 
 export const BrandIconsMap = {
   React,
@@ -42,6 +43,7 @@ export const BrandIconsMap = {
   Docker,
   Postgres,
   Mongodb,
+  Go,
 };
 
 export type BrandIconType = keyof typeof BrandIconsMap;

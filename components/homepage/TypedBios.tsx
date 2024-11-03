@@ -22,41 +22,40 @@ const TypedBios = () => {
   return (
     <div>
       <ul id="bios" className="hidden">
-        <li>
+        {/* <li>
           I'm aliased as <b className="font-medium">Karhdo</b> at work.
+        </li> */}
+        <li>
+          I live in <b className="font-medium">Jaipur, India</b>.
         </li>
         <li>
-          I live in <b className="font-medium">Ho Chi Minh, Viet Nam</b>.
+          I was born in <b className="font-medium">Tonk, Rajasthan, India</b>.
         </li>
         <li>
-          I was born in the beautiful <b className="font-medium">Quang Ngai</b> city.
+          My first programming language I learnt was <b className="font-medium">Java</b>.
+        </li>
+        {/* <li>I love web development.</li> */}
+        <li>
+          I'm focusing on building <b className="font-medium">Scalable Solutions</b>.
         </li>
         <li>
-          My first programming language I learned was <b className="font-medium">C++</b>.
+          I work mostly with <b className="font-medium">Golang, .NET</b> backend technologies.
         </li>
-        <li>I love web development.</li>
-        <li>
-          I'm focusing on building <b className="font-medium">Social Analytics Software</b>.
-        </li>
-        <li>
-          I work mostly with <b className="font-medium">Javascript/Typescript</b> technologies.
-        </li>
-        <li>
+        {/* <li>
           I'm a dog-person <Twemoji emoji="dog" />.
-        </li>
+        </li> */}
         <li>
           I'm a sporty-guy. I love
           <span className="ml-1">
-            <Twemoji emoji="tennis" />, <Twemoji emoji="soccer-ball" />
+            <Twemoji emoji="cricket-game" /> Cricket.
           </span>
-          .
         </li>
         <li>
-          I love listening <Twemoji emoji="musical-keyboard" /> and rap music.
+          I love listening <Twemoji emoji="musical-notes" /> Music.
         </li>
-        <li>
+        {/* <li>
           I love playing video game <Twemoji emoji="video-game" />, LoL is my favorite one.
-        </li>
+        </li> */}
       </ul>
       <span ref={el} className="text-neutral-900 dark:text-neutral-200" />
     </div>

@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="my-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
           <div>{`Copyright © ${new Date().getFullYear()}`}</div>
           <span>{` • `}</span>
-          <span>Karhdo's Blog - Coding Adventure</span>
+          <span>Hemant's Blog - Coding Tricks</span>
         </div>
       </div>
     </footer>

@@ -54,29 +54,28 @@ export default function AuthorLayout({ children, content }: Props) {
 
           <div className="prose max-w-none pb-8 dark:prose-dark xl:col-span-2">
             <h2>
-              Hello, folks! <Twemoji className="mx-2" emoji="waving-hand" /> I'm Trong Khanh (aka Karhdo)
+              Hello, folks! <Twemoji className="mx-2" emoji="waving-hand" /> I'm Hemant Manwani
             </h2>
             <p>
-              I have a passion for <strong>JavaScript/TypeScript</strong> and website development. I'm currently a
-              fullstack developer at <strong>YouNet Media</strong>, deeply engaged in the <strong>EcomHeat</strong>{' '}
-              project, which entails market share management, competitor research, and fostering e-commerce growth. I
-              work mainly with <strong>JavaScript</strong>, <strong>TypeScript</strong>, <strong>React</strong>,{' '}
-              <strong>NodeJS</strong>, <strong>NestJS</strong>, and <strong>NextJS</strong>.
+              I have a passion for <strong>Golang and .NET</strong>. I'm currently working as a Engineering Lead at{' '}
+              <strong>LoginRadius LLP</strong>.I work mainly with <strong>Golang</strong>, <strong>MongoDB</strong>,{' '}
+              <strong>Redis</strong>, <strong>NodeJS</strong>.
             </p>
             <h2>Why have this blog?</h2>
             <blockquote>
               <p>My desire to practice my skills and share my acquired knowledge fuels my endeavors.</p>
             </blockquote>
             <p>
-              I founded this blog as a means to document and share the knowledge and practical wisdom I've acquired
-              during my journey as a software engineer.
+              I created this blog to document and share the insights and practical knowledge I’ve gained throughout my
+              journey as a Engineering Lead.
             </p>
             <p>
-              Writing and taking notes helps me solidify my understanding of new concepts and technologies. I hope my
-              blog can be a useful resource for fellow web developers.
+              Writing and taking notes not only reinforces my understanding of new concepts and technologies but also
+              allows me to reflect on my learning process. My hope is that this blog serves as a valuable resource for
+              fellow web developers.
             </p>
             <p>
-              I would greatly appreciate your thoughts and comments on what I have written{' '}
+              I would love to hear your thoughts and feedback on my posts—your comments mean a lot to me!{' '}
               <Twemoji emoji="clinking-beer-mugs" />.
             </p>
             <div className="flex items-center justify-between">
@@ -88,7 +87,7 @@ export default function AuthorLayout({ children, content }: Props) {
               </Button>
             </div>
             <CareerTimeline />
-            <h2>Tech stack</h2>
+            {/* <h2>Tech stack</h2>
             <p>
               This blog is built with{' '}
               <a target="_blank" href="https://nextjs.org/">
@@ -159,7 +158,7 @@ export default function AuthorLayout({ children, content }: Props) {
                 repository
               </a>{' '}
               for this blog.
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
