@@ -1,5 +1,3 @@
-/** @type {import("pliny/config").PlinyConfig } */
-
 const siteMetadata = {
   title: "Karhdo's Blog - Coding Adventure",
   author: 'Trong Khanh',
@@ -21,6 +19,7 @@ const siteMetadata = {
   twitter: 'https://twitter.com/karhdo',
   youtube: 'https://youtube.com',
   locale: 'en-US',
+  stickyNav: false,
   socialAccounts: {
     github: 'Karhdo',
     linkedin: 'karhdo',
@@ -48,7 +47,7 @@ const siteMetadata = {
       darkTheme: 'transparent_dark',
       themeURL: '',
       lang: 'en',
-      inputPosition: 'top',
+      inputPosition: 'bottom',
     },
   },
   search: {

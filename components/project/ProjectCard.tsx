@@ -1,6 +1,6 @@
 import type { GithubRepository, ProjectCardProps } from '@/types/index';
 
-import { Link, Image } from '@/components/ui';
+import { Zoom, Link, Image } from '@/components/ui';
 import { GithubRepo } from '@/components/project';
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
@@ -17,13 +17,15 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           imgSrc && 'h-full'
         } flex h-full flex-col overflow-hidden rounded-lg border border-transparent shadow-nextjs dark:shadow-nextjs-dark`}
       >
-        <Image
-          alt={title}
-          src={imgSrc}
-          className="object-cover object-center md:h-36 lg:h-60"
-          width={1088}
-          height={612}
-        />
+        <Zoom>
+          <Image
+            alt={title}
+            src={imgSrc}
+            className="object-cover object-center md:h-36 lg:h-60"
+            width={1088}
+            height={612}
+          />
+        </Zoom>
 
         <div className="p-6">
           <h2 className="mb-3 text-2xl font-bold leading-8 tracking-tight">
