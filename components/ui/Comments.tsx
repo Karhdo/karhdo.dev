@@ -1,23 +1,50 @@
 'use client';
 
-import { useState } from 'react';
-import { Comments as CommentsComponent } from 'pliny/comments';
+import { useTheme } from 'next-themes';
+import GiscusComponent from '@giscus/react';
 
-import siteMetadata from '@/data/siteMetadata';
+import SITE_METADATA from '@/data/siteMetadata';
+import { CommentsProps, GiscusConfigs } from '@/types/index';
 
-export default function Comments({ slug }: { slug: string }) {
-  const [loadComments, setLoadComments] = useState(false);
+export default function Comments(props: CommentsProps) {
+  const { configs, className } = props;
 
-  if (!siteMetadata.comments?.provider) {
-    return null;
-  }
+  const defaultConfigs = SITE_METADATA.comments.giscusConfig as GiscusConfigs;
+  const {
+    themeURL,
+    theme,
+    darkTheme,
+    repo,
+    repositoryId,
+    category,
+    categoryId,
+    reactions,
+    metadata,
+    inputPosition,
+    lang,
+    mapping,
+  } = { ...defaultConfigs, ...configs };
+
+  const { theme: siteTheme, resolvedTheme } = useTheme();
+  const commentsTheme =
+    themeURL === '' ? (siteTheme === 'dark' || resolvedTheme === 'dark' ? darkTheme : theme) : themeURL;
+
   return (
-    <>
-      {loadComments ? (
-        <CommentsComponent commentsConfig={siteMetadata.comments} slug={slug} />
-      ) : (
-        <button onClick={() => setLoadComments(true)}>Load Comments</button>
-      )}
-    </>
+    <div id="comments" className={className}>
+      <GiscusComponent
+        id="comments-container"
+        repo={repo}
+        repoId={repositoryId}
+        category={category}
+        categoryId={categoryId}
+        mapping={mapping}
+        reactionsEnabled={reactions}
+        emitMetadata={metadata}
+        inputPosition={inputPosition}
+        theme={commentsTheme}
+        lang={lang}
+        loading="lazy"
+      />
+    </div>
   );
 }
