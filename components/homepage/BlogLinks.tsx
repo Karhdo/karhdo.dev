@@ -3,7 +3,7 @@ import Twemoji from '@/components/ui/Twemoji';
 
 const BlogLinks = () => {
   return (
-    <div className="flex justify-between ">
+    <div className="flex justify-between">
       <div className="flex flex-col space-y-1.5">
         <Link href="/blog" className="hover:underline">
           <Twemoji emoji="memo" />

@@ -16,7 +16,7 @@ const SpotifyNowPlaying = () => {
           <>
             <MusicBar />
             <a
-              className="ml-2 font-medium dark:text-gray-200 "
+              className="ml-2 font-medium dark:text-gray-200"
               href={songUrl}
               target="_blank"
               rel="noopener noreferrer"
