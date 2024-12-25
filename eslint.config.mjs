@@ -14,7 +14,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: [],
+    ignores: ['tailwind.config.js'],
   },
   js.configs.recommended,
   ...compat.extends(
