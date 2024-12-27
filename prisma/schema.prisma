@@ -10,7 +10,20 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-model View {
-  slug  String @id @db.VarChar(128)
-  count BigInt @default(1)
+enum StatsType {
+  blog
+  snippet
+}
+
+model Stats {
+  type      StatsType @default(blog)
+  slug      String    @db.VarChar(255)
+  views     Int       @default(0)
+  loves     Int       @default(0)
+  applauses Int       @default(0)
+  ideas     Int       @default(0)
+  bullseye Int        @default(0)
+
+  @@id([type, slug])
+  @@map("stats")
 }

@@ -1,24 +1,23 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import useSWR from 'swr';
 import { useEffect } from 'react';
 
+import { useBlogStats, useUpdateBlogStats } from 'hooks';
+
 import type { ViewCounterProps } from '@/types/components';
-import type { ViewApiResponse } from '@/types/server';
-import { fetcher } from '@/utils/fetcher';
 
-const ViewCounter = ({ slug, className }: ViewCounterProps) => {
-  const { data } = useSWR<ViewApiResponse>(`/api/views/${slug}`, fetcher);
-
-  const views = Number(data?.total || 0);
+const ViewCounter = ({ type, slug, className }: ViewCounterProps) => {
+  const [stats, isLoading] = useBlogStats(type, slug);
+  const updateView = useUpdateBlogStats();
 
   useEffect(() => {
-    const registerView = () => fetch(`/api/views/${slug}`, { method: 'POST' });
+    if (!isLoading && stats) {
+      updateView({ type, slug, views: stats['views'] + 1 });
+    }
+  }, [stats, isLoading]);
 
-    registerView();
-  }, [slug]);
-
-  return <span className={className}>{views > 0 ? views.toLocaleString() : '---'} views</span>;
+  return <span className={className}>{stats['views'] > 0 ? stats['views'].toLocaleString() : '---'} views</span>;
 };
 
 export default ViewCounter;

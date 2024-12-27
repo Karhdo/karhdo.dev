@@ -1,10 +1,11 @@
 import { formatDate } from 'pliny/utils/formatDate';
 
+import { StatsType } from '@prisma/client';
+
 import type { BlogMetaProps } from '@/types/index';
 
-import ViewCounter from '@/components/blog/ViewCounter';
-
 import Twemoji from '@/components/ui/Twemoji';
+import ViewCounter from '@/components/blog/ViewCounter';
 
 const BlogMeta = ({ date, slug, readingTime }: BlogMetaProps) => {
   return (
@@ -25,7 +26,7 @@ const BlogMeta = ({ date, slug, readingTime }: BlogMetaProps) => {
 
       <div className="flex items-center">
         <Twemoji emoji="eye" />
-        <ViewCounter className="ml-1.5 md:ml-2" slug={slug} />
+        <ViewCounter className="ml-1.5 md:ml-2" slug={slug} type={StatsType.blog} />
       </div>
     </dd>
   );
