@@ -12,6 +12,7 @@ import TableWrapper from './TableWrapper';
 import components from './MDXComponents';
 import SectionContainer from './SectionContainer';
 import ScrollTopAndComment from './ScrollTopAndComment';
+import TiltedGridBackground from './TiltedGridBackground';
 
 export {
   Tag,
@@ -28,4 +29,5 @@ export {
   TableWrapper,
   SectionContainer,
   ScrollTopAndComment,
+  TiltedGridBackground,
 };

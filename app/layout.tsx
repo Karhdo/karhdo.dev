@@ -12,7 +12,7 @@ import { SearchProvider, SearchConfig } from 'pliny/search';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import siteMetadata from '@/data/siteMetadata';
-import { SectionContainer } from '@/components/ui';
+import { SectionContainer, TiltedGridBackground } from '@/components/ui';
 
 import { ThemeProviders } from './theme-providers';
 import { UmamiAnalytics } from '@/components/analytics/umami';
@@ -79,6 +79,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
       <body className="bg-white pl-[calc(100vw-100%)] text-black antialiased dark:bg-dark dark:text-white">
+        <TiltedGridBackground className="inset-x-0 top-0 z-[-1] h-[60vh]" />
+
         <ThemeProviders>
           {/* <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} /> */}
           <UmamiAnalytics websiteId={siteMetadata.analytics?.umamiAnalytics?.umamiWebsiteId} />
