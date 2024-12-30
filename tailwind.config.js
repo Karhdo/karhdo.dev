@@ -45,6 +45,11 @@ module.exports = {
           '35.7%': { height: '0%' },
           '85.7%': { height: '70%' },
         },
+        'scale-up': {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.18)' },
+          '100%': { transform: 'scale(1)' },
+        },
       },
       animation: {
         wave: 'wave-animation 2.5s linear infinite',
