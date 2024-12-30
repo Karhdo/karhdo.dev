@@ -52,6 +52,7 @@ module.exports = {
         'music-bar-2': 'music-bar-2 .8s linear infinite',
         'music-bar-3': 'music-bar-3 .8s linear infinite',
         'music-bar-4': 'music-bar-4 .8s linear infinite',
+        'scale-up': 'scale-up 150ms ease-in-out forwards',
       },
       boxShadow: {
         nextjs: '0 8px 20px rgb(0,0,0,0.12)',
