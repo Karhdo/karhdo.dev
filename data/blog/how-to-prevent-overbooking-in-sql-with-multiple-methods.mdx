@@ -1,0 +1,167 @@
+---
+title: 'How to Prevent Overbooking in SQL with Multiple Methods'
+date: '2025-03-19'
+lastmod: '2025-03-19'
+tags: ['database']
+summary: 'In any application involving booking hotel rooms, flight seats, or similar resources, data integrity is crucial to ensure multiple users can’t “claim” the same slot concurrently.'
+---
+
+import Twemoji from './components/ui/Twemoji';
+
+## Introduction
+
+In any application involving booking hotel rooms, flight seats, or similar resources, **data integrity** is crucial to ensure multiple users can’t “claim” the same slot concurrently. We need an effective way to handle **concurrency** so that two (or more) customers placing a near-simultaneous booking don’t exceed the actual available count.
+
+This post will cover **three** popular techniques in SQL:
+
+1. **Pessimistic Lock** using `SELECT ... FOR UPDATE`.
+2. **Optimistic Lock** using a `version` (or timestamp) column.
+3. **Transaction Isolation Level**, especially `SERIALIZABLE`.
+4. **Advanced solutions**, e.g., distributed locks, caching, etc.
+
+## Pessimistic Lock: `SELECT ... FOR UPDATE`
+
+**Pessimistic lock** assumes “**conflicts are likely**,” so it locks rows before updating to prevent other transactions from interfering. A typical example in SQL (with InnoDB, PostgreSQL, Oracle, etc.) is:
+
+```sql
+START TRANSACTION;
+-- Lock the row and read data
+SELECT available
+FROM rooms
+WHERE room_type = 'Deluxe'
+FOR UPDATE;
+
+-- Check if available > 0
+UPDATE rooms
+SET available = available - 1
+WHERE room_type = 'Deluxe';
+COMMIT;
+```
+
+### How it works
+
+- `FOR UPDATE` **locks** the matching rows (assuming row-level locking in InnoDB).
+- If another transaction also tries to operate on `room_type = 'Deluxe'` using a similar statement, it will **wait** until the first transaction finishes (COMMIT or ROLLBACK).
+- This prevents both transactions from reading `available = 5` and decrementing it to 4 and 3, respectively, at the same time. Instead, the second transaction is blocked and only sees the updated state after the first transaction commits.
+
+### Pros & Cons
+
+- **Pros**:
+  - Straightforward and easy to implement.
+  - Very clear for preventing concurrency issues.
+- **Cons**:
+  - If there’s a high volume of concurrent updates, this approach may cause **blocking** (waiting) and degrade performance.
+  - At very large scale, pessimistic locking can become a bottleneck.
+
+For **small- to medium-sized** applications, **`SELECT ... FOR UPDATE`** is typically sufficient, ensuring correctness without too much overhead.
+
+## Optimistic Lock: Using a `version` Column
+
+By contrast, **Optimistic Lock** assumes “**conflicts are rare**” and doesn’t lock rows during read. Instead, it checks for conflicts at **update time** by using a `version` (or timestamp) column to see whether any changes occurred in the meantime.
+
+### Implementation
+
+1. **Create the table** with a `version` column:
+
+```sql
+CREATE TABLE rooms (
+	room_type VARCHAR(50) PRIMARY KEY,
+	available INT NOT NULL,
+	version   INT NOT NULL DEFAULT 0
+) ENGINE=InnoDB;
+```
+
+2. **When reading** (before booking), fetch the `version`:
+
+```sql
+SELECT available, version
+FROM rooms
+WHERE room_type = 'Deluxe';
+-- No FOR UPDATE here
+```
+
+3. **On update**, include the old `version` in the `WHERE` clause. For instance:
+
+```sql
+UPDATE rooms
+SET available = available - 1,
+    version   = version + 1
+WHERE room_type = 'Deluxe'
+  AND version = :old_version
+  AND available > 0;
+
+```
+
+- If **one row** is updated, everything is fine (no conflict).
+- If **zero rows** are updated, it indicates a conflict: someone else has changed `version` (or `available` is now zero). The application should then reload the latest data or handle the failure gracefully.
+
+### Pros & Cons
+
+- **Pros**:
+  - No “hard” blocking – others can continue reading/updating.
+  - Good for read-heavy, write-light scenarios.
+- **Cons**:
+  - If there are frequent simultaneous writes, many transactions may fail their update and have to retry.
+  - Slightly more complex logic, as the application must handle the “0 rows updated” scenario.
+
+**Optimistic Lock** can offer higher **throughput** compared to a pessimistic lock when the rate of **conflict** is low. But if conflicts are common, you may end up handling lots of retries.
+
+## Using the Transaction Isolation Level: `SERIALIZABLE`
+
+Another technique is to run transactions under the highest **isolation level**: `SERIALIZABLE`. In this mode, the database ensures the outcome is equivalent to running the transactions sequentially, with no overlaps.
+
+### Usage
+
+You can change the isolation level when starting the transaction. For example, in MySQL:
+
+```sql
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+START TRANSACTION;
+
+SELECT available
+FROM rooms
+WHERE room_type = 'Deluxe';
+
+-- Check and update
+UPDATE rooms
+SET available = available - 1
+WHERE room_type = 'Deluxe';
+
+COMMIT;
+```
+
+### Pros & Cons
+
+- **Pros**:
+  - Very robust: the database enforces a “serial” schedule, preventing anomalies.
+  - Minimal code changes if everything is done at `SERIALIZABLE` level.
+- **Cons**: - Increased blocking or frequent rollbacks due to conflicts at this high level. - Potentially severe performance impact under heavy concurrency.
+  Hence, **SERIALIZABLE** is chosen sparingly, usually when data integrity is paramount and high contention is less of a concern.
+
+## Advanced Solutions: Distributed Locks, Caching, and More
+
+At **large scale** (multiple database nodes, microservices, or extremely high transaction volume), you may need techniques beyond a single SQL database:
+
+1. **Distributed locks** via **Redis**, ZooKeeper, or Consul.
+2. **Message queues** to serialize booking requests so that only one booking action is processed at a time.
+3. **Eventual consistency** models if a small delay in updating availability is acceptable.
+   These techniques can handle throughput beyond the capacity of a single SQL server. They also introduce more complexity and potentially new failure modes (like distributed consensus issues).
+
+## Conclusion: Which Method to Choose?
+
+Your choice depends on **scale** and **requirements**:
+
+- **Small to Medium**: **Pessimistic Lock** (`SELECT ... FOR UPDATE`) + transactions is clear, straightforward, and effective.
+- **Medium to Larger**: Consider **Optimistic Lock** (version columns) if read volume is high compared to writes, and you can manage potential update failures.
+- **Strict Consistency Needs**: **SERIALIZABLE** isolation level.
+- **Huge Scale**: Look into **distributed solutions** – locks in Redis, message-queue-based booking, or other microservices patterns.
+
+Regardless of the approach, the **core** principle remains:
+
+1. Detect if there is available capacity (e.g., rooms, seats).
+2. Update it **atomically** (all or nothing).
+3. Ensure that two concurrent transactions can’t both update old data.
+
+Using a single SQL database with transactions can be enough for many use cases. Once the system grows beyond what a single database can handle, you can step into the world of distributed locks and advanced architectures.
+
+Happy reading! <Twemoji emoji="clinking-beer-mugs" />
