@@ -14,7 +14,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['tailwind.config.js'],
+    ignores: ['tailwind.config.js', 'next-env.d.ts'],
   },
   js.configs.recommended,
   ...compat.extends(
