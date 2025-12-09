@@ -27,7 +27,7 @@ This blog site takes inspiration from [lehuynh.dev](https://leohuynh.dev/). I ap
 
 A few major over-engineering-changes from the original repo:
 
-- ⚛️ Upgrading to **React 18**, **NextJS 13**
+- ⚛️ Upgrading to **React 19**, **NextJS 16**
 - 🎉 Adopting **Typescript**, committing with [Conventional Commits](https://www.conventionalcommits.org/)
 - 👀 Theming in dark mode with [Tokyonight Neovim](https://github.com/folke/tokyonight.nvim) Theme colors for better contrast.
 - 👨‍💻 My website refers to the design and code from the [lehuynh.dev](https://leohuynh.dev/) repository and incorporates the tailwind-nextjs-starter-blog template, version 1.0.
@@ -45,7 +45,7 @@ Extending sincere thanks for these exceptional resources 🙏
 
 ---
 
-<p align="center"><b>Copyright © 2023 - Do Trong Khanh (Karhdo)</b></p>
+<p align="center"><b>Copyright © 2026 - Do Trong Khanh (Karhdo)</b></p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
