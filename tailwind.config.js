@@ -169,7 +169,7 @@ module.exports = {
           css: {
             color: theme('colors.gray.300'),
             a: {
-              color: theme('colors.primary'),
+              color: theme('colors.primary.500'),
               '&:hover': {
                 color: `${theme('colors.sky.400')} !important`,
               },

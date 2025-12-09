@@ -116,8 +116,8 @@ export default function AuthorLayout({ children, content }: Props) {
 
             <ul>
               <li>
-                <Twemoji className="!mr-2" emoji="atom-symbol" /> Upgrading to <strong>React 18</strong>,{' '}
-                <strong>Next 14</strong>.
+                <Twemoji className="!mr-2" emoji="atom-symbol" /> Upgrading to <strong>React 19</strong>,{' '}
+                <strong>Next 16</strong>.
               </li>
               <li>
                 <Twemoji className="!mr-2" emoji="party-popper" /> Adopting <strong>Typescript</strong>, committing with{' '}
