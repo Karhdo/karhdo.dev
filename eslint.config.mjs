@@ -1,16 +1,13 @@
-import { defineConfig, globalIgnores } from 'eslint/config';
 import js from '@eslint/js';
-
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
-
 import prettierPlugin from 'eslint-plugin-prettier';
 
-export default defineConfig([
+const config = [
   // 1. JS recommended
   js.configs.recommended,
 
-  // 2. Next.js + Core Web Vitals + TypeScript (flat config của eslint-config-next@16)
+  // 2. Next.js + Core Web Vitals + TypeScript (flat config from eslint-config-next@16)
   ...nextCoreWebVitals,
   ...nextTypescript,
 
@@ -48,5 +45,9 @@ export default defineConfig([
   },
 
   // 4. Ignore files
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'tailwind.config.js', './.contentlayer/**']),
-]);
+  {
+    ignores: ['.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'tailwind.config.js', './.contentlayer/**'],
+  },
+];
+
+export default config;

@@ -55,7 +55,7 @@ const output = process.env.EXPORT ? 'export' : undefined;
 const basePath = process.env.BASE_PATH || undefined;
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined;
 
-// cấu hình bundle analyzer: chỉ bật khi ANALYZE=true
+// Setting up bundle analyzer: only enabled when ANALYZE=true
 const withBundleAnalyzer = createBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -81,6 +81,7 @@ const baseConfig = {
         hostname: 'i.scdn.co', // Spotify album covers
       },
     ],
+    qualities: [100, 75],
     unoptimized,
   },
   async headers() {

@@ -117,7 +117,7 @@ The blog integrates with external services via API routes and server utilities:
 - **RSS Feed** (`scripts/rss.mjs`): Generates RSS feed
 - **Bundle Analyzer**: Optional via `ANALYZE=true` environment variable
 - **Security Headers**: CSP, referrer policy, X-Frame-Options configured in `next.config.js`
-- **SVG Handling**: Turbopack configured with SVGR loader for SVG React components (`turbopack.rules` in `next.config.js`)
+- **SVG Handling**: Turbopack configured with SVGR loader for SVG React components (`turbopack` in `next.config.js`)
 
 ## Important Patterns
 
