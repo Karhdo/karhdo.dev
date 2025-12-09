@@ -1,10 +1,6 @@
-const { withContentlayer } = require('next-contentlayer2');
+import { withContentlayer } from 'next-contentlayer2';
+import createBundleAnalyzer from '@next/bundle-analyzer';
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-// You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is;
@@ -54,65 +50,76 @@ const securityHeaders = [
   },
 ];
 
+// Env-based options
 const output = process.env.EXPORT ? 'export' : undefined;
 const basePath = process.env.BASE_PATH || undefined;
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined;
 
-/**
- * @type {import('next/dist/next-server/server/config').NextConfig}
- **/
-module.exports = () => {
-  const plugins = [withContentlayer, withBundleAnalyzer];
-  return plugins.reduce((acc, next) => next(acc), {
-    output,
-    basePath,
-    reactStrictMode: true,
-    pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    eslint: {
-      dirs: ['app', 'components', 'layouts', 'scripts'],
+// cấu hình bundle analyzer: chỉ bật khi ANALYZE=true
+const withBundleAnalyzer = createBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+/** @type {import('next').NextConfig} */
+const baseConfig = {
+  output,
+  basePath,
+  reactStrictMode: true,
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
     },
-    images: {
-      remotePatterns: [
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.scdn.co', // Spotify album covers
+      },
+    ],
+    unoptimized,
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
+    ];
+  },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: [
         {
-          protocol: 'https',
-          hostname: 'i.scdn.co', // Spotify album covers
-        },
-      ],
-      unoptimized,
-    },
-    async headers() {
-      return [
-        {
-          source: '/(.*)',
-          headers: securityHeaders,
-        },
-      ];
-    },
-    webpack: (config) => {
-      config.module.rules.push({
-        test: /\.svg$/,
-        use: [
-          {
-            loader: '@svgr/webpack',
-            options: {
-              svgoConfig: {
-                plugins: [
-                  {
-                    name: 'prefixIds',
-                    params: {
-                      delim: '__',
-                      prefixIds: true,
-                      prefixClassNames: true,
-                    },
+          loader: '@svgr/webpack',
+          options: {
+            svgoConfig: {
+              plugins: [
+                {
+                  name: 'prefixIds',
+                  params: {
+                    delim: '__',
+                    prefixIds: true,
+                    prefixClassNames: true,
                   },
-                ],
-              },
+                },
+              ],
             },
           },
-        ],
-      });
+        },
+      ],
+    });
 
-      return config;
-    },
-  });
+    return config;
+  },
 };
+
+const plugins = [withContentlayer, withBundleAnalyzer];
+const nextConfig = plugins.reduce((acc, plugin) => plugin(acc), baseConfig);
+
+export default nextConfig;
