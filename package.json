@@ -26,6 +26,7 @@
     "@octokit/graphql": "^8.2.2",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "7.1.0",
+    "@prisma/client-runtime-utils": "^7.1.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.19",
     "autoprefixer": "^10.4.22",
