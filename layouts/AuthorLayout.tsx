@@ -56,11 +56,10 @@ export default function AuthorLayout({ children, content }: Props) {
               Hello, folks! <Twemoji className="mx-2" emoji="waving-hand" /> I'm Trong Khanh (aka Karhdo)
             </h2>
             <p>
-              I have a passion for <strong>JavaScript/TypeScript</strong> and website development. I'm currently a
-              fullstack developer at <strong>YouNet Media</strong>, deeply engaged in the <strong>EcomHeat</strong>{' '}
-              project, which entails market share management, competitor research, and fostering e-commerce growth. I
-              work mainly with <strong>JavaScript</strong>, <strong>TypeScript</strong>, <strong>React</strong>,{' '}
-              <strong>NodeJS</strong>, <strong>NestJS</strong>, and <strong>NextJS</strong>.
+              I have a passion for <strong>JavaScript/TypeScript</strong> and website development. I work mainly
+              software engineer at <strong>Spartan</strong>, deeply engaged in the <strong>Dealops</strong> project,
+              with <strong>JavaScript</strong>, <strong>TypeScript</strong>, <strong>NodeJS</strong>,{' '}
+              <strong>ReactJS</strong>, and <strong>Monorepo</strong>.
             </p>
             <h2>Why have this blog?</h2>
             <blockquote>
