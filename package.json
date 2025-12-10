@@ -9,7 +9,7 @@
   "scripts": {
     "start": "next dev",
     "dev": "cross-env INIT_CWD=$PWD next dev",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && node scripts/postgenerate.mjs",
     "build": "contentlayer2 build && next build",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
