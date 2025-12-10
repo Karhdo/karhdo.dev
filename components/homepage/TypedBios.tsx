@@ -36,7 +36,7 @@ const TypedBios = () => {
         </li>
         <li>I love web development.</li>
         <li>
-          I'm focusing on building <b className="font-medium">Social Analytics Software</b>.
+          I'm focusing on building <b className="font-medium">Dealops Project - SaasS platform</b>.
         </li>
         <li>
           I work mostly with <b className="font-medium">Javascript/Typescript</b> technologies.
