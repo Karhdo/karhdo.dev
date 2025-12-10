@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useBlogStats, useUpdateBlogStats } from 'hooks';
 
-import { Stats, StatsType } from '@prisma/client';
+import { StatsType } from '@prisma/client';
 
 import { Twemoji } from '@/components/ui';
 
@@ -26,7 +26,7 @@ interface ReactionsProps {
 
 const MAX_REACTIONS = 5;
 
-const REACTIONS: Array<{ emoji: string; key: keyof Stats }> = [
+const REACTIONS: Array<{ emoji: string; key: string }> = [
   { emoji: 'sparkling-heart', key: 'loves' },
   { emoji: 'clapping-hands', key: 'applauses' },
   { emoji: 'bullseye', key: 'bullseye' },
