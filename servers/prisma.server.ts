@@ -2,9 +2,15 @@
 // Learn more: https://pris.ly/d/help/next-js-best-practices
 //
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  const connectionString = process.env.POSTGRES_URL;
+  if (!connectionString) {
+    throw new Error('POSTGRES_URL environment variable is not set');
+  }
+  const adapter = new PrismaPg({ connectionString });
+  return new PrismaClient({ adapter });
 };
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
