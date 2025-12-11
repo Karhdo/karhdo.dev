@@ -1,3 +1,6 @@
-import { $Enums } from '@/prisma/generated/client';
+import { $Enums, Stats as StatsClient } from '@/prisma/generated/client';
 
-export const StatsType = $Enums.StatsType;
+export type Stats = StatsClient;
+
+export type StatsType = $Enums.StatsType;
+export const StatsTypeEnum = $Enums.StatsType;

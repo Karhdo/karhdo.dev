@@ -2,7 +2,8 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
 import { fetcher } from '@/utils/index';
-import type { Stats, StatsType } from '@prisma/client';
+
+import type { Stats, StatsType } from '@/types/prisma';
 
 export function useBlogStats(type: StatsType, slug: string) {
   const { data, isLoading } = useSWR<Stats>(`/api/stats?slug=${slug}&type=${type}`, fetcher, {

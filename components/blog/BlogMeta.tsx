@@ -1,6 +1,6 @@
 import { formatDate } from 'pliny/utils/formatDate';
 
-import { StatsType } from '@/types/prisma';
+import { StatsTypeEnum } from '@/types/prisma';
 
 import type { BlogMetaProps } from '@/types/index';
 
@@ -26,7 +26,7 @@ const BlogMeta = ({ date, slug, readingTime }: BlogMetaProps) => {
 
       <div className="flex items-center">
         <Twemoji emoji="eye" />
-        <ViewCounter className="ml-1.5 md:ml-2" slug={slug} type={StatsType.blog} />
+        <ViewCounter className="ml-1.5 md:ml-2" slug={slug} type={StatsTypeEnum.blog} />
       </div>
     </dd>
   );
