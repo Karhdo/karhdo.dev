@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useBlogStats, useUpdateBlogStats } from 'hooks';
 
-import { StatsType } from '@prisma/client';
+import { StatsType } from '@/types/prisma';
 
 import { Twemoji } from '@/components/ui';
 
@@ -20,7 +20,7 @@ interface ReactionProps {
 
 interface ReactionsProps {
   slug: string;
-  type: StatsType;
+  type: typeof StatsType;
   className?: string;
 }
 

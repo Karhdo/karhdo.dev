@@ -1,6 +1,6 @@
 import { formatDate } from 'pliny/utils/formatDate';
 
-import { StatsType } from '@prisma/client';
+import { StatsType } from '@/types/prisma';
 
 import type { BlogMetaProps } from '@/types/index';
 
