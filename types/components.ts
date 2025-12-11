@@ -1,6 +1,6 @@
 import type readingTime from 'reading-time';
 
-import type { StatsType } from '@prisma/client';
+import type { StatsType } from '@/types/prisma';
 import type projectsData from '@/data/projectsData';
 import type GiscusConfigs from './giscus-configs.type';
 

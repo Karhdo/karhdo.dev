@@ -1,15 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
 enum StatsType {
   blog
   snippet
@@ -22,7 +10,7 @@ model Stats {
   loves     Int       @default(0)
   applauses Int       @default(0)
   ideas     Int       @default(0)
-  bullseye Int        @default(0)
+  bullseye  Int       @default(0)
 
   @@id([type, slug])
   @@map("stats")

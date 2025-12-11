@@ -1,6 +1,6 @@
 {
   "name": "karhdo.dev",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "engines": {
     "node": "24.x"
   },
@@ -9,15 +9,16 @@
   "scripts": {
     "start": "next dev",
     "dev": "cross-env INIT_CWD=$PWD next dev",
-    "postinstall": "prisma generate && node scripts/postgenerate.mjs",
     "build": "contentlayer2 build && next build",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
+    "prepare": "husky install",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
-    "migrate:postgres": "dotenv -e .env.local -- prisma migrate deploy",
-    "migrate": "prisma migrate dev",
-    "generate": "prisma generate && node scripts/postgenerate.mjs",
-    "postgenerate": "node scripts/postgenerate.mjs"
+    "prisma:generate": "prisma generate && node scripts/postgenerate.mjs",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "dotenv -e .env.local -- prisma migrate deploy",
+    "postgenerate": "node scripts/postgenerate.mjs",
+    "postinstall": "pnpm prisma:generate"
   },
   "dependencies": {
     "@giscus/react": "^3.1.0",
