@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      # Database
+      - POSTGRES_URL=${POSTGRES_URL}
+
+      # GitHub Integration
+      - GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
+
+      # Spotify Integration
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
+
+      # Giscus Comments
+      - NEXT_PUBLIC_GISCUS_REPO=${NEXT_PUBLIC_GISCUS_REPO}
+      - NEXT_PUBLIC_GISCUS_REPOSITORY_ID=${NEXT_PUBLIC_GISCUS_REPOSITORY_ID}
+      - NEXT_PUBLIC_GISCUS_CATEGORY=${NEXT_PUBLIC_GISCUS_CATEGORY}
+      - NEXT_PUBLIC_GISCUS_CATEGORY_ID=${NEXT_PUBLIC_GISCUS_CATEGORY_ID}
+
+      # Next.js
+      - NODE_ENV=production
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-karhdo_blog}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

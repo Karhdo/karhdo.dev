@@ -33,6 +33,39 @@ A few major over-engineering-changes from the original repo:
 - 👨‍💻 My website refers to the design and code from the [lehuynh.dev](https://leohuynh.dev/) repository and incorporates the tailwind-nextjs-starter-blog template, version 1.0.
 - 📥 Bumping up `mdx-bundler`, `rehype`/`remark` plugins and dependencies to the latest version
 
+## Docker Deployment
+
+Run the blog using Docker with standalone output mode for optimized image size (~200-300MB).
+
+### Quick Start
+
+1. Create a `.env` file with required environment variables:
+```bash
+POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/karhdo_blog
+GITHUB_API_TOKEN=your_github_token
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+SPOTIFY_REFRESH_TOKEN=your_spotify_refresh_token
+NEXT_PUBLIC_GISCUS_REPO=your_username/your_repo
+NEXT_PUBLIC_GISCUS_REPOSITORY_ID=your_repo_id
+NEXT_PUBLIC_GISCUS_CATEGORY=your_category
+NEXT_PUBLIC_GISCUS_CATEGORY_ID=your_category_id
+```
+
+2. Start services:
+```bash
+docker compose up -d
+```
+
+3. Run migrations:
+```bash
+docker compose exec app pnpm prisma:migrate:deploy
+```
+
+4. Access at http://localhost:3000
+
+**Docker Image:** Node.js 24 Alpine with multi-stage build (deps → builder → runner) running as non-root user.
+
 ## Express Your Support
 
 If this project has been beneficial, show your appreciation with a ⭐
