@@ -7,7 +7,7 @@ const AnalyticsLink = () => {
     <button
       aria-label="Open analytics"
       type="button"
-      className="mx-1 flex h-8 w-8 items-center justify-center rounded p-1 hover:bg-gray-200 dark:hover:bg-primary-600"
+      className="dark:hover:bg-primary-600 mx-1 flex h-8 w-8 items-center justify-center rounded-sm p-1 hover:bg-gray-200"
       data-umami-event="nav-analytics"
       onClick={() => window.open(siteMetadata.analyticsURL, '_blank')}
     >

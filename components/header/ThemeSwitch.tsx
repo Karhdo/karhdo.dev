@@ -18,7 +18,7 @@ const ThemeSwitch = () => {
   return (
     <div className="mx-1 flex items-center">
       <Menu as="div" className="relative inline-block text-left">
-        <div className="flex h-8 w-8 items-center justify-center rounded p-1 hover:bg-gray-200 dark:hover:bg-primary-600">
+        <div className="dark:hover:bg-primary-600 flex h-8 w-8 items-center justify-center rounded-sm p-1 hover:bg-gray-200">
           <Menu.Button aria-label="Theme switcher">
             {mounted ? (
               resolvedTheme === 'dark' ? (
@@ -40,7 +40,7 @@ const ThemeSwitch = () => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 z-50 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800">
+          <Menu.Items className="ring-opacity-5 absolute right-0 z-50 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-hidden dark:bg-gray-800">
             <RadioGroup value={theme} onChange={setTheme}>
               <div className="p-1">
                 <RadioGroup.Option value="light">

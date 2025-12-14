@@ -16,12 +16,12 @@ const Button = ({
     <Component
       className={clsx([
         'border border-transparent',
-        'bg-gray-200 hover:opacity-80 dark:bg-primary-600',
-        '!text-black hover:!text-black dark:!text-white dark:hover:!text-white',
-        'focus:shadow-outline-blue focus:outline-none',
+        'dark:bg-primary-600 bg-gray-200 hover:opacity-80',
+        'text-black! hover:text-black! dark:text-white! dark:hover:text-white!',
+        'focus:shadow-outline-blue focus:outline-hidden',
         'transition-colors duration-150',
-        'text-sm font-medium leading-5',
-        'inline rounded-lg px-4 py-2 shadow',
+        'text-sm leading-5 font-medium',
+        'inline rounded-lg px-4 py-2 shadow-sm',
         'inline-flex items-center gap-1 no-underline',
         className,
       ])}

@@ -15,7 +15,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
       <div
         className={`${
           imgSrc && 'h-full'
-        } flex h-full flex-col overflow-hidden rounded-lg border border-transparent shadow-nextjs dark:shadow-nextjs-dark`}
+        } shadow-nextjs dark:shadow-nextjs-dark flex h-full flex-col overflow-hidden rounded-lg border border-transparent`}
       >
         <Zoom>
           <Image
@@ -28,7 +28,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         </Zoom>
 
         <div className="p-6">
-          <h2 className="mb-3 text-2xl font-bold leading-8 tracking-tight">
+          <h2 className="mb-3 text-2xl leading-8 font-bold tracking-tight">
             {href ? (
               <Link href={href} aria-label={`Link to ${title}`}>
                 {title}
@@ -59,7 +59,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             href && (
               <Link
                 href={href}
-                className="text-primary text-base font-medium leading-6 hover:text-sky-600 dark:hover:text-sky-400"
+                className="text-primary text-base leading-6 font-medium hover:text-sky-600 dark:hover:text-sky-400"
                 aria-label={`Link to ${title}`}
               >
                 Learn more &rarr;

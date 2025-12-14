@@ -24,11 +24,7 @@ const Image = (props: ImageProps) => {
       )}
     >
       <NextImage
-        className={clsx(
-          'transition-all duration-500 [transition-timing-function:cubic-bezier(.4,0,.2,1)]',
-          'object-center',
-          loaded ? 'blur-0' : 'blur-xl'
-        )}
+        className={clsx('transition-all duration-500 ease-in-out', 'object-center', loaded ? 'blur-0' : 'blur-xl')}
         src={src}
         alt={alt}
         style={{ objectFit: 'cover', ...style }}

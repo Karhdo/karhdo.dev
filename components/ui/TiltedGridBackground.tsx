@@ -4,13 +4,13 @@ import TiltedGrid from 'public/static/icons/tilted-grid.svg';
 
 const TiltedGridBackground = ({ className }: { className?: string }) => {
   return (
-    <div className={clsx(['absolute overflow-hidden [mask-image:linear-gradient(white,transparent)]', className])}>
+    <div className={clsx(['absolute overflow-hidden mask-[linear-gradient(white,transparent)]', className])}>
       <TiltedGrid
         className={clsx([
           'h-[160%] w-full',
           'absolute inset-x-0 inset-y-[-30%] skew-y-[-18deg]',
-          'dark:fill-white/[.01] dark:stroke-white/[.025]',
-          'fill-black/[0.02] stroke-black/5',
+          'dark:fill-white/1 dark:stroke-white/2.5',
+          'fill-black/2 stroke-black/5',
         ])}
       />
     </div>
