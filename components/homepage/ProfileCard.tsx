@@ -58,7 +58,7 @@ const ProfileCard = () => {
     >
       <div
         style={style}
-        className="overflow-hidden rounded shadow-lg shadow-slate-300 transition-all duration-200 ease-out dark:shadow-sky-700/50"
+        className="overflow-hidden rounded-sm shadow-lg shadow-slate-300 transition-all duration-200 ease-out dark:shadow-sky-700/50"
       >
         <Image
           src={'/static/images/avatar.jpg'}

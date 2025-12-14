@@ -17,7 +17,7 @@ const ScrollButton = (props: ScrollButtonProps) => {
       className={clsx([
         'rounded-lg p-2 transition-all',
         'hover:bg-gray-100 dark:hover:bg-gray-800',
-        'ring-1 ring-inset ring-zinc-900/20 dark:ring-white/20',
+        'ring-1 ring-zinc-900/20 ring-inset dark:ring-white/20',
       ])}
     >
       <Icon className="h-5 w-5" />
@@ -47,7 +47,7 @@ const ScrollTopAndComment = () => {
   };
 
   return (
-    <div className={`fixed bottom-8 right-8 hidden flex-col gap-3 ${show ? 'md:flex' : 'md:hidden'}`}>
+    <div className={`fixed right-8 bottom-8 hidden flex-col gap-3 ${show ? 'md:flex' : 'md:hidden'}`}>
       {siteMetadata.comments?.provider && (
         <ScrollButton icon={MessageSquareText} ariaLabel="Scroll To Comment" onClick={handleScrollToComment} />
       )}

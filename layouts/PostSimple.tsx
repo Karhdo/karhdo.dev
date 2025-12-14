@@ -39,12 +39,12 @@ export default function PostLayout({ content, next, prev, children }: LayoutProp
             </div>
           </header>
 
-          <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:divide-y-0">
-            <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
-              <div className="prose max-w-none pb-8 pt-10 dark:prose-dark">{children}</div>
+          <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 xl:divide-y-0 dark:divide-gray-700">
+            <div className="divide-y divide-gray-200 xl:col-span-3 xl:row-span-2 xl:pb-0 dark:divide-gray-700">
+              <div className="prose dark:prose-dark max-w-none pt-10 pb-8">{children}</div>
             </div>
             {siteMetadata.comments && (
-              <div className="pb-6 pt-6 text-center text-gray-700 dark:text-gray-300" id="comment">
+              <div className="pt-6 pb-6 text-center text-gray-700 dark:text-gray-300" id="comment">
                 <Comments />
               </div>
             )}

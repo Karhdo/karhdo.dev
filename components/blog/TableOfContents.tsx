@@ -57,7 +57,7 @@ const TableOfContents = (props: TableOfContentsProps) => {
   }, [toc]);
 
   return (
-    <details className={clsx('space-y-4 [&_.chevron-right]:open:rotate-90', className)} open>
+    <details className={clsx('space-y-4 open:[&_.chevron-right]:rotate-90', className)} open>
       <summary className="flex cursor-pointer items-center gap-1 marker:content-none">
         <ChevronRight size={20} strokeWidth={1.5} className="chevron-right rotate-0 transition-transform" />
         <span className="text-lg font-medium">Table of Contents</span>
@@ -68,7 +68,7 @@ const TableOfContents = (props: TableOfContentsProps) => {
           <li
             key={url}
             className={clsx('text-gray-500 dark:text-gray-400', {
-              'text-gray-200 dark:text-primary-600': activeId === url,
+              'dark:text-primary-600 text-gray-200': activeId === url,
             })}
             style={{ paddingLeft: (depth - 2) * 16 }}
           >

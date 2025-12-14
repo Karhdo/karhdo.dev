@@ -18,7 +18,7 @@ const TimelineItem = ({ exp, last }: { exp: (typeof EXPERIENCES)[0]; last?: bool
         'cursor-pointer bg-transparent transition-colors hover:bg-slate-100 dark:hover:bg-slate-800',
         !last && [
           'before:z-1',
-          'before:absolute before:left-[35px] before:top-10',
+          'before:absolute before:top-10 before:left-[35px]',
           'before:h-full before:w-px',
           'before:bg-gray-300 dark:before:bg-gray-500',
         ]
@@ -27,19 +27,19 @@ const TimelineItem = ({ exp, last }: { exp: (typeof EXPERIENCES)[0]; last?: bool
       <Image
         src={logo}
         alt={org}
-        className="h-12 w-12 shrink-0 rounded-md bg-white group-hover/timeline-item:bg-slate-100 dark:bg-dark dark:group-hover/timeline-item:bg-slate-800"
+        className="dark:bg-dark h-12 w-12 shrink-0 rounded-md bg-white group-hover/timeline-item:bg-slate-100 dark:group-hover/timeline-item:bg-slate-800"
         style={{ objectFit: 'contain' }}
         width={200}
         height={200}
       />
-      <details className="w-full !bg-inherit [&_.minus]:open:block [&_.plus]:open:hidden">
+      <details className="w-full bg-inherit! open:[&_.minus]:block open:[&_.plus]:hidden">
         <summary className="relative pr-10 marker:content-none">
           <Plus
             size={18}
             className={clsx([
               'plus',
               'group-hover/timeline-item:visible md:invisible',
-              'absolute right-1 top-1',
+              'absolute top-1 right-1',
               'transition-transform duration-300 ease-in-out',
               'text-gray-600 dark:text-gray-500',
             ])}
@@ -49,14 +49,14 @@ const TimelineItem = ({ exp, last }: { exp: (typeof EXPERIENCES)[0]; last?: bool
             size={18}
             className={clsx([
               'minus hidden',
-              'absolute right-1 top-1',
+              'absolute top-1 right-1',
               'transition-transform duration-300 ease-in-out',
               'text-gray-600 dark:text-gray-500',
             ])}
             data-umami-event={`${event} collapse`}
           />
           <div className="flex flex-col">
-            <div className="line-clamp-1 text-xs tabular-nums text-gray-500 dark:text-gray-400">
+            <div className="line-clamp-1 text-xs text-gray-500 tabular-nums dark:text-gray-400">
               <span>{start}</span> – <span>{end}</span>
             </div>
             <Link
@@ -66,7 +66,7 @@ const TimelineItem = ({ exp, last }: { exp: (typeof EXPERIENCES)[0]; last?: bool
               {org}
             </Link>
             <div className="flex items-center gap-1 pt-1 text-sm text-gray-700 dark:text-gray-200">
-              <Twemoji emoji={icon} className="!-mt-1" />
+              <Twemoji emoji={icon} className="-mt-1!" />
               <span>{title}</span>
             </div>
           </div>

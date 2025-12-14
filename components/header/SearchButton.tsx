@@ -11,7 +11,7 @@ const SearchButton = () => {
     return (
       <SearchButtonWrapper
         aria-label="Search"
-        className="mx-1 flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-primary-600"
+        className="dark:hover:bg-primary-600 mx-1 flex h-8 w-8 items-center justify-center rounded-sm hover:bg-gray-200"
       >
         <Command size={20} strokeWidth={1.5} />
       </SearchButtonWrapper>

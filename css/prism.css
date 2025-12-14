@@ -1,9 +1,11 @@
 /**
  * CSS Styles for code highlighting.
- * Feel free to customize token styles 
+ * Feel free to customize token styles
  * by copying from a prismjs compatible theme:
  * https://github.com/PrismJS/prism-themes
  */
+
+@import 'tailwindcss';
 
 /* Code title styles */
 .remark-code-title {
@@ -21,23 +23,23 @@
 }
 
 .code-line {
-  @apply -mx-4 block border-l-4 border-transparent pl-4 pr-4 text-base;
+  @apply -mx-4 block border-l-4 border-transparent pr-4 pl-4 text-base;
 }
 
 .code-line.inserted {
-  @apply bg-green-500 bg-opacity-20;
+  @apply bg-green-500/20;
 }
 
 .code-line.deleted {
-  @apply bg-red-500 bg-opacity-20;
+  @apply bg-red-500/20;
 }
 
 .highlight-line {
-  @apply -mx-4 border-l-4 border-sky-500 bg-gray-700 bg-opacity-50;
+  @apply -mx-4 border-l-4 border-sky-500 bg-gray-700/50;
 }
 
 .line-number::before {
-  @apply -ml-2 mr-4 inline-block w-4 text-right text-gray-400;
+  @apply mr-4 -ml-2 inline-block w-4 text-right text-gray-400;
   content: attr(line);
 }
 

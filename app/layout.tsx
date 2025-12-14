@@ -78,7 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
-      <body className="bg-white pl-[calc(100vw-100%)] text-black antialiased dark:bg-dark dark:text-white">
+      <body className="dark:bg-dark bg-white pl-[calc(100vw-100%)] text-black antialiased dark:text-white">
         <TiltedGridBackground className="inset-x-0 top-0 z-[-1] h-[60vh]" />
 
         <ThemeProviders>
@@ -87,7 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SectionContainer>
             <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
               <Header />
-              <main className="mb-auto mt-20">{children}</main>
+              <main className="mt-20 mb-auto">{children}</main>
               <Footer />
             </SearchProvider>
           </SectionContainer>
