@@ -1,22 +1,26 @@
-import NextLink from 'next/link';
 import type { LinkProps } from 'next/link';
-import { AnchorHTMLAttributes } from 'react';
+import NextLink from 'next/link';
+import type { AnchorHTMLAttributes } from 'react';
 
-const Link = ({ href, ...rest }: LinkProps & AnchorHTMLAttributes<HTMLAnchorElement>) => {
-  const isInternalLink = href && href.startsWith('/');
-  const isAnchorLink = href && href.startsWith('#');
+interface LinkPropsExtended extends LinkProps, AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+}
 
-  const className = 'break-words hover:text-gray-200 dark:hover:text-primary-600';
+const Link: React.FC<LinkPropsExtended> = (props) => {
+  const { href, ...rest } = props;
+
+  const isInternalLink = href?.startsWith('/');
+  const isAnchorLink = href?.startsWith('#');
 
   if (isInternalLink) {
-    return <NextLink className={className} href={href} {...rest} />;
+    return <NextLink className="break-words" href={href} {...rest} />;
   }
 
   if (isAnchorLink) {
-    return <a className={className} href={href} {...rest} />;
+    return <a className="break-words" href={href} {...rest} />;
   }
 
-  return <a className={className} target="_blank" rel="noopener noreferrer" href={href} {...rest} />;
+  return <a className="break-words" target="_blank" rel="noopener noreferrer" href={href} {...rest} />;
 };
 
 export default Link;

@@ -26,6 +26,7 @@
       "@/layouts/*": ["layouts/*"],
       "@/libs/*": ["libs/*"],
       "@/css/*": ["css/*"],
+      "@/icons/*": ["icons/*"],
       "@/prisma/generated/*": ["./prisma/generated/prisma/*"],
       "contentlayer/generated": ["./.contentlayer/generated"]
     },

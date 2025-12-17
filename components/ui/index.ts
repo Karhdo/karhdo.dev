@@ -13,6 +13,8 @@ import components from './MDXComponents';
 import SectionContainer from './SectionContainer';
 import ScrollTopAndComment from './ScrollTopAndComment';
 import TiltedGridBackground from './TiltedGridBackground';
+import Container from './Container';
+import GrowingUnderline from './GrowingUnderline';
 
 export {
   Tag,
@@ -30,4 +32,6 @@ export {
   SectionContainer,
   ScrollTopAndComment,
   TiltedGridBackground,
+  Container,
+  GrowingUnderline,
 };
