@@ -3,8 +3,7 @@ import type { NextRequest } from 'next/server';
 import { fetchRepoData } from '@/servers/github.server';
 
 export async function GET(request: NextRequest) {
-  const params = new URL(request.url).searchParams;
-
+  const { searchParams: params } = new URL(request.url);
   const repo = params.get('repo');
 
   if (!repo) {
@@ -16,7 +15,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const data = await fetchRepoData(repo);
+  if (repo === 'undefined' || repo === 'null') {
+    return Response.json(null);
+  }
+
+  const data = await fetchRepoData({ repo, includeLastCommit: true });
 
   return Response.json(data);
 }

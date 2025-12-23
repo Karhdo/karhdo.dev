@@ -28,6 +28,7 @@ const siteMetadata = {
   analytics: {
     umamiAnalytics: {
       umamiWebsiteId: process.env.UMAMI_WEBSITE_ID,
+      shareUrl: process.env.UMAMI_SHARE_URL,
     },
   },
   newsletter: {
