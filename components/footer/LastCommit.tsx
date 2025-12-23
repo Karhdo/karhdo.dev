@@ -12,8 +12,6 @@ export function LastCommit() {
   const siteRepo = SITE_METADATA.siteRepo.replace('https://github.com/', '');
   const { data: repo } = useSWR<GithubRepository>(`/api/github?repo=${siteRepo}`, fetcher);
 
-  console.log('LastCommit repo:', repo);
-
   if (!repo?.lastCommit) {
     return null;
   }

@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import { ExternalLink, GitFork, Github, Star } from 'lucide-react';
 
-import type { GithubRepository } from '@/types/server';
+import type { GithubRepository } from '@/types/data';
 
 export default function GithubRepo({ repo }: { repo: GithubRepository }) {
   const mainLanguage = find(repo.languages, (language) => language.name !== 'CSS');

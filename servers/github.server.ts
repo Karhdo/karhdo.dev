@@ -1,4 +1,4 @@
-import type { GithubRepository } from '@/types/server';
+import type { GithubRepository } from '@/types/data';
 
 import { graphql, type GraphQlQueryResponseData } from '@octokit/graphql';
 

@@ -10,7 +10,10 @@ export default async function Projects() {
   await Promise.all(
     projectsData.map(async (p) => {
       if (p.repo && typeof p.repo === 'string') {
-        p.repo = await fetchRepoData(p.repo as string);
+        p.repo = await fetchRepoData({
+          repo: p.repo,
+          includeLastCommit: false,
+        });
       }
     })
   );
