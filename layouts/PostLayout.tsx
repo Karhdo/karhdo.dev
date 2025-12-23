@@ -44,12 +44,12 @@ export default function PostLayout(props: LayoutProps) {
 
         {/*START: Content*/}
         <main className="grid grid-cols-1 gap-12 pt-8 lg:grid-cols-12 lg:pt-10">
-          <div className="divide-y divide-gray-200 dark:divide-gray-700 lg:col-span-8 xl:col-span-9">
-            <div className="prose max-w-none dark:prose-dark lg:prose-lg lg:pb-8">{children}</div>
+          <div className="divide-y divide-gray-200 lg:col-span-8 xl:col-span-9 dark:divide-gray-700">
+            <div className="prose dark:prose-dark lg:prose-lg max-w-none lg:pb-8">{children}</div>
           </div>
 
           <div className="hidden lg:col-span-4 lg:block xl:col-span-3">
-            <div className="space-y-4 divide-y divide-gray-200 dark:divide-gray-700 lg:sticky lg:top-16">
+            <div className="space-y-4 divide-y divide-gray-200 lg:sticky lg:top-16 dark:divide-gray-700">
               <TableOfContents toc={toc} />
               <Reactions className="pt-6" type={type.toLowerCase() as StatsType} slug={slug} />
             </div>
@@ -62,7 +62,7 @@ export default function PostLayout(props: LayoutProps) {
           <BlogNav next={next} prev={prev} />
 
           {siteMetadata.comments && (
-            <div className="pb-6 pt-6 text-center text-gray-700 dark:text-gray-300" id="comment">
+            <div className="pt-6 pb-6 text-center text-gray-700 dark:text-gray-300" id="comment">
               <Comments />
             </div>
           )}
