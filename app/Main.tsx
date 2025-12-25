@@ -23,12 +23,17 @@ export default function Home({ posts }) {
   return (
     <div className="relative">
       <Snowfall
-        snowflakeCount={60}
+        snowflakeCount={65}
+        speed={[0.4, 2]}
+        wind={[-0.2, 0.4]}
+        radius={[0.5, 2]}
+        opacity={[0.15, 0.4]}
         style={{
-          zIndex: -1,
+          position: 'fixed',
           width: '100vw',
           height: '100vh',
-          position: 'fixed',
+          zIndex: -1,
+          pointerEvents: 'none',
         }}
       />
 
