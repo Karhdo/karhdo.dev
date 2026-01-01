@@ -23,7 +23,7 @@ export default function Home({ posts }) {
   return (
     <div className="relative">
       <Snowfall
-        snowflakeCount={65}
+        snowflakeCount={119}
         speed={[0.4, 2]}
         wind={[-0.2, 0.4]}
         radius={[0.5, 2]}
