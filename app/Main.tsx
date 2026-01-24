@@ -1,21 +1,23 @@
 'use client';
 
-import Snowfall from 'react-snowfall';
+import dynamic from 'next/dynamic';
 import { formatDate } from 'pliny/utils/formatDate';
-// import NewsletterForm from 'pliny/ui/NewsletterForm';
 
 import siteMetadata from '@/data/siteMetadata';
-import { Tag, Link, Twemoji } from '@/components/ui';
-import {
-  Avatar,
-  Heading,
-  Greeting,
-  TypedBios,
-  BlogLinks,
-  PopularTags,
-  ShortDescription,
-  SpotifyNowPlaying,
-} from '@/components/homepage';
+import Tag from '@/components/ui/Tag';
+import Link from '@/components/ui/Link';
+import Twemoji from '@/components/ui/Twemoji';
+import Avatar from '@/components/homepage/Avatar';
+import Heading from '@/components/homepage/Heading';
+import Greeting from '@/components/homepage/Greeting';
+import BlogLinks from '@/components/homepage/BlogLinks';
+import PopularTags from '@/components/homepage/PopularTags';
+import ShortDescription from '@/components/homepage/ShortDescription';
+import SpotifyNowPlaying from '@/components/homepage/SpotifyNowPlaying';
+
+// Dynamic imports for heavy components (bundle-dynamic-imports)
+const Snowfall = dynamic(() => import('react-snowfall'), { ssr: false });
+const TypedBios = dynamic(() => import('@/components/homepage/TypedBios'), { ssr: false });
 
 const MAX_DISPLAY = 5;
 

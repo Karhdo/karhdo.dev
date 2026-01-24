@@ -3,7 +3,8 @@ import { slug } from 'github-slugger';
 import tagData from 'app/tag-data.json';
 import { genPageMetadata } from 'app/seo';
 
-import { Link, Tag } from '@/components/ui';
+import Link from '@/components/ui/Link';
+import Tag from '@/components/ui/Tag';
 
 export const metadata = genPageMetadata({ title: 'Tags', description: 'Things I blog about' });
 

@@ -1,14 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useBlogStats, useUpdateBlogStats } from 'hooks';
+import { useBlogStats, useUpdateBlogStats } from 'hooks/use-blog-stats';
 
-import { Stats, StatsType } from '@/types/prisma';
+import type { Stats, StatsType } from '@/types/prisma';
 
-import { Twemoji } from '@/components/ui';
+import Twemoji from '@/components/ui/Twemoji';
 
 interface ReactionProps {
   emoji: string;
@@ -24,53 +23,85 @@ interface ReactionsProps {
   className?: string;
 }
 
+interface ReactionState {
+  loves: number;
+  ideas: number;
+  applauses: number;
+  bullseye: number;
+}
+
+const DEFAULT_REACTIONS: ReactionState = {
+  loves: 0,
+  ideas: 0,
+  applauses: 0,
+  bullseye: 0,
+};
+
 const MAX_REACTIONS = 5;
 
-const REACTIONS: Array<{ emoji: string; key: keyof Stats }> = [
+const REACTIONS: Array<{ emoji: string; key: keyof ReactionState }> = [
   { emoji: 'sparkling-heart', key: 'loves' },
   { emoji: 'clapping-hands', key: 'applauses' },
   { emoji: 'bullseye', key: 'bullseye' },
   { emoji: 'light-bulb', key: 'ideas' },
 ];
 
+// Helper to get localStorage data (client-localstorage-schema)
+function getStoredReactions(storageKey: string): ReactionState {
+  if (typeof window === 'undefined') return DEFAULT_REACTIONS;
+  try {
+    const stored = localStorage.getItem(storageKey);
+    const data: ReactionState = stored ? JSON.parse(stored) : DEFAULT_REACTIONS;
+    return {
+      loves: data.loves || 0,
+      ideas: data.ideas || 0,
+      applauses: data.applauses || 0,
+      bullseye: data.bullseye || 0,
+    };
+  } catch {
+    return DEFAULT_REACTIONS;
+  }
+}
+
 const Reaction = (props: ReactionProps) => {
   const { emoji, value, reactions, onReact, onSave } = props;
 
   const [reacting, setReacting] = useState(false);
-
   const countRef = useRef<HTMLSpanElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  let reactingTimeoutId: ReturnType<typeof setTimeout> | undefined;
+  // Cleanup timeout on unmount (rerender-move-effect-to-event)
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   function handleReact() {
     if (typeof value === 'number') {
-      if (reactingTimeoutId) {
-        clearTimeout(reactingTimeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
       setReacting(true);
       const newReactions = reactions >= MAX_REACTIONS ? MAX_REACTIONS : reactions + 1;
       onReact(newReactions);
-      if (countRef.current) {
-        if (reactions >= MAX_REACTIONS) {
-          countRef.current.classList.add('animate-scale-up');
-          setTimeout(() => {
-            if (countRef.current) {
-              countRef.current.classList.remove('animate-scale-up');
-            }
-          }, 150);
-        }
+      if (countRef.current && reactions >= MAX_REACTIONS) {
+        countRef.current.classList.add('animate-scale-up');
+        setTimeout(() => {
+          countRef.current?.classList.remove('animate-scale-up');
+        }, 150);
       }
     }
   }
 
   function handleMouseLeave() {
-    if (typeof value === 'number') {
-      if (reacting) {
-        reactingTimeoutId = setTimeout(() => {
-          setReacting(false);
-          onSave();
-        }, 1000);
-      }
+    if (typeof value === 'number' && reacting) {
+      timeoutRef.current = setTimeout(() => {
+        setReacting(false);
+        onSave();
+      }, 1000);
     }
   }
 
@@ -114,45 +145,53 @@ const Reactions = (props: ReactionsProps) => {
 
   const [stats, isLoading] = useBlogStats(type, slug);
 
-  const [reactions, setReactions] = useState({});
-  const [initialReactions, setInitialReactions] = useState({});
+  // Cache localStorage key (client-localstorage-schema)
+  const storageKey = `${type}/${slug}`;
+
+  // Use lazy initial state to avoid setState in effect (rerender-lazy-state-init)
+  const [state, setState] = useState<{ reactions: ReactionState; initial: ReactionState }>(() => {
+    const stored = getStoredReactions(storageKey);
+    return { reactions: stored, initial: stored };
+  });
 
   const updateReaction = useUpdateBlogStats();
 
-  useEffect(() => {
-    try {
-      const data = JSON.parse(localStorage.getItem(`${type}/slug`) || '{}');
+  // Use useCallback to create stable callback references (rerender-functional-setstate)
+  const handleOnSave = useCallback(
+    (key: keyof ReactionState) => {
+      const typedStats = stats as Stats;
+      const newValue = typedStats[key] + state.reactions[key] - state.initial[key];
+      updateReaction({ slug, type, [key]: newValue });
 
-      data.loves = data.loves || 0;
-      data.ideas = data.ideas || 0;
-      data.applauses = data.applauses || 0;
-      data.bullseye = data.bullseye || 0;
+      localStorage.setItem(storageKey, JSON.stringify(state.reactions));
+    },
+    [slug, type, stats, state, updateReaction, storageKey]
+  );
 
-      setInitialReactions(Object.assign({}, data));
-      setReactions(Object.assign({}, data));
-    } catch (error) {
-      console.error(error);
-    }
+  const handleReact = useCallback((key: keyof ReactionState, value: number) => {
+    setState((prev) => ({
+      ...prev,
+      reactions: { ...prev.reactions, [key]: value },
+    }));
   }, []);
-
-  const handleOnSave = (key: string) => {
-    updateReaction({ slug, type, [key]: stats[key] + reactions[key] - initialReactions[key] });
-
-    localStorage.setItem(`${type}/slug`, JSON.stringify(reactions));
-  };
 
   return (
     <div className={clsx('flex items-center gap-6', className)}>
-      {REACTIONS.map(({ key, emoji }) => (
-        <Reaction
-          key={key}
-          emoji={emoji}
-          reactions={reactions[key]}
-          value={isLoading ? '--' : stats[key] + reactions[key] - initialReactions[key]}
-          onSave={() => handleOnSave(key)}
-          onReact={(value) => setReactions((reactions) => ({ ...reactions, [key]: value }))}
-        />
-      ))}
+      {REACTIONS.map(({ key, emoji }) => {
+        const typedStats = stats as Stats;
+        const displayValue = isLoading ? '--' : typedStats[key] + state.reactions[key] - state.initial[key];
+
+        return (
+          <Reaction
+            key={key}
+            emoji={emoji}
+            reactions={state.reactions[key]}
+            value={displayValue}
+            onSave={() => handleOnSave(key)}
+            onReact={(value) => handleReact(key, value)}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -8,7 +8,7 @@ import type { Authors, Blog } from 'contentlayer/generated';
 import { allBlogs, allAuthors } from 'contentlayer/generated';
 import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer';
 
-import { components } from '@/components/ui';
+import components from '@/components/ui/MDXComponents';
 import siteMetadata from '@/data/siteMetadata';
 import { PostSimple, PostLayout, PostBanner } from 'layouts';
 

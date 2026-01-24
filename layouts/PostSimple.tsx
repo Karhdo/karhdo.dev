@@ -5,8 +5,13 @@ import type { Blog } from 'contentlayer/generated';
 
 import siteMetadata from '@/data/siteMetadata';
 
-import { BlogTags, BlogMeta } from '@/components/blog';
-import { Link, Comments, PageTitle, SectionContainer, ScrollTopAndComment } from '@/components/ui';
+import BlogTags from '@/components/blog/BlogTags';
+import BlogMeta from '@/components/blog/BlogMeta';
+import Link from '@/components/ui/Link';
+import Comments from '@/components/ui/Comments';
+import PageTitle from '@/components/ui/PageTitle';
+import SectionContainer from '@/components/ui/SectionContainer';
+import ScrollTopAndComment from '@/components/ui/ScrollTopAndComment';
 
 interface LayoutProps {
   content: CoreContent<Blog>;

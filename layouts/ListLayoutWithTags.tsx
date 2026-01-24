@@ -7,7 +7,8 @@ import { CoreContent } from 'pliny/utils/contentlayer';
 import type { Blog } from 'contentlayer/generated';
 
 import tagData from 'app/tag-data.json';
-import { Link, Tag } from '@/components/ui';
+import Link from '@/components/ui/Link';
+import Tag from '@/components/ui/Tag';
 import siteMetadata from '@/data/siteMetadata';
 
 interface PaginationProps {

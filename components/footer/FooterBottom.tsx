@@ -2,7 +2,7 @@
 
 import { clsx } from 'clsx';
 
-import { Link } from '@/components/ui';
+import Link from '@/components/ui/Link';
 import SITE_METADATA from '@/data/siteMetadata';
 import MadeInVietNam from '@/icons/miv.svg';
 

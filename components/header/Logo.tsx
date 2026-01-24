@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 
-import { Link, Image } from '@/components/ui';
+import Link from '@/components/ui/Link';
+import Image from '@/components/ui/Image';
 import SITE_METADATA from '@/data/siteMetadata';
 
 interface LogoProps {

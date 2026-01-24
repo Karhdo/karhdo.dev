@@ -3,7 +3,8 @@
 import { CheckCheck, Circle, X } from 'lucide-react';
 import useSWR from 'swr';
 
-import { GrowingUnderline, Link } from '@/components/ui';
+import GrowingUnderline from '@/components/ui/GrowingUnderline';
+import Link from '@/components/ui/Link';
 import SITE_METADATA from '@/data/siteMetadata';
 import type { CommitState, GithubRepository } from '@/types/data';
 import { fetcher, getTimeAgo } from '@/utils/misc';

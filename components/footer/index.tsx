@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 
-import { Container } from '@/components/ui';
+import Container from '@/components/ui/Container';
 import SITE_METADATA from '@/data/siteMetadata';
 
 import LogoAndRepo from './LogoAndRepo';

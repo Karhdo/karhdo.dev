@@ -1,4 +1,4 @@
-import { Link } from '@/components/ui';
+import Link from '@/components/ui/Link';
 
 interface BlogNavProps {
   next?: { path: string; title: string };
