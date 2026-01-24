@@ -54,7 +54,7 @@ Create a well-structured git commit following the Conventional Commits specifica
    - Explain "what" and "why", not "how"
 
 3. **Breaking Changes**:
-   - Add `!` after type/scope: `feat(api)!: remove deprecated endpoints`
+   - Add exclamation mark after type/scope, e.g. `feat(api)!: remove deprecated endpoints`
    - Or add `BREAKING CHANGE:` in footer
 
 ## Process

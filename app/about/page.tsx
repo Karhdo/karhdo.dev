@@ -1,4 +1,4 @@
-import { genPageMetadata } from 'app/seo';
+import { genPageMetadata } from '@/lib/seo';
 import { Authors, allAuthors } from 'contentlayer/generated';
 import { coreContent } from 'pliny/utils/contentlayer';
 import { MDXLayoutRenderer } from 'pliny/mdx-components';

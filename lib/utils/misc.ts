@@ -1,7 +1,3 @@
-export async function fetcher(url: string) {
-  return fetch(url).then((res) => res.json());
-}
-
 function is(interval: number, cycle: number) {
   return cycle >= interval ? Math.floor(cycle / interval) : 0;
 }

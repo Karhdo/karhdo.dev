@@ -8,7 +8,7 @@ import GrowingUnderline from '@/components/ui/GrowingUnderline';
 import Link from '@/components/ui/Link';
 import Twemoji from '@/components/ui/Twemoji';
 import type { GithubRepository } from '@/types/index';
-import { fetcher } from '@/utils/index';
+import { fetcher } from '@/lib/utils';
 
 const TIME_IS = 'https://time.is/Hanoi';
 const MY_TIMEZONE = 'Asia/Ho_Chi_Minh';

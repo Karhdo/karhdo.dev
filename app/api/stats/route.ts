@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 
 import type { Stats, StatsType } from '@/types/prisma';
 
-import prisma from '@/servers/prisma.server';
+import prisma from '@/lib/services/prisma';
 
 const getBlogStats = async (slug: string, type: StatsType): Promise<Stats> => {
   let result: Stats | null;

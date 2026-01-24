@@ -1,7 +1,7 @@
 import { slug } from 'github-slugger';
 
 import tagData from 'app/tag-data.json';
-import { genPageMetadata } from 'app/seo';
+import { genPageMetadata } from '@/lib/seo';
 
 import Link from '@/components/ui/Link';
 import Tag from '@/components/ui/Tag';
