@@ -1,4 +1,4 @@
-import { Tag } from '@/components/ui';
+import Tag from '@/components/ui/Tag';
 
 const BlogTags = ({ tags }: { tags: string[] }) => {
   if (!tags || tags.length === 0) {

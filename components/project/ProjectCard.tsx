@@ -1,7 +1,9 @@
 import type { GithubRepository, ProjectCardProps } from '@/types/index';
 
-import { Zoom, Link, Image } from '@/components/ui';
-import { GithubRepo } from '@/components/project';
+import Zoom from '@/components/ui/Zoom';
+import Link from '@/components/ui/Link';
+import Image from '@/components/ui/Image';
+import GithubRepo from '@/components/project/GithubRepo';
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
   const { title, description, imgSrc, url, repo, builtWith } = project;

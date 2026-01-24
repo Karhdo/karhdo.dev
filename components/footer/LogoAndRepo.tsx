@@ -1,6 +1,7 @@
 import SITE_METADATA from '@/data/siteMetadata';
 
-import { GrowingUnderline, Link } from '@/components/ui';
+import GrowingUnderline from '@/components/ui/GrowingUnderline';
+import Link from '@/components/ui/Link';
 import Logo from '@/components/header/Logo';
 
 const LogoAndRepo: React.FC = () => {

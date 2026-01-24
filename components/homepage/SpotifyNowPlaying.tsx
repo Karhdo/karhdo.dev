@@ -1,6 +1,8 @@
+'use client';
+
 import Spotify from 'public/static/icons/spotify.svg';
 
-import { useNowPlaying } from 'hooks';
+import useNowPlaying from 'hooks/use-now-playing';
 
 import MusicBar from '@/components/homepage/MusicBar';
 

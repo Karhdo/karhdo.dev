@@ -4,7 +4,9 @@ import { Clock, Github, MapPin, Star } from 'lucide-react';
 import useSWR from 'swr';
 
 import SITE_METADATA from '@/data/siteMetadata';
-import { GrowingUnderline, Link, Twemoji } from '@/components/ui';
+import GrowingUnderline from '@/components/ui/GrowingUnderline';
+import Link from '@/components/ui/Link';
+import Twemoji from '@/components/ui/Twemoji';
 import type { GithubRepository } from '@/types/index';
 import { fetcher } from '@/utils/index';
 

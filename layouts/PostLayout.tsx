@@ -5,8 +5,15 @@ import type { Blog, Authors } from 'contentlayer/generated';
 import { StatsType } from '@/types/prisma';
 
 import siteMetadata from '@/data/siteMetadata';
-import { BlogTags, BlogMeta, BlogNav, TableOfContents, Reactions } from '@/components/blog';
-import { Comments, PageTitle, SectionContainer, ScrollTopAndComment } from '@/components/ui';
+import BlogTags from '@/components/blog/BlogTags';
+import BlogMeta from '@/components/blog/BlogMeta';
+import BlogNav from '@/components/blog/BlogNav';
+import TableOfContents from '@/components/blog/TableOfContents';
+import Reactions from '@/components/blog/Reactions';
+import Comments from '@/components/ui/Comments';
+import PageTitle from '@/components/ui/PageTitle';
+import SectionContainer from '@/components/ui/SectionContainer';
+import ScrollTopAndComment from '@/components/ui/ScrollTopAndComment';
 
 interface LayoutProps {
   content: CoreContent<Blog>;

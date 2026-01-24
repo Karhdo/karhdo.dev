@@ -30,11 +30,11 @@ const ScrollTopAndComment = () => {
 
   useEffect(() => {
     const handleWindowScroll = () => {
-      if (window.scrollY > 50) setShow(true);
-      else setShow(false);
+      setShow(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleWindowScroll);
+    // Use passive event listener for better scroll performance (client-passive-event-listeners)
+    window.addEventListener('scroll', handleWindowScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleWindowScroll);
   }, []);
 

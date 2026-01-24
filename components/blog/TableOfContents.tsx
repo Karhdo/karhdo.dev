@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { ChevronRight } from 'lucide-react';
 
-import { Link } from '@/components/ui';
+import Link from '@/components/ui/Link';
 
 type TocItem = {
   value: string;

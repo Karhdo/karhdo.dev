@@ -2,8 +2,11 @@ import { ReactNode } from 'react';
 import type { Authors } from 'contentlayer/generated';
 import { Mail, Linkedin, Github, Twitter } from 'lucide-react';
 
-import { CareerTimeline } from '@/components/about';
-import { Link, Image, Button, Twemoji } from '@/components/ui';
+import CareerTimeline from '@/components/about/CareerTimeline';
+import Link from '@/components/ui/Link';
+import Image from '@/components/ui/Image';
+import Button from '@/components/ui/Button';
+import Twemoji from '@/components/ui/Twemoji';
 
 interface Props {
   children: ReactNode;

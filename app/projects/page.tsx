@@ -7,21 +7,34 @@ import ProjectCard from '@/components/project/ProjectCard';
 export const metadata = genPageMetadata({ title: 'Projects' });
 
 export default async function Projects() {
-  await Promise.all(
+  // Create new array instead of mutating imported data (server-dedup-props)
+  // Fetch all repo data in parallel (async-parallel)
+  const projects = await Promise.all(
     projectsData.map(async (p) => {
       if (p.repo && typeof p.repo === 'string') {
-        p.repo = await fetchRepoData({
+        const repoData = await fetchRepoData({
           repo: p.repo,
           includeLastCommit: false,
         });
+        return { ...p, repo: repoData };
       }
+      return p;
     })
   );
 
   const description = 'My open-source side projects and stuff that I built with my colleagues at work';
 
-  const workProjects = projectsData.filter(({ type }) => type === 'work');
-  const sideProjects = projectsData.filter(({ type }) => type === 'self');
+  // Combine filter operations for better performance (js-combine-iterations)
+  const workProjects: typeof projects = [];
+  const sideProjects: typeof projects = [];
+
+  for (const project of projects) {
+    if (project.type === 'work') {
+      workProjects.push(project);
+    } else if (project.type === 'self') {
+      sideProjects.push(project);
+    }
+  }
 
   return (
     <>

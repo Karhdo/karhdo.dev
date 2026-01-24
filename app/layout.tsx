@@ -9,10 +9,11 @@ import { Outfit } from 'next/font/google';
 import { SearchProvider, SearchConfig } from 'pliny/search';
 // import { Analytics, AnalyticsConfig } from 'pliny/analytics';
 
-import Header from '@/components/header';
+import Header from '@/components/header/Header';
 import Footer from '@/components/footer';
 import siteMetadata from '@/data/siteMetadata';
-import { SectionContainer, TiltedGridBackground } from '@/components/ui';
+import SectionContainer from '@/components/ui/SectionContainer';
+import TiltedGridBackground from '@/components/ui/TiltedGridBackground';
 
 import { ThemeProviders } from './theme-providers';
 import { UmamiAnalytics } from '@/components/analytics/umami';

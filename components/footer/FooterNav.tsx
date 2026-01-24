@@ -1,7 +1,8 @@
 import { Fragment } from 'react';
 import { ExternalLink } from 'lucide-react';
 
-import { GrowingUnderline, Link } from '@/components/ui';
+import GrowingUnderline from '@/components/ui/GrowingUnderline';
+import Link from '@/components/ui/Link';
 import { FOOTER_NAV_LINKS, FOOTER_PERSONAL_STUFF } from '@/data/navigation';
 
 interface FooterLinkProps {
