@@ -1,5 +1,5 @@
 import type { SpotifyNowPlayingData } from '@/types/index';
-import { getSpotifyNowPlaying } from '@/servers/spotify.server';
+import { getSpotifyNowPlaying } from '@/lib/services/spotify';
 
 export async function GET() {
   const response = await getSpotifyNowPlaying();

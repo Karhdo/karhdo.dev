@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 
-import { fetcher } from '@/utils/index';
+import { fetcher } from '@/lib/utils';
 
 import type { Stats, StatsType } from '@/types/prisma';
 

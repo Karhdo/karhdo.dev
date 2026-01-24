@@ -15,7 +15,7 @@ import siteMetadata from '@/data/siteMetadata';
 import SectionContainer from '@/components/ui/SectionContainer';
 import TiltedGridBackground from '@/components/ui/TiltedGridBackground';
 
-import { ThemeProviders } from './theme-providers';
+import { ThemeProviders } from '@/providers/theme-providers';
 import { UmamiAnalytics } from '@/components/analytics/umami';
 
 const FONT_OUTFIT = Outfit({

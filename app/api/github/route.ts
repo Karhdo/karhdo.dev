@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import { fetchRepoData } from '@/servers/github.server';
+import { fetchRepoData } from '@/lib/services/github';
 
 export async function GET(request: NextRequest) {
   const { searchParams: params } = new URL(request.url);

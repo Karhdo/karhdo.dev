@@ -7,7 +7,7 @@ import GrowingUnderline from '@/components/ui/GrowingUnderline';
 import Link from '@/components/ui/Link';
 import SITE_METADATA from '@/data/siteMetadata';
 import type { CommitState, GithubRepository } from '@/types/data';
-import { fetcher, getTimeAgo } from '@/utils/misc';
+import { fetcher, getTimeAgo } from '@/lib/utils';
 
 export function LastCommit() {
   const siteRepo = SITE_METADATA.siteRepo.replace('https://github.com/', '');

@@ -21,7 +21,7 @@ const TypedBios = dynamic(() => import('@/components/homepage/TypedBios'), { ssr
 
 const MAX_DISPLAY = 5;
 
-export default function Home({ posts }) {
+export function HomeContent({ posts }) {
   return (
     <div className="relative">
       <Snowfall
