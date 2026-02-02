@@ -76,7 +76,7 @@
     "@types/mdx": "^2.0.13",
     "@types/react": "^19.2.8",
     "@typescript-eslint/eslint-plugin": "^8.51.0",
-    "@typescript-eslint/parser": "^8.53.0",
+    "@typescript-eslint/parser": "^8.54.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "eslint": "^9.39.2",
