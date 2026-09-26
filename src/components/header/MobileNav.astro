@@ -93,7 +93,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
     const dialog = document.querySelector<HTMLDialogElement>('[data-mobile-nav]');
     const opener = document.querySelector<HTMLButtonElement>('[data-mobile-nav-open]');
     if (!dialog || !opener || dialog.dataset.bound) return;
-    dialog.dataset.bound = '';
+    dialog.dataset.bound = 'true';
 
     const close = () => {
       if (dialog.open) dialog.close();

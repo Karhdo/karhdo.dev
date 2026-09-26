@@ -140,7 +140,7 @@ import Icon from '~/components/ui/Icon.astro';
     for (const button of document.querySelectorAll<HTMLElement>('[data-theme-toggle]')) {
       render(button, readPref());
       if (button.dataset.bound) continue;
-      button.dataset.bound = '';
+      button.dataset.bound = 'true';
       button.addEventListener('click', () => toggle(button));
     }
   }
