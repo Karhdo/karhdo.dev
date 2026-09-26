@@ -186,7 +186,7 @@
       "id": "v2-astro-homepage-bento",
       "endpoint": null,
       "spec": "15-homepage-bento.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Mockup bento: word-by-word hero, staggered cards, stub cards for p5 tasks, Daily stack simple-icons marquee + Now learning, count-up helper, Selected projects (featured + framed)",
       "dependencies": [
         "v2-astro-header-footer",

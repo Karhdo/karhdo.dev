@@ -105,3 +105,6 @@ Rules for everything:
 - Astro docs "View transitions" (named transitions, `transition:animate`, ClientRouter lifecycle events `astro:before-preparation` / `astro:after-swap`).
 - web.dev "prefers-reduced-motion"; MDN "animation-timeline: view()", "View Transition API".
 - Reference `src/styles/animations.css` (hta218/leohuynh.dev).
+
+
+> **Notes from task 15 review:** the Latest post card has no `transition:name`, because Recent posts already uses `post-title-${id}` for the same post (duplicate names break view transitions). When running axe, scroll to the bottom first so `.reveal` elements reach opacity 1; mid-reveal cards at .35 opacity cause false contrast errors. Tasks 19/20/30/31: `formatCount` groups digits with `toLocaleString("en-US")`; give counted numbers `tabular-nums` and a min-width so the count-up does not shift inline text. `.rise` uses fill-mode `backwards`, not `both`, so hover transforms still apply after the entrance.

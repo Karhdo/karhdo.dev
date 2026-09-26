@@ -1,0 +1,31 @@
+---
+/**
+ * Homepage section heading (mockup `.section-h`): an `<h2>` with an optional right-aligned link.
+ * Reveals on scroll (`.reveal`, progressive enhancement, motion-safe only).
+ */
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  title: string;
+  id?: string;
+  href?: string;
+  linkLabel?: string;
+  class?: string;
+}
+
+const { title, id, href, linkLabel, class: className } = Astro.props;
+---
+
+<div class={cn('reveal mt-11 mb-3.5 flex items-baseline justify-between gap-3', className)}>
+  <h2 id={id} class="m-0 font-semibold text-[22px] text-fg tracking-[-0.02em]">{title}</h2>
+  {
+    href && linkLabel && (
+      <a
+        href={href}
+        class="text-heat-4 text-sm no-underline underline-offset-4 hover:underline"
+      >
+        {linkLabel}
+      </a>
+    )
+  }
+</div>

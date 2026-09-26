@@ -1,0 +1,43 @@
+---
+/**
+ * Bento "GitHub · @Karhdo" card (mockup `.c-github`).
+ * <!-- filled by task 20 --> Task 20 replaces the body with the `GithubActivity` island
+ * (`GET /api/github/activity`). Until then a fixed-size skeleton keeps the final height (no CLS).
+ * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
+ */
+import Card from '~/components/ui/Card.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { SITE } from '~/config/site';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+import CardSkeleton from './CardSkeleton.astro';
+import { CARD_MIN_HEIGHT } from './card-sizes';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+---
+
+<!-- filled by task 20 -->
+<Card
+  class={cn('flex flex-col gap-3.5', className)}
+  style={`min-height: ${CARD_MIN_HEIGHT.github}px; ${style ?? ''}`}
+  data-tilt
+  aria-busy="true"
+>
+  <CardEyebrow><Icon name="Github" size={14} />GitHub · @{SITE.socialAccounts.github}</CardEyebrow>
+  <CardSkeleton height={95} radius="6px" />
+  <div class="flex gap-5.5">
+    {
+      [0, 1, 2].map(() => (
+        <div class="flex min-w-0 max-w-[84px] flex-1 flex-col gap-1.5">
+          <CardSkeleton height={24} width="48px" />
+          <CardSkeleton height={12} />
+        </div>
+      ))
+    }
+  </div>
+</Card>

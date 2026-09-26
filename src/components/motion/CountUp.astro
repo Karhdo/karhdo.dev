@@ -1,0 +1,14 @@
+---
+/**
+ * Wires every `[data-count]` element (final value already server-rendered) to the one-shot count-up
+ * in `~/lib/motion/count-up`. Mounted once in BaseLayout; re-runs on each `astro:page-load`.
+ * Islands that render numbers after a fetch call `countUp` directly instead.
+ */
+---
+
+<script>
+  import { disconnectCounts, observeCounts } from '~/lib/motion/count-up';
+
+  document.addEventListener('astro:page-load', () => observeCounts());
+  document.addEventListener('astro:before-swap', () => disconnectCounts());
+</script>

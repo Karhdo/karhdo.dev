@@ -1,0 +1,39 @@
+---
+/**
+ * Bento "Token burn" card (mockup `.c-burn`; replaces the old local-time card).
+ * <!-- filled by task 31 --> Task 31 replaces the body with the vanilla `GET /api/token-burn` reader.
+ * Until then a fixed-size skeleton keeps the final height (no CLS).
+ * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
+ */
+import { Flame } from '@lucide/astro';
+import Card from '~/components/ui/Card.astro';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+import CardSkeleton from './CardSkeleton.astro';
+import { CARD_MIN_HEIGHT } from './card-sizes';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+---
+
+<!-- filled by task 31 -->
+<Card
+  class={cn('flex flex-col gap-3', className)}
+  style={`min-height: ${CARD_MIN_HEIGHT.tokenBurn}px; ${style ?? ''}`}
+  data-tilt
+  aria-busy="true"
+>
+  <CardEyebrow><Flame class="text-orange" size={14} aria-hidden="true" />Token burn</CardEyebrow>
+  <div class="flex items-end justify-between gap-2.5">
+    <CardSkeleton height={34} width="55%" />
+    <CardSkeleton height={22} width="56px" />
+  </div>
+  <CardSkeleton height={46} radius="4px" />
+  <CardSkeleton height={6} radius="6px" />
+  <CardSkeleton height={12} width="80%" />
+  <CardSkeleton height={14} width="60%" />
+</Card>

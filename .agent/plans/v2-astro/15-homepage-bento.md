@@ -143,3 +143,6 @@ All static content is pure Astro, and the typed bios are a small script. The sno
 
 
 > **Note from task 03:** `StackItem` exists in `src/config/site.ts` loosely typed (`icon: string; tone: string`); narrow it here to the simple-icons slug and palette-token unions. `nowLearning` is typed `{ items: readonly string[]; text: string }`.
+
+
+> **Notes from task 15 review:** the Latest post card has no `transition:name`, because Recent posts already uses `post-title-${id}` for the same post (duplicate names break view transitions). When running axe, scroll to the bottom first so `.reveal` elements reach opacity 1; mid-reveal cards at .35 opacity cause false contrast errors. Tasks 19/20/30/31: `formatCount` groups digits with `toLocaleString("en-US")`; give counted numbers `tabular-nums` and a min-width so the count-up does not shift inline text. `.rise` uses fill-mode `backwards`, not `both`, so hover transforms still apply after the entrance.

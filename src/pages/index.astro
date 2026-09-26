@@ -1,9 +1,88 @@
 ---
+import PostList from '~/components/blog/PostList.astro';
+/**
+ * Homepage: the mockup bento grid (6 columns on desktop, 2 on tablet, 1 on mobile), then Selected
+ * projects, Recent posts and Popular tags. Prerendered; the live cards are stubs filled in place by
+ * their own tasks (Spotify 19, Token burn 31, GitHub 20, Blog stats 30, Snowfall 29), so this file
+ * never needs to change for them.
+ */
+import BlogStatsCard from '~/components/home/BlogStatsCard.astro';
+import DailyStackCard from '~/components/home/DailyStackCard.astro';
+import GithubActivityCard from '~/components/home/GithubActivityCard.astro';
+import IntroCard from '~/components/home/IntroCard.astro';
+import LatestPostCard from '~/components/home/LatestPostCard.astro';
+import SectionHeading from '~/components/home/SectionHeading.astro';
+import SpotifyCard from '~/components/home/SpotifyCard.astro';
+import TokenBurnCard from '~/components/home/TokenBurnCard.astro';
+import ProjectCard from '~/components/projects/ProjectCard.astro';
+import ProjectGrid from '~/components/projects/ProjectGrid.astro';
+import Snowfall from '~/components/Snowfall.astro';
+import PopularTags from '~/components/tags/PopularTags.astro';
+import { PROJECTS } from '~/config/projects';
+import { SITE } from '~/config/site';
 import PageLayout from '~/layouts/PageLayout.astro';
+import { BUILD_INFO } from '~/lib/build-info';
+import { getPublishedPosts } from '~/lib/content';
+
+/** v1 `MAX_DISPLAY`. */
+const MAX_DISPLAY = 5;
+
+const posts = await getPublishedPosts();
+const [latest] = posts;
+const selected = PROJECTS.filter((project) => project.selected);
+const featured = selected.find((project) => project.featured);
+const framed = selected.filter((project) => project !== featured);
+const siteRepo = SITE.siteRepo.replace('https://github.com/', '');
 ---
 
 <PageLayout>
-  <section class="flex min-h-[60vh] items-center justify-center">
-    <h1 class="font-bold text-4xl tracking-tight">karhdo.dev v2 — coming soon</h1>
-  </section>
+  <Snowfall />
+  <div class="pt-7 pb-16">
+    <!-- Each card: `.rise` (staggered load-in, `--i` × 50 ms, motion-safe) + `data-tilt` (task 26). -->
+    <section
+      class="bento grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-6 lg:auto-rows-[minmax(120px,auto)]"
+      aria-label="Introduction and live widgets"
+    >
+      <IntroCard class="md:col-span-2 lg:col-span-4 lg:row-span-2 rise" style="--i: 0" />
+      <SpotifyCard class="md:col-span-1 lg:col-span-2 rise" style="--i: 1" />
+      <TokenBurnCard class="md:col-span-1 lg:col-span-2 rise" style="--i: 2" />
+      {latest && <LatestPostCard post={latest} class="md:col-span-2 lg:col-span-4 rise" style="--i: 3" />}
+      <DailyStackCard class="md:col-span-2 lg:col-span-2 rise" style="--i: 4" />
+      <GithubActivityCard class="md:col-span-2 lg:col-span-4 rise" style="--i: 5" />
+      <BlogStatsCard class="md:col-span-2 lg:col-span-2 rise" style="--i: 6" />
+    </section>
+
+    <section aria-labelledby="selected-projects">
+      <SectionHeading
+        id="selected-projects"
+        title="Selected projects"
+        href="/projects"
+        linkLabel={`All ${PROJECTS.length} projects →`}
+      />
+      <ProjectGrid>
+        {featured && <ProjectCard project={featured} variant="featured" />}
+        {
+          framed.map((project) => (
+            <ProjectCard
+              project={project}
+              variant="framed"
+              stars={project.repo === siteRepo ? BUILD_INFO.stars : undefined}
+            />
+          ))
+        }
+      </ProjectGrid>
+    </section>
+
+    <section aria-labelledby="recent-posts">
+      <SectionHeading
+        id="recent-posts"
+        title="Recent posts"
+        href={posts.length > MAX_DISPLAY ? '/blog' : undefined}
+        linkLabel="All posts →"
+      />
+      <PostList posts={posts.slice(0, MAX_DISPLAY)} headingLevel={3} />
+    </section>
+
+    <PopularTags class="mt-11" />
+  </div>
 </PageLayout>

@@ -1,0 +1,66 @@
+---
+/**
+ * Bento "Latest post" card (mockup `.c-latest`): the newest published post as one link, with the
+ * title, summary, `MMM D, YYYY` · reading time · first tag, and an arrow that nudges on hover.
+ */
+import { ArrowUpRight } from '@lucide/astro';
+import Card from '~/components/ui/Card.astro';
+import { isoDate, readingMinutes } from '~/lib/blog-list';
+import { getReadingTime, type Post, postUrl } from '~/lib/content';
+import { tagSlug } from '~/lib/tags';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+
+interface Props {
+  post: Post;
+  class?: string;
+  style?: string;
+}
+
+const { post, class: className, style } = Astro.props;
+const { title, summary, tags, date } = post.data;
+const shortDate = date.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const minutes = readingMinutes(getReadingTime(post.body ?? '').minutes);
+const firstTag = tags[0] ? tagSlug(tags[0]) : undefined;
+---
+
+<Card href={postUrl(post)} class={cn('c-latest grid grid-cols-[1fr_auto] items-end gap-x-4.5 gap-y-1.5', className)} style={style} data-tilt>
+  <CardEyebrow class="col-span-full">Latest post</CardEyebrow>
+  <div>
+    <h2 class="mt-1.5 mb-1.5 font-semibold text-[24px] text-fg leading-[1.2] tracking-[-0.02em] [text-wrap:balance]">
+      {title}
+    </h2>
+    {summary && <p class="m-0 line-clamp-3 max-w-[60ch] text-[15px] text-fg-soft md:line-clamp-2">{summary}</p>}
+    <p class="m-0 mt-3 flex flex-wrap items-center gap-3 font-mono text-fg-soft text-xs">
+      <time datetime={isoDate(date)}>{shortDate}</time>
+      <span aria-hidden="true">·</span>
+      <span>{minutes} min read</span>
+      {
+        firstTag && (
+          <span class="text-purple">
+            <span aria-hidden="true" class="opacity-60">#</span>
+            {firstTag}
+          </span>
+        )
+      }
+    </p>
+  </div>
+  <span
+    class="arrow grid size-11 place-items-center rounded-xl border border-line-strong text-heat-4 transition-transform duration-250 max-[600px]:hidden"
+    aria-hidden="true"
+  >
+    <ArrowUpRight size={18} />
+  </span>
+</Card>
+
+<style>
+  .c-latest:hover .arrow,
+  .c-latest:focus-visible .arrow {
+    transform: translateX(3px) rotate(-8deg);
+  }
+</style>

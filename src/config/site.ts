@@ -1,3 +1,5 @@
+import type { SimpleIconSlug } from '~/lib/simple-icons';
+
 /**
  * Site-wide configuration, ported from v1 `data/siteMetadata.js`.
  *
@@ -11,11 +13,11 @@ export type SnowfallMode = boolean | 'december';
 /** An entry of the footer version switcher. Filled by task 09. */
 export type SiteVersion = { branch: string; stack: string; url: string; current?: boolean };
 
-/**
- * A "Daily stack" badge. Loosely typed for now: task 15 narrows `icon` to a
- * simple-icons slug and `tone` to a Tokyonight palette token (task 06).
- */
-export type StackItem = { name: string; icon: string; tone: string };
+/** A Tokyonight colour token usable as `var(--{tone})` (see `src/styles/theme.css`). */
+export type PaletteToken = 'fg' | 'blue' | 'blue1' | 'cyan' | 'teal' | 'green' | 'yellow' | 'orange' | 'red' | 'purple';
+
+/** A "Daily stack" badge: the exact simple-icons logo, tinted with a Tokyonight token (never a brand hex). */
+export type StackItem = { name: string; icon: SimpleIconSlug; tone: PaletteToken };
 
 export type SiteConfig = {
   title: string;
@@ -80,6 +82,25 @@ export const SITE = {
     { branch: 'main', stack: 'Astro × Bun', url: 'https://karhdo.dev', current: true },
     { branch: 'v1', stack: 'Next.js 16 × pnpm', url: 'https://v1.karhdo.dev' },
   ] satisfies SiteVersion[],
+  /** Homepage "Daily stack" marquee (task 15): first 7 on the top row, the rest on the reversed row. */
+  stack: [
+    { name: 'TypeScript', icon: 'typescript', tone: 'blue' },
+    { name: 'NestJS', icon: 'nestjs', tone: 'red' },
+    { name: 'React', icon: 'react', tone: 'cyan' },
+    { name: 'Node.js', icon: 'nodedotjs', tone: 'green' },
+    { name: 'Next.js', icon: 'nextdotjs', tone: 'fg' },
+    { name: 'Astro', icon: 'astro', tone: 'orange' },
+    { name: 'PostgreSQL', icon: 'postgresql', tone: 'blue1' },
+    { name: 'Bun', icon: 'bun', tone: 'yellow' },
+    { name: 'Tailwind CSS', icon: 'tailwindcss', tone: 'cyan' },
+    { name: 'Drizzle', icon: 'drizzle', tone: 'green' },
+    { name: 'RabbitMQ', icon: 'rabbitmq', tone: 'orange' },
+    { name: 'Docker', icon: 'docker', tone: 'blue' },
+    { name: 'Vue.js', icon: 'vuedotjs', tone: 'teal' },
+    { name: 'Redis', icon: 'redis', tone: 'red' },
+  ] satisfies StackItem[],
+  /** Daily stack footer: "Now learning **Astro** & **Bun** by rebuilding this site". */
+  nowLearning: { items: ['Astro', 'Bun'], text: 'by rebuilding this site' },
 } as const satisfies SiteConfig;
 
 /**

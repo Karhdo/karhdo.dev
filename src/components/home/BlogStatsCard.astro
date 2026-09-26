@@ -1,0 +1,38 @@
+---
+/**
+ * Bento "Blog stats" card (mockup `.c-stats`): views, 30-day chart, reactions, most read.
+ * <!-- filled by task 30 --> Task 30 replaces the body with the `BlogStats` island
+ * (`GET /api/stats/summary`). Until then a fixed-size skeleton keeps the final height (no CLS).
+ * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
+ */
+import Card from '~/components/ui/Card.astro';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+import CardSkeleton from './CardSkeleton.astro';
+import { CARD_MIN_HEIGHT } from './card-sizes';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+---
+
+<!-- filled by task 30 -->
+<Card
+  class={cn('flex flex-col gap-3', className)}
+  style={`min-height: ${CARD_MIN_HEIGHT.blogStats}px; ${style ?? ''}`}
+  data-tilt
+  aria-busy="true"
+>
+  <CardEyebrow>Blog stats</CardEyebrow>
+  <div class="flex items-end justify-between">
+    <CardSkeleton height={34} width="50%" />
+    <CardSkeleton height={20} width="56px" radius="99px" />
+  </div>
+  <CardSkeleton height={70} radius="6px" />
+  <CardSkeleton height={6} radius="6px" />
+  <CardSkeleton height={16} width="90%" />
+  <CardSkeleton height={36} class="mt-auto" />
+</Card>
