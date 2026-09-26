@@ -38,7 +38,7 @@
       "id": "v2-astro-tooling-biome",
       "endpoint": null,
       "spec": "02-tooling-biome.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Biome, lefthook pre-commit, bun test runner + testing convention, GitHub Actions CI, stricter tsconfig",
       "dependencies": [
         "v2-astro-scaffold-astro"
@@ -49,7 +49,7 @@
       "id": "v2-astro-site-config-env",
       "endpoint": null,
       "spec": "03-site-config-env.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Typed src/config from data/*; astro:env schema keeping v1 env names (NEXT_PUBLIC_GISCUS_*, UMAMI_WEBSITE_ID as server/public); .env.example",
       "dependencies": [
         "v2-astro-scaffold-astro"
