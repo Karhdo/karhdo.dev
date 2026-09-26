@@ -199,3 +199,6 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Cache-header rule (found in task 31 review, applies to every on-demand route):** never send `s-maxage` / `stale-while-revalidate` in `Cache-Control` without a browser `max-age`: browsers then serve stale responses for the SWR window. Use `Cache-Control: public, max-age=0, must-revalidate` for the browser plus `Vercel-CDN-Cache-Control: max-age=N, stale-while-revalidate=M` for the CDN.
+
+
+> **Implementation note (task 19):** the Spotify card is a vanilla module script (no React island). Polling stops when the tab is hidden, the card is off-screen or you navigate away, and album art uses Spotify's own 64/300/640 srcset (not the Vercel image service, to save the image quota).

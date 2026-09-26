@@ -1,0 +1,30 @@
+{
+  "timestamp": 1790000000000,
+  "context": {
+    "type": "album",
+    "href": "https://api.spotify.com/v1/albums/6R0ynY7RF20ofs9GJR5TXR",
+    "external_urls": { "spotify": "https://open.spotify.com/album/6R0ynY7RF20ofs9GJR5TXR" },
+    "uri": "spotify:album:6R0ynY7RF20ofs9GJR5TXR"
+  },
+  "progress_ms": 103000,
+  "item": {
+    "album": {
+      "album_type": "album",
+      "name": "Hurry Up, We're Dreaming",
+      "images": [
+        { "height": 640, "url": "https://i.scdn.co/image/ab67616d0000b273fff2cb485c36a6d8f639bdba", "width": 640 },
+        { "height": 300, "url": "https://i.scdn.co/image/ab67616d00001e02fff2cb485c36a6d8f639bdba", "width": 300 },
+        { "height": 64, "url": "https://i.scdn.co/image/ab67616d00004851fff2cb485c36a6d8f639bdba", "width": 64 }
+      ]
+    },
+    "artists": [{ "name": "M83", "type": "artist" }],
+    "duration_ms": 243960,
+    "explicit": false,
+    "external_urls": { "spotify": "https://open.spotify.com/track/1eyzqe2QqGZUmfcPZtrIyt" },
+    "name": "Midnight City",
+    "type": "track"
+  },
+  "currently_playing_type": "track",
+  "actions": { "disallows": { "resuming": true } },
+  "is_playing": true
+}

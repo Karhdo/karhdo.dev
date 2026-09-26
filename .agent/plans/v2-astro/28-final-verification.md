@@ -104,3 +104,6 @@ Prove v2 is a complete, safe replacement for v1 before merging `v2` into `main`:
 
 
 > **Note from task 21 review:** on the first preview, check `curl -sI -H "Origin: https://giscus.app" https://<preview>/static/giscus/tokyonight-day.css` returns exactly ONE `access-control-allow-origin` header and `content-type: text/css`. Also check there are no CSP violations in the console with the real headers (`font-src` now allows `data:` for the inlined JetBrains Mono subset).
+
+
+> **Preview check (task 19):** `curl -sI <preview>/api/spotify` twice within 30 s: the second response shows `x-vercel-cache: HIT` and a non-zero `age`, and `Cache-Control` reaching the browser has no `s-maxage`. Do the same spot-check for `/api/github`, `/api/github/activity`, `/api/stats/summary` and `/api/token-burn` (browser gets `max-age=0, must-revalidate`).

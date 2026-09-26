@@ -234,7 +234,7 @@
       "id": "v2-astro-spotify-now-playing",
       "endpoint": "GET /api/spotify",
       "spec": "19-spotify-now-playing.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Spotify endpoint with progressMs/durationMs; fills the SpotifyCard stub (visibility-aware island with progress bar)",
       "dependencies": [
         "v2-astro-site-config-env",
