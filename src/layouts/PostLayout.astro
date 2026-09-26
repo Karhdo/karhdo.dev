@@ -1,0 +1,82 @@
+---
+/**
+ * Blog post layout (v1 `layouts/PostLayout.tsx`, mockup `#view-post`): reading progress, header,
+ * mobile TOC, prose, reactions at the end of the article, prev/next, newsletter, comments, and a
+ * sticky "On this page" aside (TOC + tags/updated) from `lg` up.
+ *
+ * Later tasks fill only their stub file (PostViewCount/PostReactions 18, PostNewsletter 22,
+ * PostComments 21), rendered here as the fallback of the `stats`/`reactions`/`newsletter`/
+ * `comments` slots. Pagefind markup is final: only the `<article>` is `data-pagefind-body`, and
+ * everything in it except the title and the prose is `data-pagefind-ignore`.
+ *
+ * v1 also had `PostSimple` and `PostBanner`; no post uses them, so `frontmatter.layout` falls back
+ * to this layout.
+ */
+import type { MarkdownHeading } from 'astro';
+import PostComments from '~/components/blog/PostComments.astro';
+import PostHeader from '~/components/blog/PostHeader.astro';
+import PostNav from '~/components/blog/PostNav.astro';
+import PostNewsletter from '~/components/blog/PostNewsletter.astro';
+import PostReactions from '~/components/blog/PostReactions.astro';
+import PostViewCount from '~/components/blog/PostViewCount.astro';
+import ReadingProgress from '~/components/blog/ReadingProgress.astro';
+import ScrollTopAndComment from '~/components/blog/ScrollTopAndComment.astro';
+import TableOfContents from '~/components/blog/TableOfContents.astro';
+import TocMeta from '~/components/blog/TocMeta.astro';
+import ImageZoom from '~/components/mdx/ImageZoom.astro';
+import type { Post } from '~/lib/content';
+import { postImage } from '~/lib/seo';
+import PageLayout, { type Props as PageProps } from './PageLayout.astro';
+
+export type Props = PageProps & {
+  post: Post;
+  headings: MarkdownHeading[];
+  readingMinutes: number;
+  authorProfiles: { name: string; avatar?: string }[];
+  neighbours: { prev?: Post; next?: Post };
+};
+
+const { post, headings, readingMinutes, authorProfiles, neighbours, ...pageProps } = Astro.props;
+const { id, data } = post;
+const image = postImage(data.images);
+---
+
+<PageLayout {...pageProps}>
+  <ReadingProgress />
+  <div class="grid grid-cols-1 gap-12 pt-10 pb-16 lg:grid-cols-12 lg:pt-14">
+    <div class="min-w-0 lg:col-span-8 xl:col-span-9">
+      <article data-pagefind-body data-reading-target>
+        {data.tags.map((tag) => <span hidden data-pagefind-filter="tag">{tag}</span>)}
+        <span hidden data-pagefind-meta="image">{image}</span>
+        <PostHeader
+          id={id}
+          title={data.title}
+          date={data.date}
+          tags={data.tags}
+          readingMinutes={readingMinutes}
+          authors={authorProfiles}
+        >
+          <Fragment slot="stats"><slot name="stats"><PostViewCount slug={id} /></slot></Fragment>
+        </PostHeader>
+        <div class="mb-8 lg:hidden" data-pagefind-ignore>
+          <TableOfContents headings={headings} variant="mobile" />
+        </div>
+        <div class="prose">
+          <slot />
+        </div>
+        <slot name="reactions"><PostReactions slug={id} /></slot>
+      </article>
+      <PostNav prev={neighbours.prev} next={neighbours.next} />
+      <slot name="newsletter"><PostNewsletter /></slot>
+      <slot name="comments"><PostComments /></slot>
+    </div>
+    <aside class="hidden lg:col-span-4 lg:block xl:col-span-3" data-pagefind-ignore>
+      <div class="sticky top-24">
+        <TableOfContents headings={headings} />
+        <TocMeta tags={data.tags} updated={data.lastmod ?? data.date} />
+      </div>
+    </aside>
+  </div>
+  <ScrollTopAndComment />
+  <ImageZoom />
+</PageLayout>

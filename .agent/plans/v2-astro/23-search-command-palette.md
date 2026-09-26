@@ -53,3 +53,6 @@ Replace v1's kbar + `search.json` with Pagefind full-text search generated after
 
 
 > **Note from task 09:** the header search button dispatches `window.dispatchEvent(new CustomEvent("open-command-palette"))` (no detail). The palette loader must listen on `window` for that event, and any other "Search posts" button (task 13) must dispatch the same event on `window`.
+
+
+> **Note from task 12 review:** Pagefind result URLs come out with a trailing slash (`/blog/x/`) because of the directory build format, while the site uses `trailingSlash: "never"`. Strip the trailing slash from result URLs in the palette UI (or configure pagefind URL handling) so links do not trigger the 308 redirect.

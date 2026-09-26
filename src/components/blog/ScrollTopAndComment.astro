@@ -1,0 +1,68 @@
+---
+/**
+ * Floating "scroll to comments" / "scroll to top" buttons (v1 `ScrollTopAndComment.tsx`), from `md`
+ * up, shown once half of the page has been scrolled. Jumps inherit the root's
+ * `motion-safe:scroll-smooth`, so they are instant under reduced motion.
+ */
+import Icon from '~/components/ui/Icon.astro';
+
+const button =
+  'glass grid size-10 cursor-pointer place-items-center rounded-xl! text-fg-soft transition-colors hover:border-line-strong hover:text-fg';
+---
+
+<div data-scroll-buttons data-show="false" class="scroll-buttons fixed right-8 bottom-8 z-40 hidden flex-col gap-3 md:flex">
+  <button type="button" class={button} aria-label="Scroll to comments" data-scroll-comments>
+    <Icon name="MessageSquare" size={18} />
+  </button>
+  <button type="button" class={button} aria-label="Scroll to top" data-scroll-top>
+    <Icon name="ArrowUp" size={18} />
+  </button>
+</div>
+
+<style>
+  .scroll-buttons[data-show="false"] {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-buttons {
+      transition:
+        opacity 0.2s var(--ease-out),
+        visibility 0.2s;
+    }
+  }
+</style>
+
+<script>
+  let onScroll: (() => void) | undefined;
+
+  function stop() {
+    if (onScroll) window.removeEventListener('scroll', onScroll);
+    onScroll = undefined;
+  }
+
+  function initScrollButtons() {
+    stop();
+    const root = document.querySelector<HTMLElement>('[data-scroll-buttons]');
+    if (!root) return;
+    if (root.dataset.bound !== 'true') {
+      root.dataset.bound = 'true';
+      root.querySelector('[data-scroll-top]')?.addEventListener('click', () => window.scrollTo({ top: 0 }));
+      root
+        .querySelector('[data-scroll-comments]')
+        ?.addEventListener('click', () => document.getElementById('comments')?.scrollIntoView());
+    }
+
+    onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      root.dataset.show = String(max > 0 && window.scrollY > max * 0.5);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  document.addEventListener('astro:page-load', initScrollButtons);
+  document.addEventListener('astro:before-swap', stop);
+</script>

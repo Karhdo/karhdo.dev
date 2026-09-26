@@ -1,0 +1,44 @@
+---
+/**
+ * Prev/next post cards (v1 `BlogNav.tsx`: prev = older, next = newer) and a link back to the blog.
+ */
+import { type Post, postUrl } from '~/lib/content';
+
+interface Props {
+  prev?: Post;
+  next?: Post;
+}
+
+const { prev, next } = Astro.props;
+const card =
+  'glass group flex min-w-0 flex-col gap-1.5 rounded-2xl! px-5 py-4 no-underline transition-colors hover:border-line-strong focus-visible:border-line-strong';
+---
+
+<nav aria-label="More posts" data-pagefind-ignore class="mt-12 flex flex-col gap-4">
+  {
+    (prev || next) && (
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {prev ? (
+          <a href={postUrl(prev)} rel="prev" class={card} data-umami-event="post-nav-prev">
+            <span class="font-mono text-[12.5px] text-fg-soft">← Previous post</span>
+            <span class="font-medium text-fg leading-snug transition-colors group-hover:text-blue">{prev.data.title}</span>
+          </a>
+        ) : (
+          <div class="hidden md:block" />
+        )}
+        {next && (
+          <a href={postUrl(next)} rel="next" class:list={[card, 'md:items-end md:text-right']} data-umami-event="post-nav-next">
+            <span class="font-mono text-[12.5px] text-fg-soft">Next post →</span>
+            <span class="font-medium text-fg leading-snug transition-colors group-hover:text-blue">{next.data.title}</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+  <a
+    href="/blog"
+    class="self-start font-mono text-[13px] text-fg-soft no-underline transition-colors hover:text-blue focus-visible:text-blue"
+  >
+    <span aria-hidden="true">←</span> Back to the blog
+  </a>
+</nav>

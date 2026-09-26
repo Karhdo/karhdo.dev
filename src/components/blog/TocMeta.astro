@@ -1,0 +1,26 @@
+---
+/** The stat row under the TOC (mockup `.toc .stat`): `tags · …` and `updated · YYYY-MM-DD`. */
+import Tag from '~/components/ui/Tag.astro';
+
+interface Props {
+  tags: string[];
+  updated: Date;
+}
+
+const { tags, updated } = Astro.props;
+const iso = updated.toISOString().slice(0, 10);
+---
+
+<div class="mt-[22px] flex flex-col gap-1.5 font-mono text-[12.5px] text-fg-soft">
+  {
+    tags.length > 0 && (
+      <p class="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span>tags ·</span>
+        {tags.map((tag) => (
+          <Tag text={tag} />
+        ))}
+      </p>
+    )
+  }
+  <p class="m-0">updated · <time datetime={iso}>{iso}</time></p>
+</div>

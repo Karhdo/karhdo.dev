@@ -1,0 +1,16 @@
+---
+/**
+ * Reactions at the end of the article (mockup `.reactions`). Stub from task 12: a fixed-height
+ * placeholder that reserves the row, so filling it causes no layout shift; task 18 fills this file only.
+ */
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<!-- filled by task 18 -->
+<div data-pagefind-ignore data-post-reactions={slug} class="mt-10 border-line border-t pt-6">
+  <div class="h-[42px]"></div>
+</div>

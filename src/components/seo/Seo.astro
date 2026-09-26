@@ -16,6 +16,10 @@ export interface Props {
   publishedTime?: Date;
   modifiedTime?: Date;
   tags?: string[];
+  /** `article:author` names (one meta each); v1 passed the post's author names. */
+  authors?: string[];
+  /** Path or absolute URL; defaults to the current path (posts pass `canonicalUrl ?? /blog/{id}`). */
+  canonical?: string;
   noindex?: boolean;
   jsonLd?: object;
   rssFeed?: string;
@@ -29,6 +33,8 @@ const {
   publishedTime,
   modifiedTime,
   tags = [],
+  authors = [SITE.author],
+  canonical: canonicalPath,
   noindex = false,
   jsonLd = buildWebsiteJsonLd(),
   rssFeed,
@@ -37,7 +43,7 @@ const {
 const fullTitle = pageTitle(title);
 // v1: posts use the bare post title for og/twitter, other pages the templated title.
 const socialTitle = type === 'article' && title ? title : fullTitle;
-const canonical = absoluteUrl(Astro.url.pathname);
+const canonical = absoluteUrl(canonicalPath ?? Astro.url.pathname);
 const imageUrl = absoluteUrl(image);
 const robots = noindex
   ? 'noindex, follow'
@@ -61,7 +67,7 @@ const robots = noindex
     <>
       {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
       {modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
-      <meta property="article:author" content={SITE.author} />
+      {authors.map((name) => <meta property="article:author" content={name} />)}
       {tags.map((tag) => <meta property="article:tag" content={tag} />)}
     </>
   )

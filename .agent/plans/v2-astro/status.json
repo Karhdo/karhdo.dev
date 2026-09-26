@@ -151,7 +151,7 @@
       "id": "v2-astro-blog-post-page",
       "endpoint": null,
       "spec": "12-blog-post-page.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "/blog/[slug] per mockup: byline, TOC aside with tags + updated date, reactions slot at article end, reading progress, prev/next, JSON-LD",
       "dependencies": [
         "v2-astro-header-footer",
