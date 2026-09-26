@@ -1,0 +1,16 @@
+---
+/** Centred content column (mockup `.wrap`: 1080px). */
+import type { HTMLTag } from 'astro/types';
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  as?: HTMLTag;
+  class?: string;
+}
+
+const { as: Element = 'section', class: className } = Astro.props;
+---
+
+<Element class={cn('mx-auto w-full max-w-[1080px] px-4 sm:px-6', className)}>
+  <slot />
+</Element>

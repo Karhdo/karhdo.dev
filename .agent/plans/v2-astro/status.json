@@ -105,7 +105,7 @@
       "id": "v2-astro-ui-primitives",
       "endpoint": null,
       "spec": "08-ui-primitives.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Glass Card, Button, Tag, Link, icons, brand SVGs, SimpleIcon (simple-icons, build-time SVG), local Twemoji 17.0.3",
       "dependencies": [
         "v2-astro-design-tokens"

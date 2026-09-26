@@ -154,7 +154,7 @@ Build the CSS foundation in Tailwind v4 CSS-first syntax, copying the **mockup t
   - `src/styles/theme.css` (the tokens);
   - `src/styles/palette.ts` (the TS mirror);
   - `src/styles/ec-tokyonight-day.json` (the vendored code theme);
-  - `src/assets/icons/**` (vendored brand SVGs, including the MIV badge);
+  - `src/assets/icons/miv.svg` (only until task 09 replaces it with a token-coloured component) (vendored brand SVGs, including the MIV badge);
   - `**/*.test.ts` and `**/__fixtures__/**` (tests compare literal values on purpose).
     Components use named colours such as `black`/`transparent` only in masks (for example the marquee `mask-image` in task 15 uses `black`, not `#000`). **Modify** `.github/workflows/ci.yml` (from task 02) to add a `bun run lint:palette` step after `biome ci`.
 - [ ] `bun test` passes `palette.test.ts` (the TS mirror equals the CSS tokens).

@@ -1,0 +1,73 @@
+---
+/**
+ * Brand logo, monochrome and tinted with a Tokyonight tone (no brand colours anywhere).
+ * Every logo is the official simple-icons path rendered by `SimpleIcon` (inline SVG at build time,
+ * zero JS), except Liquid, which simple-icons lacks: `src/assets/icons/liquid.svg` with
+ * `fill="currentColor"`. A caller `class` replaces the default size and can override the tone (via `cn`).
+ * Always decorative (`aria-hidden`): pair it with visible text.
+ */
+import Liquid from '~/assets/icons/liquid.svg';
+import type { BrandIconName } from '~/config/popular-tags';
+import type { SimpleIconSlug } from '~/lib/simple-icons';
+import { cn } from '~/lib/utils/cn';
+import SimpleIcon from './SimpleIcon.astro';
+
+export type { BrandIconName };
+
+/** Literal tone classes so Tailwind generates them. */
+type Tone =
+  | 'text-blue'
+  | 'text-blue1'
+  | 'text-cyan'
+  | 'text-fg'
+  | 'text-green'
+  | 'text-orange'
+  | 'text-red'
+  | 'text-teal'
+  | 'text-yellow';
+
+export const BRAND_ICONS: Record<BrandIconName, { slug: SimpleIconSlug | 'liquid'; tone: Tone }> = {
+  React: { slug: 'react', tone: 'text-cyan' },
+  Remix: { slug: 'remix', tone: 'text-fg' },
+  Git: { slug: 'git', tone: 'text-orange' },
+  GitHub: { slug: 'github', tone: 'text-fg' },
+  Javascript: { slug: 'javascript', tone: 'text-yellow' },
+  Typescript: { slug: 'typescript', tone: 'text-blue' },
+  Node: { slug: 'nodedotjs', tone: 'text-green' },
+  Bash: { slug: 'gnubash', tone: 'text-green' },
+  Liquid: { slug: 'liquid', tone: 'text-blue1' },
+  Markdown: { slug: 'markdown', tone: 'text-fg' },
+  NextJS: { slug: 'nextdotjs', tone: 'text-fg' },
+  TailwindCSS: { slug: 'tailwindcss', tone: 'text-cyan' },
+  Prisma: { slug: 'prisma', tone: 'text-teal' },
+  Umami: { slug: 'umami', tone: 'text-fg' },
+  Vercel: { slug: 'vercel', tone: 'text-fg' },
+  Railway: { slug: 'railway', tone: 'text-fg' },
+  Spotify: { slug: 'spotify', tone: 'text-green' },
+  NestJS: { slug: 'nestjs', tone: 'text-red' },
+  Docker: { slug: 'docker', tone: 'text-blue' },
+  Postgres: { slug: 'postgresql', tone: 'text-blue1' },
+  Mongodb: { slug: 'mongodb', tone: 'text-green' },
+  Astro: { slug: 'astro', tone: 'text-orange' },
+  Drizzle: { slug: 'drizzle', tone: 'text-green' },
+  Bun: { slug: 'bun', tone: 'text-yellow' },
+};
+
+interface Props {
+  type: BrandIconName;
+  class?: string;
+}
+
+const { type, class: className } = Astro.props;
+const { slug, tone } = BRAND_ICONS[type];
+// As in v1, a caller class replaces the default (responsive) size entirely; it can also override the tone.
+const classes = cn(tone, className ?? 'size-16 lg:size-14 xl:size-20');
+---
+
+{
+  slug === 'liquid' ? (
+    <Liquid class={classes} aria-hidden="true" focusable="false" />
+  ) : (
+    <SimpleIcon slug={slug} class={classes} />
+  )
+}

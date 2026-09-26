@@ -1,0 +1,23 @@
+---
+/**
+ * Anchor that opens absolute http(s) and `mailto:` URLs in a new tab (`noopener noreferrer`) and
+ * leaves internal/anchor links alone. Extra attributes (e.g. `data-umami-event`) pass through.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { cn } from '~/lib/utils/cn';
+
+type Props = Omit<HTMLAttributes<'a'>, 'href' | 'class'> & {
+  href: string;
+  class?: string;
+};
+
+const { href, class: className, ...rest } = Astro.props;
+const external = /^(https?:)?\/\//i.test(href) || href.startsWith('mailto:');
+---
+
+<a
+  href={href}
+  class={cn('break-words', className)}
+  {...external ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+  {...rest}
+><slot /></a>

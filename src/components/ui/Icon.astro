@@ -1,0 +1,77 @@
+---
+/**
+ * Lucide icon by name (zero JS: rendered to inline SVG at build time). Decorative by default
+ * (`aria-hidden`); pass `title` for a meaningful icon. Brand glyphs (Github, Linkedin, Facebook,
+ * Twitter) come from `~/components/icons/lucide-brands` because Lucide 1.x dropped them.
+ */
+import {
+  ArrowUp,
+  Briefcase,
+  Check,
+  CheckCheck,
+  ChevronRight,
+  Circle,
+  Clock,
+  GitFork,
+  Mail,
+  MapPin,
+  Menu,
+  MessageSquare,
+  Monitor,
+  Moon,
+  Rss,
+  Search,
+  Star,
+  Sun,
+  X,
+} from '@lucide/astro';
+import { Facebook, Github, Linkedin, Twitter } from '~/components/icons/lucide-brands';
+
+export const ICONS = {
+  Mail,
+  Github,
+  Linkedin,
+  Facebook,
+  Twitter,
+  MapPin,
+  Briefcase,
+  Clock,
+  Star,
+  GitFork,
+  Rss,
+  Search,
+  Sun,
+  Moon,
+  Monitor,
+  ChevronRight,
+  ArrowUp,
+  MessageSquare,
+  Check,
+  CheckCheck,
+  X,
+  Circle,
+  Menu,
+};
+
+export type IconName = keyof typeof ICONS;
+
+interface Props {
+  name: IconName;
+  size?: number | string;
+  strokeWidth?: number | string;
+  class?: string;
+  title?: string;
+}
+
+const { name, size = 18, strokeWidth = 2, class: className, title } = Astro.props;
+const Component = ICONS[name];
+---
+
+<Component
+  size={size}
+  stroke-width={strokeWidth}
+  class={className}
+  aria-hidden={title ? undefined : 'true'}
+  role={title ? 'img' : undefined}
+  aria-label={title}
+/>

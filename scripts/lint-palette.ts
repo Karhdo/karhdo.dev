@@ -1,7 +1,7 @@
 /**
  * Palette lint (M-C): every colour must come from the Tokyonight tokens in src/styles/theme.css.
  * Fails, printing file:line, on any hex colour, rgb()/hsl()/hwb()/lab()/lch()/oklab()/oklch()/color() literal under src/,
- * outside the token file, its TS mirror, the vendored code theme, vendored icons and tests.
+ * outside the token file, its TS mirror, the vendored code theme, the MIV badge and tests.
  *
  * Usage: bun run lint:palette
  */
@@ -14,7 +14,7 @@ const EXCLUDE = [
   new Glob('src/styles/theme.css'),
   new Glob('src/styles/palette.ts'),
   new Glob('src/styles/ec-tokyonight-day.json'),
-  new Glob('src/assets/icons/**'),
+  new Glob('src/assets/icons/miv.svg'),
   new Glob('**/*.test.ts'),
   new Glob('**/__fixtures__/**'),
 ];

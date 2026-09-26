@@ -168,3 +168,6 @@ v1's `Signature.tsx` SVG and the `BuiltWith` icon row are **not** carried over: 
 
 
 > **Note from task 07 review:** the base layout exposes `window.__theme.apply()` (call it after writing the theme to localStorage). Add `declare global { interface Window { __theme?: { apply(): void } } }` (e.g. in `src/env.d.ts`) so the toggle can call it from TS.
+
+
+> **User decision (during task 08):** the "Made in Vietnam" badge must follow the Tokyonight-only rule. Do NOT use `src/assets/icons/miv.svg` as-is. Recreate it as an inline SVG Astro component (e.g. `src/components/footer/MadeInVietnam.astro`) with the same 129x20 shape, the text and the star, coloured only with tokens: the "made in" half on `var(--surface-solid)` with `var(--fg-soft)` text, and the flag half on `var(--red)` with a `var(--yellow)` star and `var(--bg)` or `var(--fg)` "Vietnam" text (keep it readable in both themes). Then delete `miv.svg` and remove its exclusion from `scripts/lint-palette.ts`, so no file in `src/` is excluded except the token files, `palette.ts`, the code-theme JSON, tests and fixtures.

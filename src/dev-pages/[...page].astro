@@ -7,7 +7,9 @@ import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 
 const pages: Record<string, () => Promise<{ default: AstroComponentFactory }>> = {
   tokens: () => import('./tokens.astro'),
+  components: () => import('./components.astro'),
   content: () => import('./content.astro'),
+  layout: () => import('./layout.astro'),
 };
 
 const slug = Astro.params.page ?? '';

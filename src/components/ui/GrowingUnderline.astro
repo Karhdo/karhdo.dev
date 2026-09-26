@@ -1,0 +1,28 @@
+---
+/**
+ * Gradient underline that grows on hover (v1 `GrowingUnderline`, Tokyonight blue → cyan).
+ * `active` shows a thin underline at rest (e.g. the current nav item).
+ */
+import type { HTMLTag } from 'astro/types';
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  as?: HTMLTag;
+  active?: boolean;
+  duration?: number;
+  class?: string;
+}
+
+const { as: Element = 'span', active = false, duration = 300, class: className } = Astro.props;
+---
+
+<Element
+  class={cn(
+    'bg-linear-to-r from-blue to-cyan bg-bottom-left bg-no-repeat',
+    'transition-[background-size] duration-(--duration) ease-(--ease-out) motion-reduce:transition-none',
+    active ? 'bg-size-[100%_0.15em]' : 'bg-size-[0%_0.15em]',
+    'hover:bg-size-[100%_0.25em]',
+    className
+  )}
+  style={`--duration: ${duration}ms`}
+><slot /></Element>

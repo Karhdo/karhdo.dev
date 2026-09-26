@@ -1,0 +1,42 @@
+---
+/**
+ * Page/section heading block (mockup `.page-head`): optional mono eyebrow, title, optional lead.
+ * Used by the Blog, Projects, About and Tags pages. `level` 1 renders `PageTitle`; 2 a smaller `<h2>`.
+ * A `description` slot overrides the `description` prop for rich text.
+ */
+import { cn } from '~/lib/utils/cn';
+import PageTitle from './PageTitle.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  eyebrow?: string;
+  level?: 1 | 2;
+  class?: string;
+}
+
+const { title, description, eyebrow, level = 1, class: className } = Astro.props;
+const hasDescription = Boolean(description) || Astro.slots.has('description');
+---
+
+<header class={cn('flex flex-col gap-2.5', className)}>
+  {
+    eyebrow && (
+      <p class="m-0 flex items-center gap-2 font-mono text-[11.5px] text-muted uppercase tracking-[0.08em]">{eyebrow}</p>
+    )
+  }
+  {
+    level === 1 ? (
+      <PageTitle>{title}</PageTitle>
+    ) : (
+      <h2 class="m-0 text-balance font-semibold text-2xl text-fg tracking-[-0.02em] sm:text-3xl">{title}</h2>
+    )
+  }
+  {
+    hasDescription && (
+      <p class="m-0 max-w-[60ch] font-light text-fg-soft text-lg">
+        <slot name="description">{description}</slot>
+      </p>
+    )
+  }
+</header>
