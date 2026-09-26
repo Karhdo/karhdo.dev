@@ -49,3 +49,6 @@ Port the GitHub GraphQL service and use it in three places: (1) server-side on t
 
 - v1 `lib/services/github.ts`, `app/api/github/route.ts`, `app/projects/page.tsx`, `components/project/GithubRepo.tsx`.
 - Reference `src/lib/github.ts`, `src/pages/api/projects-github.json.ts`, `src/components/studio/runtime-rail/GitGrassCard.astro` (hta218/leohuynh.dev).
+
+
+> **Note from task 17 review:** v1 showed the GitHub repo description (`repository?.description || description`). Use the repo description as the fallback when a project has no `description` (e.g. Website Selling Food).

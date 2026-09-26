@@ -1,0 +1,20 @@
+---
+/** `/blog`: page 1 of the post list (v1 `app/blog/page.tsx`). Later pages: `blog/page/[page].astro`. */
+import { SITE } from '~/config/site';
+import ListLayout from '~/layouts/ListLayout.astro';
+import { totalPages } from '~/lib/blog-list';
+import { getPublishedPosts } from '~/lib/content';
+
+const posts = await getPublishedPosts();
+const pageSize = SITE.postsPerPage;
+---
+
+<ListLayout
+  seo={{ title: 'Blog' }}
+  eyebrow={`Blog · ${posts.length} posts`}
+  heading="Writing"
+  description="Notes on backend architecture, databases and TypeScript, written while building real products."
+  posts={posts.slice(0, pageSize)}
+  activeTag="all"
+  pagination={{ currentPage: 1, totalPages: totalPages(posts.length, pageSize) }}
+/>

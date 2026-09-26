@@ -1,0 +1,68 @@
+---
+/**
+ * Blog/tag list page (mockup `#view-blog`): page head (eyebrow, h1, lead, "Search posts" button),
+ * tag filter chips, dated post rows and optional pagination. Replaces v1 `ListLayout` /
+ * `ListLayoutWithTags` (the client-side search box becomes the ⌘K palette, task 23).
+ */
+import Pagination from '~/components/blog/Pagination.astro';
+import PostList from '~/components/blog/PostList.astro';
+import TagFilterChips from '~/components/blog/TagFilterChips.astro';
+import Icon from '~/components/ui/Icon.astro';
+import PageTitle from '~/components/ui/PageTitle.astro';
+import type { Post } from '~/lib/content';
+import PageLayout, { type Props as PageProps } from './PageLayout.astro';
+
+interface Props {
+  /** SEO: `<title>` and meta description. */
+  seo: PageProps;
+  eyebrow: string;
+  heading: string;
+  description?: string;
+  posts: Post[];
+  /** `'all'` or the active tag slug. */
+  activeTag?: string;
+  pagination?: { currentPage: number; totalPages: number; base?: string };
+}
+
+const { seo, eyebrow, heading, description, posts, activeTag = 'all', pagination } = Astro.props;
+---
+
+<PageLayout {...seo}>
+  <section class="pt-10 pb-16 sm:pt-14" aria-labelledby="list-heading">
+    <header class="reveal flex flex-col gap-2.5">
+      <p class="m-0 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">{eyebrow}</p>
+      <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <PageTitle><span id="list-heading">{heading}</span></PageTitle>
+        <button
+          type="button"
+          class="icon-btn gap-2 px-3!"
+          aria-keyshortcuts="Meta+K Control+K"
+          data-search-posts
+        >
+          <Icon name="Search" size={16} />
+          <span class="text-sm">Search posts</span>
+          <kbd class="rounded-[5px] border border-line-strong border-b-2 px-1.5 font-mono text-[11px] text-fg-soft" data-search-kbd>⌘K</kbd>
+        </button>
+      </div>
+      {description && <p class="m-0 max-w-[60ch] font-light text-fg-soft text-lg">{description}</p>}
+    </header>
+
+    <TagFilterChips active={activeTag} class="reveal mt-6 mb-2" />
+
+    <PostList posts={posts} class="mt-3" />
+
+    {pagination && pagination.totalPages > 1 && <Pagination {...pagination} class="mt-8" />}
+  </section>
+</PageLayout>
+
+<script>
+  // Same contract as the header SearchTrigger (task 09): open the ⌘K palette via a window event.
+  function bindSearchPosts(): void {
+    for (const button of document.querySelectorAll<HTMLElement>('[data-search-posts]')) {
+      if (button.dataset.bound) continue;
+      button.dataset.bound = 'true';
+      button.addEventListener('click', () => window.dispatchEvent(new CustomEvent('open-command-palette')));
+    }
+  }
+  document.addEventListener('astro:page-load', bindSearchPosts);
+</script>

@@ -163,7 +163,7 @@
       "id": "v2-astro-blog-list-pagination",
       "endpoint": null,
       "spec": "13-blog-list-pagination.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "/blog (\"Writing\") with tag filter chips (links) and dated rows, /blog/page/[n] pagination",
       "dependencies": [
         "v2-astro-header-footer",

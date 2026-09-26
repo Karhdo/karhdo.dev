@@ -181,3 +181,15 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Note from task 09 review (applies to all UI tasks):** in the Tokyonight Day theme, `--faint` (~2.4-2.9:1) and `--muted` (~3.6-4:1) fail WCAG AA for small text. Use `--fg-soft` or `--fg` for any small text that carries meaning, and keep `--faint`/`--muted` for decorative marks and large text only. Never put `--bg` text on a `--blue` background in Day (3.1:1); use `--heat-4` background with `--surface-solid` text for solid accent chips (4.88:1).
+
+
+> **Note (found during task 13):** for once-only listener guards, never write `el.dataset.bound = ""` and then test `if (el.dataset.bound)`: the empty string is falsy, so it rebinds on every `astro:page-load`. Use `el.dataset.bound = "true"`, or test `!== undefined`.
+
+
+> **Note (found during task 16):** `astro preview` / `bun run preview` does NOT work with `@astrojs/vercel` ("does not support the preview command"). To check built pages locally, serve `.vercel/output/static` with a small static server that applies the `config.json` routes (incl. the `^/.*$ → /404.html` 404 fallback), or use `bunx vercel dev` / `vercel build` + `vercel deploy --prebuilt=false` on a preview. On-demand routes (`/api/*`, `/projects`) need `bun dev`. Parallel builds share `.vercel/output`, so snapshot it right after building.
+
+
+> **Note (found during task 12):** never combine `animation:` shorthand with `animation-timeline: view()`. The CSS minifier folds them into `animation: … view()`, which Chrome rejects, silently dropping the rule. Use longhands (`animation-name`, `animation-duration: auto`, `animation-timing-function`, `animation-fill-mode`, `animation-timeline`, `animation-range`), as `.reveal` in `src/styles/animations.css` does.
+
+
+> **Note (found during task 17):** on `@astrojs/vercel`, `<Image>`/`getImage` default to `quality=100`. Always pass an explicit `quality` (75, or `"high"` = 80) on every image.
