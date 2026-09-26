@@ -38,6 +38,7 @@
     "clsx": "^2",
     "drizzle-orm": "^0.45.3",
     "github-slugger": "^2.0.0",
+    "hastscript": "^9",
     "medium-zoom": "^1.1.0",
     "postgres": "^3.4.9",
     "react": "^19.3.0",
@@ -58,6 +59,8 @@
     "@types/react-dom": "^19.3.0",
     "drizzle-kit": "^0.31.11",
     "lefthook": "^2.1.14",
-    "typescript": "~6"
+    "remark-parse": "^11",
+    "typescript": "~6",
+    "unified": "^11"
   }
 }
