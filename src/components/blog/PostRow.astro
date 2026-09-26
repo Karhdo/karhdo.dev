@@ -24,7 +24,7 @@ const Heading = headingLevel === 3 ? 'h3' : 'h2';
 <a class="post-row" href={postUrl(post)}>
   <time datetime={iso}>{iso}</time>
   <div class="body">
-    <Heading class="title" transition:name={`post-title-${post.id}`}><span class="line">{title}</span></Heading>
+    <Heading class="title vt-post-title" transition:name={`post-title-${post.id}`}><span class="line">{title}</span></Heading>
     {summary && <p class="summary">{summary}</p>}
     {
       tags.length > 0 && (

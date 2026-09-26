@@ -24,8 +24,9 @@ const configured = Boolean(
 );
 ---
 
+<!-- min-h reserves room for the Giscus iframe, which otherwise grows after load and shifts the footer (CLS). -->
 <section id="comments" data-pagefind-ignore aria-label={configured ? 'Comments' : undefined}
-  class:list={['scroll-mt-24', configured && 'mt-12']}>
+  class:list={['scroll-mt-24', configured && 'mt-12 min-h-[22rem]']}>
   {
     configured ? (
       <Comments

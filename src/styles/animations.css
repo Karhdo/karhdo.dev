@@ -391,10 +391,108 @@
   }
 }
 
+/* ---------- Task 26: shared motion pieces ---------- */
 /*
- * `.loop-anim` is a marker class (no styles here): it tags an infinite animation that task 26
- * (PauseOffscreen) pauses while it is off-screen.
+ * View-transition names only while a ClientRouter navigation runs. Astro sets
+ * `html[data-astro-transition]` just before `startViewTransition` and removes it when the transition
+ * finishes. A named element is a *backdrop root* in Chrome, so a permanent name on `main` (or on the
+ * persisted header) stops every `.glass` inside it from blurring the grid/snowfall behind it.
+ * `page` is the one `main` per document; its animation is motion-gated below. Named groups inside it
+ * (post titles, nav pill) morph separately.
  */
+html[data-astro-transition] main#main {
+  view-transition-name: page;
+}
+/* Astro names `transition:persist` elements permanently (unlayered `[data-astro-transition-scope]`
+   rule); drop that name at rest, so it applies only during navigations. */
+html:not([data-astro-transition]) [data-astro-transition-persist][data-astro-transition-scope] {
+  view-transition-name: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Spotlight (PointerFx sets --mx/--my). `data-fx=on` = fine hover pointer + motion allowed. */
+  html[data-fx="on"] [data-card]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient(
+      360px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--blue) 14%, transparent),
+      transparent 60%
+    );
+  }
+  html[data-fx="on"] [data-card]:hover::before {
+    opacity: 1;
+  }
+
+  /* 3D tilt (PointerFx sets --rx/--ry + .tilting). `transform` only: .rise/.reveal animate the
+     individual translate/scale properties, and Card's hover lift is `translate`, so all compose.
+     The transition list keeps Card's own border/translate/shadow transitions. */
+  html[data-fx="on"] [data-tilt] {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition:
+      transform 0.35s var(--ease-out),
+      translate 0.25s var(--ease-out),
+      border-color 0.25s,
+      box-shadow 0.25s;
+  }
+  html[data-fx="on"] [data-tilt].tilting {
+    transition-duration: 0.08s, 0.25s, 0.25s, 0.25s;
+  }
+
+  /* Primary-button sheen: a --shine band sweeps across on hover / keyboard focus. */
+  .btn-primary {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, var(--shine) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+  .btn-primary:hover::after,
+  .btn-primary:focus-visible::after {
+    transform: translateX(120%);
+    transition: transform 0.7s var(--ease-out);
+  }
+
+  /* Page slide/fade on ClientRouter navigations (Astro's own CSS drops it under reduced motion). */
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: `page` is a view-transition name, not a type. */
+  ::view-transition-old(page) {
+    animation: 0.22s var(--ease-out) both pageOut;
+  }
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: `page` is a view-transition name, not a type. */
+  ::view-transition-new(page) {
+    animation: 0.34s var(--ease-out) both pageIn;
+  }
+
+  /* List row title → post title morph. */
+  .vt-post-title {
+    view-transition-class: post-title;
+  }
+  ::view-transition-group(*.post-title) {
+    animation-duration: 0.25s;
+    animation-timing-function: var(--ease-out);
+  }
+}
+
+/*
+ * `.loop-anim` tags an infinite animation; PauseOffscreen sets `data-paused` on it while it is
+ * off-screen or the tab is hidden. Descendants too: the Spotify bars animate the child <i>s.
+ */
+/* biome-ignore-start lint/complexity/noImportantStyles: must beat each component's own `animation` shorthand. */
+.loop-anim[data-paused],
+.loop-anim[data-paused] * {
+  animation-play-state: paused !important;
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end of the pause rule. */
 
 /* ---------- Reduced-motion guard ---------- */
 /* biome-ignore-start lint/complexity/noImportantStyles: the global guard must beat every component animation. */

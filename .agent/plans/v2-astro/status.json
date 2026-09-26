@@ -320,7 +320,7 @@
       "id": "v2-astro-motion-polish",
       "endpoint": null,
       "spec": "26-motion-polish.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Motion system orchestration: PointerFx (tilt + spotlight), PauseOffscreen, button sheen, page/nav-pill view transitions, reveals; reduced-motion, at-rest, off-screen and CLS audit",
       "dependencies": [
         "v2-astro-blog-post-page",

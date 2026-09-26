@@ -11,7 +11,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
 const slug = (title: string) => title.toLowerCase().replace(/\s+/g, '-');
 ---
 
-<div class="flex flex-wrap justify-between gap-7">
+<div class="reveal flex flex-wrap justify-between gap-7">
   <div class="flex max-w-[36ch] flex-col items-start gap-2">
     <Wordmark placement="footer" />
     <p class="m-0 font-light text-fg-soft">{SITE.description}</p>

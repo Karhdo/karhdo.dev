@@ -8,6 +8,8 @@ import { ClientRouter } from 'astro:transitions';
 // Preloaded so the Outfit swap happens before first paint (the late swap reflowed text: CLS 0.07-0.12 on /).
 import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
 import CountUp from '~/components/motion/CountUp.astro';
+import PauseOffscreen from '~/components/motion/PauseOffscreen.astro';
+import PointerFx from '~/components/motion/PointerFx.astro';
 import CommandPaletteLoader from '~/components/search/CommandPaletteLoader.astro';
 import Analytics from '~/components/seo/Analytics.astro';
 import Seo, { type Props as SeoProps } from '~/components/seo/Seo.astro';
@@ -36,11 +38,14 @@ export type Props = SeoProps;
     </a>
     <TiltedGridBackground class="inset-x-0 top-0 z-[-1] h-[60vh]" />
     <slot name="header" />
-    <main id="main" tabindex="-1" class="flex-1 focus:outline-none" transition:animate="fade">
+    <!-- `view-transition-name: page` (animations.css): the task-26 slide/fade replaces Astro's `fade`. -->
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
       <slot />
     </main>
     <slot name="footer" />
     <CountUp />
+    <PointerFx />
+    <PauseOffscreen />
     <CommandPaletteLoader />
   </body>
 </html>

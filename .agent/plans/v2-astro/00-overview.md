@@ -205,3 +205,6 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Implementation note (task 30):** the Blog stats card is a vanilla module script (`src/components/home/blog-stats.ts`), not a React island, so the homepage ships no React. `/api/stats/summary` sends `Cache-Control: public, max-age=0, must-revalidate` plus `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=600` (per the 00-overview cache-header rule), replacing the `s-maxage` header in the acceptance criteria above. Measure layout with `clientWidth`/`offsetWidth`, not `getBoundingClientRect`, inside cards that can be transformed (rise/tilt).
+
+
+> **Rules added in task 26:** (1) Never give a `.glass` ancestor a permanent `view-transition-name` (`transition:name`, `transition:animate` or `transition:persist`): a named element becomes a backdrop root and kills the blur. `page` is named only under `html[data-astro-transition]`. (2) `vite.build.assetsInlineLimit` keeps `.js` external: inline module scripts made the ClientRouter inject a `data:` script (CSP error) and re-run on every swap. (3) The comments section reserves `min-h-[22rem]` when Giscus is configured, to avoid field CLS when the iframe grows.

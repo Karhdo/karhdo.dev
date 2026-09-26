@@ -30,7 +30,7 @@ const avatar = authors.find((author) => author.avatar)?.avatar;
     <span aria-hidden="true">←</span> All posts
   </a>
   <PageTitle class="mt-3.5 mb-4 text-[clamp(32px,4.6vw,48px)] leading-[1.08] tracking-[-0.03em]">
-    <span class="block" data-pagefind-meta="title" transition:name={`post-title-${id}`}>{title}</span>
+    <span class="vt-post-title block" data-pagefind-meta="title" transition:name={`post-title-${id}`}>{title}</span>
   </PageTitle>
   {
     tags.length > 0 && (

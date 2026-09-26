@@ -37,7 +37,7 @@ const data: PaletteData = {
 };
 ---
 
-<div id="cmdk-root" transition:persist="command-palette"></div>
+<div id="cmdk-root" transition:persist="command-palette" transition:name="command-palette" transition:animate="none"></div>
 <script type="application/json" id="cmdk-data" set:html={serialisePaletteData(data)} />
 
 <script>

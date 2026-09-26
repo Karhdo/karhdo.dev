@@ -28,7 +28,7 @@ import Twemoji from '~/components/ui/Twemoji.astro';
   </ul>
   <p class="m-0">
     <span data-typed>I'm aliased as <b class="font-medium text-fg">Karhdo</b> at work.</span><span
-      class="typed-caret"
+      class="typed-caret loop-anim"
       aria-hidden="true"></span>
   </p>
 </div>
@@ -75,6 +75,9 @@ import Twemoji from '~/components/ui/Twemoji.astro';
 
   let timer: ReturnType<typeof setTimeout> | undefined;
   let onVisibility: (() => void) | undefined;
+  let io: IntersectionObserver | undefined;
+  /** Typing pauses while the bios are off-screen (task 26: no loop runs off-screen). */
+  let inView = true;
 
   /** Splits HTML into typeable tokens: each tag is atomic, each text character is one token. */
   function tokenize(html: string): string[] {
@@ -92,6 +95,9 @@ import Twemoji from '~/components/ui/Twemoji.astro';
     timer = undefined;
     if (onVisibility) document.removeEventListener('visibilitychange', onVisibility);
     onVisibility = undefined;
+    io?.disconnect();
+    io = undefined;
+    inView = true;
   }
 
   function start() {
@@ -115,7 +121,7 @@ import Twemoji from '~/components/ui/Twemoji.astro';
 
     const tick = () => {
       timer = undefined;
-      if (document.hidden) return; // resumed by the visibilitychange listener
+      if (document.hidden || !inView) return; // resumed by the visibilitychange / intersection callbacks
       const tokens = bio(index);
       let delay = deleting ? BACK_MS : TYPE_MS;
       if (deleting) {
@@ -136,10 +142,19 @@ import Twemoji from '~/components/ui/Twemoji.astro';
       timer = setTimeout(tick, delay);
     };
 
-    onVisibility = () => {
-      if (!document.hidden && timer === undefined) timer = setTimeout(tick, PAUSE_MS);
+    const resume = () => {
+      if (!document.hidden && inView && timer === undefined) timer = setTimeout(tick, PAUSE_MS);
     };
+    onVisibility = resume;
     document.addEventListener('visibilitychange', onVisibility);
+    io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry?.isIntersecting ?? true;
+        resume();
+      },
+      { rootMargin: '100px' }
+    );
+    io.observe(target);
     timer = setTimeout(tick, PAUSE_MS);
   }
 

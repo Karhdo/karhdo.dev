@@ -106,5 +106,12 @@ export default defineConfig({
     ssr: { external: ['@resvg/resvg-js'] },
     // Task 23: pre-bundle cmdk so the first palette open in dev does not race Vite's re-optimisation.
     optimizeDeps: { include: ['cmdk'] },
+    build: {
+      // Task 26: never inline component <script> chunks. After a ClientRouter navigation to a page
+      // whose last module script is inline, Astro appends `<script src="data:application/javascript,">`,
+      // which the CSP (no `data:` in script-src) blocks; inline modules also re-run on every swap.
+      // Bundled `/_astro/*.js` modules run once and are cached. Other assets keep Vite's 4 kB default.
+      assetsInlineLimit: (filePath) => (filePath.endsWith('.js') ? false : undefined),
+    },
   },
 });

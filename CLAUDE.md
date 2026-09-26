@@ -110,6 +110,9 @@ Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/
 - **Vercel Firewall rate limits** (dashboard, not code): `POST /api/stats` ~30/min per IP, `POST /api/newsletter` ~5 per 60 s per IP. The Origin check only stops browser CSRF.
 - **No `layout:` in MDX frontmatter.**
 
+- **View transitions and glass:** never give a `.glass` ancestor a permanent `view-transition-name` (`transition:name` / `transition:animate` / `transition:persist`); it becomes a backdrop root and kills the blur. `page` is named only while `html[data-astro-transition]` is set.
+- **Scripts stay external:** `vite.build.assetsInlineLimit` keeps `.js` out of the HTML. Inline module scripts make the ClientRouter inject a `data:` script (blocked by the CSP) and re-run on every swap.
+
 ## Conventions
 
 - **Commits**: Conventional Commits, one commit per task (`feat(scope): …`, `fix(…)`, `chore(deps): …`, `docs(…)`).
