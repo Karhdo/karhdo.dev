@@ -347,7 +347,9 @@
 @media (prefers-reduced-motion: no-preference) {
   /* Staggered load-in with a soft scale; set --i on each element. */
   .rise {
-    animation: riseIn 0.7s var(--ease-out) both;
+    /* backwards, not both: holds the start state during the stagger delay but releases translate/scale
+       afterwards, so hover lifts (Card motion-safe:hover:-translate-y) and tilt still apply. */
+    animation: riseIn 0.7s var(--ease-out) backwards;
     animation-delay: calc(var(--i, 0) * 50ms);
   }
 
