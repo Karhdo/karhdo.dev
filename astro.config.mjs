@@ -38,7 +38,15 @@ const buildInfo = await resolveBuildInfo({ githubToken: GITHUB_API_TOKEN, networ
 export default defineConfig({
   site: 'https://karhdo.dev',
   trailingSlash: 'never',
-  adapter: vercel(),
+  adapter: vercel({
+    // Vercel image optimisation: AVIF/WebP negotiation and resizing for astro:assets and remote avatars/covers.
+    imageService: true,
+    imagesConfig: {
+      sizes: [320, 480, 640, 768, 960, 1200, 1280],
+      formats: ['image/avif', 'image/webp'],
+      domains: ['i.scdn.co', 'avatars.githubusercontent.com'],
+    },
+  }),
   // expressiveCode() must come before mdx() (it handles the fenced code blocks).
   integrations: [
     expressiveCode(),
