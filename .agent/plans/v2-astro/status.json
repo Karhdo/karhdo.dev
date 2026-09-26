@@ -234,7 +234,7 @@
       "id": "v2-astro-spotify-now-playing",
       "endpoint": "GET /api/spotify",
       "spec": "19-spotify-now-playing.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Spotify endpoint with progressMs/durationMs; fills the SpotifyCard stub (visibility-aware island with progress bar)",
       "dependencies": [
         "v2-astro-site-config-env",
@@ -246,7 +246,7 @@
       "id": "v2-astro-github-integration",
       "endpoint": "GET /api/github, GET /api/github/activity",
       "spec": "20-github-integration.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "GitHub service: projects enrichment, /api/github parity endpoint, 46-week heatmap with contributions, day streak and public repos (fills GithubActivityCard stub)",
       "dependencies": [
         "v2-astro-site-config-env",
@@ -259,7 +259,7 @@
       "id": "v2-astro-giscus-comments",
       "endpoint": null,
       "spec": "21-giscus-comments.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Giscus island (NEXT_PUBLIC_GISCUS_* passed as props), live data-theme sync, lazy on visible",
       "dependencies": [
         "v2-astro-blog-post-page"
@@ -384,7 +384,7 @@
       "id": "v2-astro-snowfall",
       "endpoint": null,
       "spec": "29-snowfall.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Fill Snowfall stub: vanilla single-layer canvas, 119 flakes with larger/slower flakes (r .8-2.6, speed .25-1.2, v1 wind/opacity), pure model.ts + tests, -z-1 with body-only background, --snow-c, reduced-motion change listener, SnowfallMode flag",
       "dependencies": [
         "v2-astro-homepage-bento",
@@ -396,7 +396,7 @@
       "id": "v2-astro-blog-stats-summary",
       "endpoint": "GET /api/stats/summary",
       "spec": "30-blog-stats-summary.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "GET /api/stats/summary (totals, reaction split, 30-day series + delta from stats_daily, most-read); Blog stats card with area chart, delta pill, reaction bar",
       "dependencies": [
         "v2-astro-db-drizzle",
@@ -409,7 +409,7 @@
       "id": "v2-astro-token-burn",
       "endpoint": "GET /api/token-burn",
       "spec": "31-token-burn.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "GET /api/token-burn from the Anthropic Usage & Cost Admin API (14 UTC days, today, month, cost, split; s-maxage=900; available:false fallback) + vanilla Token burn card; fixture-driven tests",
       "dependencies": [
         "v2-astro-site-config-env",

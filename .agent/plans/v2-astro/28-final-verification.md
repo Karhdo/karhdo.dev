@@ -101,3 +101,6 @@ Prove v2 is a complete, safe replacement for v1 before merging `v2` into `main`:
 
 
 > **Note from task 18 review:** add a Vercel Firewall rate-limit rule for `POST /api/stats` (≈30/min per IP) to the production checklist, and record it in the README ops section.
+
+
+> **Note from task 21 review:** on the first preview, check `curl -sI -H "Origin: https://giscus.app" https://<preview>/static/giscus/tokyonight-day.css` returns exactly ONE `access-control-allow-origin` header and `content-type: text/css`. Also check there are no CSP violations in the console with the real headers (`font-src` now allows `data:` for the inlined JetBrains Mono subset).
