@@ -8,6 +8,7 @@ import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, envField } from 'astro/config';
 import expressiveCode from 'astro-expressive-code';
+import pagefind from 'astro-pagefind';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { remarkAlert } from 'remark-github-blockquote-alert';
 import { loadEnv } from 'vite';
@@ -62,6 +63,8 @@ export default defineConfig({
         return lastmod ? { ...item, lastmod } : item;
       },
     }),
+    // Task 23: indexes the built pages (only `<article data-pagefind-body>`) into `<client>/pagefind/`. Keep last.
+    pagefind(),
   ],
   // Explicit unified processor (Astro 7 defaults to Sätteri): rehypeHeadingIds runs before
   // autolink so every heading has an id. @astrojs/mdx inherits this processor.
@@ -101,5 +104,7 @@ export default defineConfig({
     define: { __BUILD_INFO__: JSON.stringify(buildInfo) },
     // Task 25: native binary, loaded from node_modules by the prerendered OG route, never bundled.
     ssr: { external: ['@resvg/resvg-js'] },
+    // Task 23: pre-bundle cmdk so the first palette open in dev does not race Vite's re-optimisation.
+    optimizeDeps: { include: ['cmdk'] },
   },
 });

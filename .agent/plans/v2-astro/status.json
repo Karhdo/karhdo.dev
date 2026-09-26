@@ -283,7 +283,7 @@
       "id": "v2-astro-search-command-palette",
       "endpoint": null,
       "spec": "23-search-command-palette.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Pagefind index + \u2318K palette lazily imported by a vanilla loader (no React/cmdk until first open)",
       "dependencies": [
         "v2-astro-header-footer",

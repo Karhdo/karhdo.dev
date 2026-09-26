@@ -8,6 +8,7 @@ import { ClientRouter } from 'astro:transitions';
 // Preloaded so the Outfit swap happens before first paint (the late swap reflowed text: CLS 0.07-0.12 on /).
 import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
 import CountUp from '~/components/motion/CountUp.astro';
+import CommandPaletteLoader from '~/components/search/CommandPaletteLoader.astro';
 import Analytics from '~/components/seo/Analytics.astro';
 import Seo, { type Props as SeoProps } from '~/components/seo/Seo.astro';
 import ThemeScript from '~/components/seo/ThemeScript.astro';
@@ -40,5 +41,6 @@ export type Props = SeoProps;
     </main>
     <slot name="footer" />
     <CountUp />
+    <CommandPaletteLoader />
   </body>
 </html>

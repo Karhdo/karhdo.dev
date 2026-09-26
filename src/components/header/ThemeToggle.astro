@@ -1,8 +1,9 @@
 ---
 /**
- * Theme button cycling light → dark → system (task 09). Writes `localStorage.theme`, re-resolves
- * `<html data-theme>` + `theme-color` through `window.__theme.apply()` (ThemeScript.astro), and
- * dispatches `theme-change` ({ detail: { dark } }) for Giscus (task 21).
+ * Theme button cycling light → dark → system (task 09) through `switchTheme` (`~/lib/theme`, shared
+ * with the ⌘K palette): writes `localStorage.theme`, re-resolves `<html data-theme>` + `theme-color`
+ * through `window.__theme.apply()` (ThemeScript.astro), and dispatches `theme-change`
+ * ({ detail: { dark } }) for Giscus (task 21).
  *
  * With View Transitions and motion allowed, the new theme is revealed by a circle growing from the
  * button. The reveal CSS is scoped to `html[data-theme-switching]`, so page transitions are untouched.
@@ -57,88 +58,16 @@ import Icon from '~/components/ui/Icon.astro';
 </style>
 
 <script>
-  type Pref = 'light' | 'dark' | 'system';
-  const NEXT: Record<Pref, Pref> = { light: 'dark', dark: 'system', system: 'light' };
-  const root = document.documentElement;
-  const darkQuery = matchMedia('(prefers-color-scheme: dark)');
-
-  let navigating = false;
-  document.addEventListener('astro:before-preparation', () => {
-    navigating = true;
-  });
-  document.addEventListener('astro:after-swap', () => {
-    navigating = false;
-  });
-  document.addEventListener('astro:page-load', () => {
-    navigating = false;
-  });
-
-  const readPref = (): Pref => {
-    try {
-      const value = localStorage.getItem('theme');
-      return value === 'light' || value === 'dark' ? value : 'system';
-    } catch {
-      return 'system';
-    }
-  };
-
-  const resolve = (pref: Pref) => (pref === 'dark' || (pref === 'system' && darkQuery.matches) ? 'dark' : 'light');
-
-  function render(button: HTMLElement, pref: Pref): void {
-    button.dataset.pref = pref;
-    button.setAttribute('aria-label', `Switch to ${NEXT[pref]} theme`);
-  }
-
-  function apply(pref: Pref): void {
-    try {
-      localStorage.setItem('theme', pref);
-    } catch {
-      // Storage blocked: still switch for this page view.
-    }
-    window.__theme?.apply();
-    const resolved = resolve(pref);
-    if (root.dataset.theme !== resolved) root.dataset.theme = resolved;
-    for (const button of document.querySelectorAll<HTMLElement>('[data-theme-toggle]')) render(button, pref);
-    window.dispatchEvent(new CustomEvent('theme-change', { detail: { dark: resolved === 'dark' } }));
-  }
+  import { getTheme, NEXT_THEME, renderThemeToggle, switchTheme, type ThemePref } from '~/lib/theme';
 
   function toggle(button: HTMLElement): void {
-    const current = (button.dataset.pref as Pref | undefined) ?? readPref();
-    const next = NEXT[current];
-    const changesColours = resolve(next) !== root.dataset.theme;
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (!changesColours || !document.startViewTransition || reduce || navigating) {
-      apply(next);
-      return;
-    }
-
-    const rect = button.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-
-    root.dataset.themeSwitching = '';
-    try {
-      const transition = document.startViewTransition(() => apply(next));
-      transition.ready
-        .then(() => {
-          root.animate(
-            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
-            { duration: 520, easing: 'cubic-bezier(.2,.7,.2,1)', pseudoElement: '::view-transition-new(root)' }
-          );
-        })
-        .catch(() => {});
-      transition.finished.catch(() => {}).finally(() => delete root.dataset.themeSwitching);
-    } catch {
-      delete root.dataset.themeSwitching;
-      apply(next);
-    }
+    const current = (button.dataset.pref as ThemePref | undefined) ?? getTheme();
+    switchTheme(NEXT_THEME[current], button);
   }
 
   function initThemeToggle(): void {
     for (const button of document.querySelectorAll<HTMLElement>('[data-theme-toggle]')) {
-      render(button, readPref());
+      renderThemeToggle(button, getTheme());
       if (button.dataset.bound) continue;
       button.dataset.bound = 'true';
       button.addEventListener('click', () => toggle(button));

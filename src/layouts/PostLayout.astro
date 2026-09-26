@@ -46,8 +46,8 @@ const image = postImage(data.images, id);
   <div class="grid grid-cols-1 gap-12 pt-10 pb-16 lg:grid-cols-12 lg:pt-14">
     <div class="min-w-0 lg:col-span-8 xl:col-span-9">
       <article data-pagefind-body data-reading-target>
-        {data.tags.map((tag) => <span hidden data-pagefind-filter="tag">{tag}</span>)}
-        <span hidden data-pagefind-meta="image">{image}</span>
+        {data.tags.map((tag) => <span hidden data-pagefind-ignore data-pagefind-filter="tag">{tag}</span>)}
+        <span hidden data-pagefind-ignore data-pagefind-meta="image">{image}</span>
         <PostHeader
           id={id}
           title={data.title}

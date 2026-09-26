@@ -108,3 +108,6 @@ Rules for everything:
 
 
 > **Notes from task 15 review:** the Latest post card has no `transition:name`, because Recent posts already uses `post-title-${id}` for the same post (duplicate names break view transitions). When running axe, scroll to the bottom first so `.reveal` elements reach opacity 1; mid-reveal cards at .35 opacity cause false contrast errors. Tasks 19/20/30/31: `formatCount` groups digits with `toLocaleString("en-US")`; give counted numbers `tabular-nums` and a min-width so the count-up does not shift inline text. `.rise` uses fill-mode `backwards`, not `both`, so hover transforms still apply after the entrance.
+
+
+> **Note from task 23 review:** after a ClientRouter navigation to a page whose last module script is inline (e.g. ListLayout's search-button script), Astro injects `<script src="data:application/javascript,">`, which the CSP (`script-src` has no `data:`) blocks with a harmless console error. Either make those small inline scripts bundled (non-inline) modules, or accept and document it. Check the console on /blog after a view-transition navigation.
