@@ -35,7 +35,7 @@ const authors = defineCollection({
     twitter: z.string().optional(),
     linkedin: z.string().optional(),
     github: z.string().optional(),
-    // `resume.mdx` has `layout: ResumeLayout`; accepted and unused.
+    // Never set `layout:` in MDX frontmatter: Astro MDX treats it as a layout import (it broke the build for resume.mdx).
     layout: z.string().optional(),
   }),
 });
