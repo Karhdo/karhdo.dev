@@ -320,7 +320,7 @@
       "id": "v2-astro-motion-polish",
       "endpoint": null,
       "spec": "26-motion-polish.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Motion system orchestration: PointerFx (tilt + spotlight), PauseOffscreen, button sheen, page/nav-pill view transitions, reveals; reduced-motion, at-rest, off-screen and CLS audit",
       "dependencies": [
         "v2-astro-blog-post-page",
@@ -342,7 +342,7 @@
       "id": "v2-astro-docs-and-hygiene",
       "endpoint": null,
       "spec": "27-docs-and-hygiene.md",
-      "status": "pending",
+      "status": "done",
       "summary": "Rewrite CLAUDE.md/README (credits, licences), dependabot for bun, keep dev-only pages, remove orphan assets",
       "dependencies": [
         "v2-astro-snowfall",

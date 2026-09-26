@@ -4,152 +4,116 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a personal blog built with Next.js 16, React 19, TypeScript, and Tailwind CSS. The blog uses Contentlayer for MDX content management and is deployed on Vercel. It's based on the Tailwind Nextjs Starter Blog template with custom enhancements including Tokyonight theme colors and integration with external services (Spotify, GitHub, PostgreSQL).
+Personal blog at https://karhdo.dev. v2 (this branch line) is an **Astro 7** site built with **Bun**, TypeScript strict, Tailwind CSS v4, MDX content collections, Expressive Code, Biome and Drizzle on Neon Postgres, deployed to Vercel with `@astrojs/vercel` (Functions on Node 24). It replaced the v1 Next.js + Contentlayer + Prisma site, which lives on the `v1` branch (`git show v1:<path>` to read v1 code). Every v1 URL and the existing `stats` table are kept. The UI uses the Tokyonight Day (light) and Night (dark) palettes.
+
+The rebuild plan, with every decision and its review notes, is in `.agent/plans/v2-astro/` (`00-overview.md` first).
 
 ## Commands
 
-### Development
-
 ```bash
-pnpm dev                 # Start development server with cross-env
-pnpm start              # Alternative dev command (plain next dev)
+bun install                 # install deps; `prepare` installs the lefthook pre-commit hook
+bun dev                     # astro dev on http://localhost:4321 (includes the dev-only /dev/* pages)
+bun run build               # astro build → .vercel/output (OG images + Pagefind index included)
+bun test                    # unit tests (*.test.ts next to pure modules)
+bun run check               # astro check + biome check .
+bunx biome check --write    # fix lint + formatting
+bun run lint:palette        # fail on colour literals in src/ outside the Tokyonight token files
+bun run db:pull             # drizzle-kit pull (introspection only; set POSTGRES_URL_DIRECT first)
 ```
 
-### Build & Production
+CI (`.github/workflows/ci.yml`) runs `bun install --frozen-lockfile`, `bunx biome ci .`, `bun run lint:palette`, `bunx astro check`, `bun test` and `bun run build`.
 
-```bash
-pnpm build              # Build for production (runs postbuild script)
-pnpm serve              # Start production server
-pnpm analyze            # Build with bundle analyzer enabled
-```
-
-### Code Quality
-
-```bash
-pnpm lint               # Run ESLint with auto-fix on app, components, lib, layouts, scripts
-```
-
-### Database
-
-```bash
-pnpm postinstall        # Generate Prisma client (runs automatically after install)
-pnpm migrate:postgres   # Run Prisma migrations with .env.local
-```
+**`bun run preview` only prints a pointer and exits 1**: `@astrojs/vercel` doesn't support `astro preview`. To check built pages, serve `.vercel/output/static` with a static server that applies `config.json` routes (incl. the `^/.*$ → /404.html` fallback), or use `bunx vercel dev` / a preview deploy. On-demand routes (`/api/*`, `/projects`, `/newsletter`) need `bun dev`. Parallel builds share `.vercel/output`, so build in a scratch copy (rsync) when another build may run.
 
 ## Architecture
 
-### Content Management (Contentlayer)
+### Rendering
 
-The blog uses **Contentlayer** to transform MDX files into type-safe data. Key aspects:
+- Static by default. Only `src/pages/api/*`, `src/pages/projects.astro` and `src/pages/newsletter.astro` (the no-JS newsletter result page) export `prerender = false` and run as Vercel Functions. Everything else (pages, feeds, robots, OG images) is prerendered, so the DB, Spotify, GitHub and Anthropic are never called at build (except the footer's build info, below).
+- `trailingSlash: 'never'`; the adapter emits `blog/<slug>/index.html`, served at `/blog/<slug>`.
+- `<ClientRouter />` view transitions. Every inline/bundled `<script>` re-initialises on `astro:page-load`.
+- Path alias `~/*` → `src/*` (no `baseUrl` in `tsconfig.json`: TypeScript 6 rejects it).
 
-- **Content Location**: MDX files live in `data/blog/` and `data/authors/`
-- **Document Types**: Defined in `contentlayer.config.ts`
-  - `Blog`: Blog posts with frontmatter (title, date, tags, draft, summary, etc.)
-  - `Authors`: Author profiles
-- **Processing Pipeline**: Contentlayer processes MDX with remark/rehype plugins:
-  - Remark: GFM, math, code titles, image JSX conversion, GitHub alerts
-  - Rehype: Slug generation, autolink headings, Prism syntax highlighting, KaTeX math, citations
-- **Build Artifacts**:
-  - `app/tag-data.json`: Generated tag count for all blog posts
-  - `public/search.json`: Search index for kbar search (if enabled in siteMetadata)
-  - `.contentlayer/`: Generated type-safe content data
+### Islands policy
 
-### Application Structure (Next.js App Router)
+Interactivity is vanilla `<script>` modules by default: header, theme toggle, mobile nav, statusline, version switcher, TOC scrollspy, reading progress, image zoom, typed bios, views and reactions, Spotify, GitHub activity, Blog stats, Token burn, newsletter form and snowfall. React 19 is used only for:
 
-- **App Directory** (`app/`): Uses Next.js 16 App Router
-  - `app/layout.tsx`: Root layout with theme providers, analytics, search, header/footer
-  - `app/page.tsx`: Homepage
-  - `app/blog/[...slug]/page.tsx`: Dynamic blog post pages
-  - `app/blog/page.tsx` & `app/blog/page/[page]/page.tsx`: Blog listing with pagination
-  - `app/tags/[tag]/page.tsx`: Tag-based filtering
-  - `app/about/page.tsx`: About page
-  - `app/projects/page.tsx`: Projects showcase
-  - `app/api/`: API routes for external integrations
+- `src/components/islands/Comments.tsx` (Giscus, `client:visible`);
+- the ⌘K palette: not an island. `search/CommandPaletteLoader.astro` dynamic-imports `mount-palette.tsx` + `CommandPalette.tsx` (cmdk) and `/pagefind/pagefind.js` on first open, so pages ship no React until then.
 
-- **Layouts** (`layouts/`): Reusable page layouts
-  - `PostLayout.tsx`, `PostSimple.tsx`, `PostBanner.tsx`: Blog post layouts
-  - `ListLayout.tsx`, `ListLayoutWithTags.tsx`: Blog listing layouts
-  - `AuthorLayout.tsx`: Author profile layout
+### Content
 
-- **Components** (`components/`): Organized by feature
-  - `about/`, `analytics/`, `blog/`, `footer/`, `header/`, `homepage/`, `project/`, `ui/`
+- Collections in `src/content.config.ts` (glob loader): `src/content/blog/*.mdx` and `src/content/authors/*.mdx`. Entry `id` = file name = v1 slug. Drafts are excluded in production.
+- Frontmatter: `title`, `date` required; `tags`, `lastmod`, `draft`, `summary`, `images`, `authors`, `canonicalUrl` optional. **Never add `layout:` to MDX frontmatter**: Astro resolves it as an import.
+- Markdown uses an **explicit unified processor** in `astro.config.mjs` (Astro 7 defaults to Sätteri): `remarkCodeTitles`, `remarkAlert`, then `rehypeHeadingIds` before `rehype-autolink-headings`. MDX inherits it. Plugins live in `src/plugins/`.
+- Code blocks: Expressive Code (`ec.config.mjs`, listed before `mdx()`): Shiki `tokyo-night` for dark and `src/styles/ec-tokyonight-day.json` for light (converted from folke's tmTheme by `scripts/convert-tmtheme.ts`). ` ```ts:path/file.ts ` becomes a filename tab; `{2-3}`, `ins=`, `del=` markers; line numbers only with `showLineNumbers`.
+- MDX components (`src/components/mdx/`): `Callout`, images with zoom, links, tables, `Twemoji` (`src/components/ui/Twemoji.astro`; vendored jdecked v17.0.3 SVGs in `public/static/twemoji/`, name map in `src/lib/emoji.ts`).
+- Reading time and tag slugs (`github-slugger`) in `src/lib/`.
 
-### Data & Configuration
+### Configuration and env
 
-- **Site Metadata** (`data/siteMetadata.js`): Central configuration for site title, author, social links, analytics (Umami), comments (Giscus), search (kbar), newsletter (Buttondown)
-- **Navigation** (`data/headerNavLinks.ts`): Header navigation links
-- **Projects** (`data/projectsData.ts`): Project portfolio data
-- **Popular Tags** (`data/popularTags.ts`): Curated tag list
+- Site data in `src/config/` (`site.ts`: metadata, `snowfall`, `versions`, `stack`; `navigation.ts`, `projects.ts`, `experiences.ts`, `popular-tags.ts`).
+- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `ANTHROPIC_ADMIN_API_KEY`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
+- `bun test` can't resolve `astro:*` virtual modules, so logic lives in pure modules (e.g. `src/lib/spotify/client.ts`) and thin `src/lib/services/*.ts` wrappers bind them to `astro:env`.
 
-### External Integrations
+### Database (Drizzle on Neon)
 
-The blog integrates with external services via API routes and server utilities:
+- `src/lib/db/schema.ts` **maps** the existing v1 objects: enum `StatsType` (`blog`, `snippet`), table `stats` (PK `stats_pkey (type, slug)`, counters `views`, `loves`, `applauses`, `ideas`, `bullseye`), plus `stats_daily (type, slug, date, views)`.
+- `src/lib/db/client.ts`: one lazy module-scoped postgres.js client (`max: 3`, `prepare: false` for the Neon `-pooler` PgBouncer host, SSL off only for localhost). Only API routes import it.
+- Writes are single-statement atomic upserts (`ON CONFLICT … DO UPDATE SET col = stats.col + delta`). The daily upsert is best-effort (a missing `stats_daily` is tolerated).
+- **Never run `drizzle-kit push`, `migrate` or `generate`**, and never add such scripts. `drizzle.config.ts` is for `pull` only (into git-ignored `.drizzle-introspect/`) against the Neon **direct** host `POSTGRES_URL_DIRECT`. Schema additions are hand-written additive SQL in `db/manual-migrations/`, run with `psql` on a Neon branch then production (see its README).
 
-- **Spotify** (`app/api/spotify/route.ts`, `servers/spotify.server.ts`): Fetches currently playing track
-  - Requires: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`
+### API endpoints (`src/pages/api/`)
 
-- **GitHub** (`app/api/github/route.ts`, `servers/github.server.ts`): Fetches repository data for projects page
-  - Requires: `GITHUB_API_TOKEN`
-  - Uses `@octokit/graphql` for GraphQL API queries
+| Method | Path                          | Purpose                                                                                         |
+| ------ | ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| GET    | `/api/stats?type=blog&slug=…` | Views + reactions of a post (zeros if no row)                                                   |
+| POST   | `/api/stats`                  | Atomic delta upsert (`views: 1`, reactions 1..5); Origin allowlist; v1 absolute payloads → 400  |
+| GET    | `/api/stats/summary`          | Totals, reactions, 30-day series from `stats_daily`, most-read post                             |
+| GET    | `/api/spotify`                | Now playing with progress                                                                       |
+| GET    | `/api/github?repo=owner/name` | Repo data + last commit (v1 parity)                                                             |
+| GET    | `/api/github/activity`        | 46-week contributions, streak, public repos                                                     |
+| GET    | `/api/token-burn`             | Anthropic usage (today, 14 UTC days, month, cost, token split); `{available:false}` on failure |
+| POST   | `/api/newsletter`             | Buttondown subscribe (double opt-in)                                                            |
 
-- **PostgreSQL/Prisma** (`app/api/stats/route.ts`, `servers/prisma.server.ts`, `prisma/schema.prisma`):
-  - Stores blog post statistics (views, reactions: loves, applauses, ideas, bullseye)
-  - Schema: `Stats` model with composite key `[type, slug]`
-  - Requires: `POSTGRES_URL`
+Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/[...slug].png`, `/og/default.png`, `/static/giscus/[theme].css`, sitemap (`@astrojs/sitemap`; `/sitemap.xml` redirects to `/sitemap-index.xml`).
 
-- **Giscus Comments**: GitHub-based comments configured via environment variables
-  - Requires: `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`
+### Build-time pieces
 
-### Styling & Theming
+- **OG images**: `src/pages/og/[...slug].png.ts` renders Satori trees (`src/lib/og/`) with Outfit to PNG via `@resvg/resvg-js` (kept external in Vite). Posts use `/og/{id}.png` unless frontmatter `images` is set; other pages use `/og/default.png`.
+- **Pagefind**: `astro-pagefind` (last integration) indexes only `<article data-pagefind-body>` into `.vercel/output/static/pagefind/`.
+- **Footer build info**: `scripts/build-info.mjs`, called from `astro.config.mjs`, resolves GitHub stars, commit sha/date and branch (Vercel env → git → GitHub REST) and injects them as `__BUILD_INFO__` via Vite `define`. Failures hide the segment; they never fail the build. Relative time and the HCMC clock are computed in the browser.
+- **Dev pages**: `src/integrations/dev-pages.ts` injects `/dev/*` from `src/dev-pages/` only under `astro dev`, so they never reach the build, sitemap or Pagefind.
 
-- **Tailwind CSS**: Custom configuration in `tailwind.config.js`
-- **Theme System**: Dark mode support via `next-themes`
-  - Theme provider: `app/theme-providers.tsx`
-  - Colors: Tokyonight Neovim theme palette
-- **Custom Fonts**: Outfit font from Google Fonts loaded in `app/layout.tsx`
-- **Global Styles**: `css/tailwind.css`, `css/twemoji.css`
+### Token burn
 
-### Build Process
+`src/lib/anthropic-usage.ts` (+ `-format.ts`) calls the Anthropic Usage & Cost Admin API with `ANTHROPIC_ADMIN_API_KEY`. Limitations: it covers **API-key usage in the org only** (not Pro/Max subscription usage), buckets are **UTC** days, cost excludes Priority Tier, data lags ~5 min plus a 15-min CDN cache. The key is set in Vercel **Production only** (previews show the empty state), ideally from a dedicated org. Rotation: new key in the Console → update the Production env → redeploy → revoke the old key → verify `/api/token-burn` returns `available: true` (README has the full steps).
 
-- **Build Tool**: Turbopack is the default bundler in Next.js 16 (use `--webpack` flag to switch to Webpack)
-- **Contentlayer Integration**: `next.config.js` wraps Next.js config with `withContentlayer`
-- **Post-build Script** (`scripts/postbuild.mjs`): Runs after Next.js build
-- **RSS Feed** (`scripts/rss.mjs`): Generates RSS feed
-- **Bundle Analyzer**: Optional via `ANALYZE=true` environment variable
-- **Security Headers**: CSP, referrer policy, X-Frame-Options configured in `next.config.js`
-- **SVG Handling**: Turbopack configured with SVGR loader for SVG React components (`turbopack` in `next.config.js`)
+### Styling and theming
 
-## Important Patterns
+- `src/styles/theme.css` is the **only** place colours are defined (`:root` = Tokyonight Day; `:root[data-theme="dark"]` and the `prefers-color-scheme: dark` fallback = Night), mirrored in `src/styles/palette.ts` (parity tested). Tailwind v4 via `@tailwindcss/vite`; `dark:` is a custom variant covering both.
+- Theme lives on `<html data-theme="light|dark">`, set before paint by an inline script from `localStorage.theme` (`light|dark|system`), re-applied on `astro:after-swap`. Giscus gets its theme via `postMessage`.
+- Scoped styles use raw tokens (`var(--blue)`), not `--color-*`; fonts are `var(--font-sans)` / `var(--font-mono)`. `.glass` etc. live in `@layer components`; prose overrides in `@layer utilities`.
+- Motion: keyframes and easing tokens in `src/styles/animations.css`; effects only under `prefers-reduced-motion: no-preference`; animate only transform/opacity/filter/clip-path; content is complete at rest.
 
-### Adding New Blog Posts
+## Key rules
 
-1. Create MDX file in `data/blog/`
-2. Include required frontmatter: `title`, `date`
-3. Optional frontmatter: `tags`, `draft`, `summary`, `images`, `authors`, `layout`
-4. Contentlayer will auto-generate types and build artifacts on next dev/build
-
-### Working with Stats/Reactions
-
-- Stats are stored per blog post by slug in PostgreSQL
-- API endpoint: `app/api/stats/route.ts` handles CRUD operations
-- Frontend components can fetch/update stats via this API
-
-### Environment Variables
-
-Required for full functionality:
-
-- **Database**: `POSTGRES_URL`
-- **GitHub Integration**: `GITHUB_API_TOKEN`
-- **Spotify Integration**: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`
-- **Comments**: `NEXT_PUBLIC_GISCUS_*` variables
-- **Analytics**: `UMAMI_WEBSITE_ID` (optional)
-
-See `.env.local.example` for the complete list.
+- **Tokyonight tokens only.** No hex/rgb/hsl literals in `src/` outside `theme.css`, `palette.ts`, the EC theme JSON, tests and fixtures (`bun run lint:palette`). Brand logos (simple-icons) are tinted with tokens, never brand colours.
+- **Contrast (Day).** `--faint` and `--muted` fail AA for small text: decorative marks and large text only; use `--fg-soft` / `--fg` for meaningful small text. Never `--bg` text on `--blue`; solid accent chips use a `--heat-4` background with `--surface-solid` text.
+- **Once-only listener guards**: `el.dataset.bound = 'true'` (never `""`, which is falsy and rebinds on every `astro:page-load`), or test `!== undefined`.
+- **Animation longhands** with `animation-timeline: view()`: never the `animation:` shorthand (the minifier folds it into a rule Chrome drops). Copy `.reveal` in `animations.css`.
+- **Images**: always pass an explicit `quality` (75 or `"high"`) to `<Image>` / `getImage`; the Vercel adapter defaults to 100.
+- **Cache headers on on-demand routes**: never `s-maxage` / `stale-while-revalidate` in `Cache-Control` without a browser `max-age`. Use `Cache-Control: public, max-age=0, must-revalidate` + `Vercel-CDN-Cache-Control: max-age=N, stale-while-revalidate=M`. Uncached responses use `no-store`.
+- **Layout measurement** inside cards that can be transformed (rise/tilt): use `clientWidth` / `offsetWidth`, not `getBoundingClientRect`.
+- **Never `drizzle-kit push`/`migrate`/`generate`**; never touch `stats`, `StatsType` or `_prisma_migrations`.
+- **Deploy**: never `astro build` + `vercel deploy --prebuilt` without `vercel build` (drops `vercel.json` headers, rewrites and redirects). Don't set `bunVersion` in `vercel.json`. Security headers live in `vercel.json`.
+- **Vercel Firewall rate limits** (dashboard, not code): `POST /api/stats` ~30/min per IP, `POST /api/newsletter` ~5 per 60 s per IP. The Origin check only stops browser CSRF.
+- **No `layout:` in MDX frontmatter.**
 
 ## Conventions
 
-- **Commit Messages**: Uses Conventional Commits format
-- **Code Style**: ESLint + Prettier with Tailwind plugin
-- **Pre-commit Hooks**: Husky + lint-staged for linting and formatting
-- **TypeScript**: Strict mode enabled
-- **React**: Strict mode enabled in Next.js config
+- **Commits**: Conventional Commits, one commit per task (`feat(scope): …`, `fix(…)`, `chore(deps): …`, `docs(…)`).
+- **Code style**: Biome (`biome.json`: single quotes, semicolons, 120 columns, 2 spaces, ES5 trailing commas, sorted Tailwind classes). lefthook runs `biome check --staged --write` on pre-commit.
+- **Tests**: `*.test.ts` next to pure modules (no `astro:*` imports), run with `bun test`; fixtures in `__fixtures__/`.
+- **TypeScript**: strict (`astro/tsconfigs/strict`), TypeScript 6.
+- **Third-party material**: record anything copied, vendored or derived in `THIRD_PARTY_NOTICES.md`.

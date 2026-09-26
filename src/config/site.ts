@@ -32,7 +32,6 @@ export type SiteConfig = {
   analyticsURL: string;
   siteLogo: string;
   image: string;
-  socialBanner: string;
   email: string;
   github: string;
   facebook: string;
@@ -63,7 +62,6 @@ export const SITE = {
   analyticsURL: 'https://analytics.karhdo.dev/share/Z3eSINRnbzydz1gK/karhdo.dev',
   siteLogo: '/static/images/avatar.jpg',
   image: '/static/images/avatar.jpg',
-  socialBanner: '/static/images/projects/karhdo-blog.png',
   email: 'dotrongkhanh.dev@gmail.com',
   github: 'https://github.com/Karhdo',
   facebook: 'https://www.facebook.com/karhdo.dev',

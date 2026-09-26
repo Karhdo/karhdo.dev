@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "echo 'astro preview is not supported with @astrojs/vercel — see README (Previewing a build)' && exit 1",
     "astro": "astro",
     "lint": "biome lint .",
     "lint:palette": "bun scripts/lint-palette.ts",
