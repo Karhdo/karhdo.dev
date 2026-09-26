@@ -12,10 +12,12 @@ interface Props {
   description?: string;
   eyebrow?: string;
   level?: 1 | 2;
+  /** `id` on the level-2 `<h2>`, so a section can use `aria-labelledby`. */
+  headingId?: string;
   class?: string;
 }
 
-const { title, description, eyebrow, level = 1, class: className } = Astro.props;
+const { title, description, eyebrow, level = 1, headingId, class: className } = Astro.props;
 const hasDescription = Boolean(description) || Astro.slots.has('description');
 ---
 
@@ -29,7 +31,7 @@ const hasDescription = Boolean(description) || Astro.slots.has('description');
     level === 1 ? (
       <PageTitle>{title}</PageTitle>
     ) : (
-      <h2 class="m-0 text-balance font-semibold text-2xl text-fg tracking-[-0.02em] sm:text-3xl">{title}</h2>
+      <h2 id={headingId} class="m-0 text-balance font-semibold text-2xl text-fg tracking-[-0.02em] sm:text-3xl">{title}</h2>
     )
   }
   {

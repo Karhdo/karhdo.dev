@@ -1,0 +1,102 @@
+---
+/**
+ * Popular-tag cards (port of v1 `components/homepage/PopularTags.tsx` + the `.popular-tags` CSS):
+ * brand icon + title on a coloured background, linking to the tag page. v1's brand backgrounds
+ * (amber, blue, rose, sky, green) become Tokyonight tones. Cards whose tag has no published posts
+ * are hidden, so none links to a 404. Used on `/tags`; reusable by the homepage bento (task 15).
+ */
+import BrandIcon from '~/components/ui/BrandIcon.astro';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import { POPULAR_TAGS } from '~/config/popular-tags';
+import { getTagCounts } from '~/lib/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+  class?: string;
+}
+
+const {
+  title = 'Popular tags',
+  description = 'Popular tags feature the most widely favored topics.',
+  class: className,
+} = Astro.props;
+
+/** v1 `.popular-tags .<slug>` background → Tokyonight token. */
+const TONES: Record<string, string> = {
+  javascript: 'var(--yellow)',
+  typescript: 'var(--blue)',
+  nestjs: 'var(--red)',
+  react: 'var(--cyan)',
+  devops: 'var(--blue1)',
+  database: 'var(--green)',
+};
+
+const counts = await getTagCounts();
+const tags = POPULAR_TAGS.filter((tag) => (counts[tag.slug]?.count ?? 0) > 0);
+---
+
+{
+  tags.length > 0 && (
+    <section class:list={['flex flex-col gap-5', className]} aria-labelledby="popular-tags-heading">
+      <SectionHeader level={2} headingId="popular-tags-heading" title={title} description={description} />
+      <ul class="popular-tags m-0 grid list-none gap-3 p-0">
+        {tags.map((tag) => (
+          <li>
+            <a
+              class="popular-tag"
+              href={tag.href}
+              style={`--tone: ${TONES[tag.slug] ?? 'var(--blue)'}`}
+              title={`${counts[tag.slug]?.count} post${counts[tag.slug]?.count === 1 ? '' : 's'}`}
+            >
+              <BrandIcon type={tag.iconType} class="size-6 shrink-0" />
+              <span>{tag.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .popular-tags {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .popular-tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, var(--tone) 38%, transparent);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--tone) 16%, var(--surface-solid));
+    color: var(--fg);
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+  .popular-tag:hover {
+    border-color: var(--tone);
+    background: color-mix(in srgb, var(--tone) 24%, var(--surface-solid));
+  }
+  .popular-tag:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .popular-tag {
+      transition:
+        transform 0.2s var(--ease-spring),
+        border-color 0.2s,
+        background-color 0.2s;
+    }
+    .popular-tag:hover {
+      transform: translateY(-2px);
+    }
+  }
+</style>

@@ -175,7 +175,7 @@
       "id": "v2-astro-tags-pages",
       "endpoint": null,
       "spec": "14-tags-pages.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "/tags and /tags/[tag] with github-slugger slugs, chip bar and popular tags",
       "dependencies": [
         "v2-astro-blog-list-pagination"
@@ -222,7 +222,7 @@
       "id": "v2-astro-stats-views-reactions",
       "endpoint": "GET|POST /api/stats",
       "spec": "18-stats-views-reactions.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Views + reactions on atomic Drizzle upserts; best-effort stats_daily upsert per view; strict zod deltas, origin allowlist; reactions burst + \"+1\"; tests",
       "dependencies": [
         "v2-astro-db-drizzle",
@@ -259,7 +259,7 @@
       "id": "v2-astro-giscus-comments",
       "endpoint": null,
       "spec": "21-giscus-comments.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Giscus island (NEXT_PUBLIC_GISCUS_* passed as props), live data-theme sync, lazy on visible",
       "dependencies": [
         "v2-astro-blog-post-page"
@@ -307,7 +307,7 @@
       "id": "v2-astro-og-images",
       "endpoint": null,
       "spec": "25-og-images.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Build-time per-post OG PNGs with Satori + resvg using mockup colours, wired into SEO",
       "dependencies": [
         "v2-astro-content-collections",
