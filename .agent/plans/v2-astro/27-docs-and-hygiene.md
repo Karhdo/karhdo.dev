@@ -49,3 +49,6 @@ Update the documentation and repository metadata for the Astro stack: `CLAUDE.md
 
 - Current `CLAUDE.md` structure (sections Project Overview / Commands / Architecture / Important Patterns / Conventions).
 - Reference `README.md` (hta218/leohuynh.dev).
+
+
+> **Note from task 11:** folke/tokyonight.nvim (the source of `src/styles/ec-tokyonight-day.json`) is **Apache-2.0**, not MIT. Add a `THIRD_PARTY_NOTICES.md` at the repo root listing: tokyonight.nvim (Apache-2.0, with the full licence text or a link to it at the pinned SHA, and a note that the JSON is a converted derivative), Lucide brand glyphs (ISC, full notice), Twemoji graphics (CC-BY 4.0, jdecked/twemoji v17.0.3) and simple-icons (CC0). The README credits section points to it.

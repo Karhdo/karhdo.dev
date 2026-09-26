@@ -4,6 +4,7 @@
 @import "@fontsource-variable/jetbrains-mono";
 @import "./theme.css";
 @import "./prose.css";
+@import "./callouts.css";
 @import "./animations.css";
 
 @source "../**/*.{astro,ts,tsx,js,mjs,md,mdx,html}";

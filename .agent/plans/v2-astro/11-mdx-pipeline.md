@@ -28,10 +28,10 @@ KaTeX (`remark-math`/`rehype-katex`) and citations (`rehype-citation`) are **not
   - a title containing `"` → escaped
 - **Create** `src/plugins/ec-language-badge.mjs`. A small Expressive Code plugin (`definePlugin({ name: 'language-badge', hooks: { postprocessRenderedBlock } })`) that adds `<span class="ec-lang">{lang}</span>` to the frame header, next to the title tab and before the copy button (mockup `.code-top`: filename · lang · Copy). Untitled blocks still get a header row showing only the language. Its `baseStyles` use `var(--muted)` and `var(--font-mono)`. Text/plaintext blocks get no badge.
 - **Create** `src/styles/ec-tokyonight-day.json` (M-B). This must be **folke's real Tokyonight Day**, not enkia's "Tokyo Night Light".
-  - **Source**: vendor `extras/sublime/tokyonight_day.tmTheme` from `folke/tokyonight.nvim` (MIT), pinned to a commit SHA (`cdc07ac78467a233fd62c493de29a17e0cf2b2b6` on 2026-09-26), and **convert it once** to VS Code theme JSON.
+  - **Source**: vendor `extras/sublime/tokyonight_day.tmTheme` from `folke/tokyonight.nvim` (Apache-2.0), pinned to a commit SHA (`cdc07ac78467a233fd62c493de29a17e0cf2b2b6` on 2026-09-26), and **convert it once** to VS Code theme JSON.
   - **Conversion**: a one-off script, `scripts/convert-tmtheme.ts` (committed for reproducibility, not run at build). It parses the plist and maps each `settings[].scope` + `settings.foreground` / `fontStyle` to `tokenColors[]`, and the global settings to `colors` (`editor.background` = `#e1e2e7`, `editor.foreground`, `editor.selectionBackground`, `editorLineNumber.foreground`). It sets `"type": "light"` and `"name": "Tokyonight Day (folke)"`.
   - **Verified 2026-09-26** from the source file: `keyword`/`storage.type` → `#9854f1` (Day `--purple`), `string` → `#587539` (Day `--green`), `entity.name.function`/`meta.function-call` → `#2e7de9` (Day `--blue`), background `#e1e2e7`.
-  - **Header**: the JSON records the source URL, the commit SHA and the MIT licence notice (in a `"$comment"` field, which VS Code JSON tolerates).
+  - **Header**: the JSON records the source URL, the commit SHA and the Apache-2.0 licence notice (in a `"$comment"` field, which VS Code JSON tolerates).
   - **Test**: **extend `src/styles/palette.test.ts`** (task 06) to load this JSON and assert that its keyword, string and function foregrounds equal Day `--purple`/`--green`/`--blue` (`#9854f1`/`#587539`/`#2e7de9`) as parsed from `theme.css`.
   - **Credit**: the README (task 27) credits folke/tokyonight.nvim for this theme.
 - **Create** `ec.config.mjs`:

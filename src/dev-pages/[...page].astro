@@ -10,6 +10,7 @@ const pages: Record<string, () => Promise<{ default: AstroComponentFactory }>> =
   components: () => import('./components.astro'),
   content: () => import('./content.astro'),
   layout: () => import('./layout.astro'),
+  mdx: () => import('./mdx.astro'),
 };
 
 const slug = Astro.params.page ?? '';

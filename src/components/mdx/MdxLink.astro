@@ -1,0 +1,11 @@
+---
+/** MDX `a`: the shared `ui/Link` (external links open in a new tab). */
+import type { HTMLAttributes } from 'astro/types';
+import Link from '~/components/ui/Link.astro';
+
+type Props = Omit<HTMLAttributes<'a'>, 'href'> & { href?: string };
+
+const { href = '', class: className, ...rest } = Astro.props;
+---
+
+<Link href={href} class={className ?? undefined} {...rest}><slot /></Link>

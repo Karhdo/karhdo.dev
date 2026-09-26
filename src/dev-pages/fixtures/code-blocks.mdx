@@ -1,0 +1,81 @@
+Every feature of the MDX pipeline (task 11) in one place.
+
+## Code blocks
+
+A titled block with highlighted, inserted and deleted lines and line numbers:
+
+```ts:src/app.ts {2-3} ins={4} del={5} showLineNumbers
+import { createServer } from 'node:http';
+const port = Number(process.env.PORT ?? 3000);
+const host = '0.0.0.0';
+const server = createServer((_req, res) => res.end('ok'));
+const legacy = require('./legacy');
+server.listen(port, host, () => console.log(`listening on ${host}:${port}`));
+```
+
+### Untitled SQL
+
+```sql
+START TRANSACTION;
+SELECT available FROM rooms WHERE room_type = 'Deluxe' FOR UPDATE;
+UPDATE rooms SET available = available - 1 WHERE room_type = 'Deluxe';
+COMMIT;
+```
+
+### A dotfile title
+
+```bash:.env
+POSTGRES_URL=postgres://localhost:5432/karhdo
+GITHUB_API_TOKEN=ghp_example
+```
+
+### Plain block
+
+```
+plain text, no language: no badge
+```
+
+## Callouts
+
+> [!TIP]
+> For small and medium applications, `SELECT ... FOR UPDATE` is usually enough.
+
+<Callout type="tip">
+  For small and medium applications, `SELECT ... FOR UPDATE` is usually enough.
+</Callout>
+
+> [!NOTE]
+> A GitHub-style note alert.
+
+<Callout type="note">
+  A GitHub-style note alert.
+</Callout>
+
+> [!WARNING]
+> Never run this in production.
+
+<Callout type="warning" title="Careful">
+  Never run this in production.
+</Callout>
+
+> [!IMPORTANT]
+> Important maps to purple.
+
+> [!CAUTION]
+> Caution maps to red.
+
+## Media
+
+Happy reading! <Twemoji emoji="clinking-beer-mugs" />
+
+![Diagram Module In NestJS](/static/images/blogs/module-in-nestjs.png)
+
+![Diagram Shared Module In NestJS](/static/images/blogs/shared-module.png "A captioned image")
+
+| Method        | Locks rows | Retries    | Best for                 |
+| ------------- | ---------- | ---------- | ------------------------ |
+| `FOR UPDATE`  | yes        | no         | small and medium apps    |
+| Optimistic    | no         | on conflict | read-heavy workloads    |
+| SERIALIZABLE  | implicitly | yes        | strict correctness       |
+
+[An internal link](/blog) and [an external link](https://astro.build).

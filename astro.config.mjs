@@ -1,10 +1,17 @@
 // @ts-check
+
+import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, envField } from 'astro/config';
+import expressiveCode from 'astro-expressive-code';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { remarkAlert } from 'remark-github-blockquote-alert';
 import devPages from './src/integrations/dev-pages.ts';
+import { linkIconHast } from './src/plugins/heading-link-icon.mjs';
+import remarkCodeTitles from './src/plugins/remark-code-titles.mjs';
 
 /** Every variable is optional: the site must build and run with none of them set. */
 const secret = () => envField.string({ context: 'server', access: 'secret', optional: true });
@@ -14,7 +21,22 @@ export default defineConfig({
   site: 'https://karhdo.dev',
   trailingSlash: 'never',
   adapter: vercel(),
-  integrations: [mdx(), react(), devPages()],
+  // expressiveCode() must come before mdx() (it handles the fenced code blocks).
+  integrations: [expressiveCode(), mdx(), react(), devPages()],
+  // Explicit unified processor (Astro 7 defaults to Sätteri): rehypeHeadingIds runs before
+  // autolink so every heading has an id. @astrojs/mdx inherits this processor.
+  markdown: {
+    processor: unified({
+      remarkPlugins: [remarkCodeTitles, remarkAlert],
+      rehypePlugins: [
+        rehypeHeadingIds,
+        [
+          rehypeAutolinkHeadings,
+          { behavior: 'prepend', headingProperties: { className: ['content-header'] }, content: linkIconHast },
+        ],
+      ],
+    }),
+  },
   env: {
     schema: {
       // Server secrets

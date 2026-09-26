@@ -1,0 +1,26 @@
+---
+/**
+ * `<Callout type="tip|note|warning" title?>` for MDX. Styled by src/styles/callouts.css together
+ * with the GitHub-style `> [!TIP]` alerts, so both render identically.
+ */
+import { Info, Lightbulb, TriangleAlert } from '@lucide/astro';
+
+export type CalloutType = 'tip' | 'note' | 'warning';
+
+interface Props {
+  type?: CalloutType;
+  title?: string;
+}
+
+const ICONS = { tip: Lightbulb, note: Info, warning: TriangleAlert } as const;
+
+const { type = 'note', title } = Astro.props;
+const kind: CalloutType = type in ICONS ? type : 'note';
+const Icon = ICONS[kind];
+const heading = title ?? kind.charAt(0).toUpperCase() + kind.slice(1);
+---
+
+<aside class={`callout callout-${kind}`} role="note">
+  <p class="callout-title"><Icon class="callout-icon" size={16} stroke-width={2} aria-hidden="true" />{heading}</p>
+  <div class="callout-body"><slot /></div>
+</aside>

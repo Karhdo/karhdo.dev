@@ -1,0 +1,27 @@
+---
+/**
+ * Click-to-zoom for `[data-zoomable]` images (MdxImage). Attaches on every `astro:page-load`
+ * (first load and each view transition) and detaches before the DOM is swapped. Esc closes.
+ * medium-zoom is imported lazily, so pages without zoomable images never download it.
+ */
+---
+
+<script>
+  import type { Zoom } from 'medium-zoom';
+
+  let zoom: Zoom | undefined;
+
+  document.addEventListener('astro:page-load', async () => {
+    zoom?.detach();
+    zoom = undefined;
+    if (!document.querySelector('[data-zoomable]')) return;
+    const { default: mediumZoom } = await import('medium-zoom');
+    // A CSS variable, so the overlay follows a theme switch made while an image is open.
+    zoom = mediumZoom('[data-zoomable]', { background: 'var(--bg)', margin: 24 });
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    zoom?.detach();
+    zoom = undefined;
+  });
+</script>

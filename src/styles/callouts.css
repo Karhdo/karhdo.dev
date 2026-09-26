@@ -1,0 +1,102 @@
+/*
+ * Callouts: `<Callout type="…">` (src/components/mdx/Callout.astro) and the GitHub-style alerts
+ * from remark-github-blockquote-alert (`> [!TIP]` → `.markdown-alert-tip`) share one style
+ * (mockup `.callout`). The plugin's own alert.css is not imported.
+ *
+ * Tints: tip → --teal, note → --blue, warning → --orange, important → --purple, caution → --red.
+ * The alerts' octicons are swapped for the same Lucide glyphs Callout.astro renders (as a mask),
+ * so both variants are pixel-identical.
+ *
+ * Layer: utilities, after prose.css, so the inner-margin resets beat `.prose :where(p)`.
+ */
+@layer utilities {
+  .callout,
+  .markdown-alert {
+    --callout-c: var(--blue);
+    --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E");
+
+    margin: 1.5rem 0;
+    border: 1px solid color-mix(in srgb, var(--callout-c) 35%, var(--line-strong));
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--callout-c) 7%, transparent);
+    padding: 14px 16px;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--fg-soft);
+  }
+
+  :is(.callout, .markdown-alert) > :first-child,
+  .callout-body > :first-child {
+    margin-top: 0;
+  }
+
+  :is(.callout, .markdown-alert) > :last-child,
+  .callout-body > :last-child {
+    margin-bottom: 0;
+  }
+
+  :is(.callout, .markdown-alert) :is(p, ul, ol) {
+    margin-block: 0.5em;
+  }
+
+  .callout-title,
+  .markdown-alert-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--callout-c);
+  }
+
+  .callout-icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  .markdown-alert-title .octicon {
+    display: none;
+  }
+
+  .markdown-alert-title::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask: var(--callout-icon) center / contain no-repeat;
+  }
+
+  .callout-tip,
+  .markdown-alert-tip {
+    --callout-c: var(--teal);
+    --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5'/%3E%3Cpath d='M9 18h6'/%3E%3Cpath d='M10 22h4'/%3E%3C/svg%3E");
+  }
+
+  .callout-note,
+  .markdown-alert-note {
+    --callout-c: var(--blue);
+  }
+
+  .callout-warning,
+  .markdown-alert-warning {
+    --callout-c: var(--orange);
+    --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+  }
+
+  .markdown-alert-important {
+    --callout-c: var(--purple);
+    --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z'/%3E%3Cpath d='M12 15h.01'/%3E%3Cpath d='M12 7v4'/%3E%3C/svg%3E");
+  }
+
+  .markdown-alert-caution {
+    --callout-c: var(--red);
+    --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16h.01'/%3E%3Cpath d='M12 8v4'/%3E%3Cpath d='M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z'/%3E%3C/svg%3E");
+  }
+}

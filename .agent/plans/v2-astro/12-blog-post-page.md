@@ -63,3 +63,6 @@ Render `/blog/[slug]` for every published post at build time with the new `PostL
 
 
 > **Note from task 07 review:** `Seo.astro` emits `article:author` as `SITE.author` only. Add an `authors?: string[]` prop (default `[SITE.author]`, one meta per author) and pass the post authors from the post page, as v1 did.
+
+
+> **Note from task 11:** once `/blog/[...slug]` exists, run `bun run build 2>&1 | grep -iE "shiki|deprecat|language"` and confirm there are no warnings (task 11 could only check posts in dev). MdxImage with a title renders `<figure>` inside the markdown `<p>`. If the post layout shows a spacing glitch, unwrap it (e.g. a rehype-unwrap-images step).

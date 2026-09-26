@@ -116,7 +116,7 @@
       "id": "v2-astro-header-footer",
       "endpoint": null,
       "spec": "09-header-footer.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Header (Blog \u00b7 Projects \u00b7 About, theme, \u2318K, mobile dialog); footer per mockup: link columns + Neovim statusline (build-time stars/sha/commit date, live HCMC time diff, Made in Vietnam) + keyboard-accessible version switcher (SITE.versions)",
       "dependencies": [
         "v2-astro-base-layout",
@@ -139,7 +139,7 @@
       "id": "v2-astro-mdx-pipeline",
       "endpoint": null,
       "spec": "11-mdx-pipeline.md",
-      "status": "pending",
+      "status": "done",
       "summary": "Explicit unified processor (rehypeHeadingIds before autolink), Expressive Code tokyo-night + vendored Tokyonight Day, title/lang badge/copy/markers, Callout + GitHub alerts, zoom, dev fixture",
       "dependencies": [
         "v2-astro-content-collections",
