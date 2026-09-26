@@ -151,7 +151,7 @@
       "id": "v2-astro-blog-post-page",
       "endpoint": null,
       "spec": "12-blog-post-page.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "/blog/[slug] per mockup: byline, TOC aside with tags + updated date, reactions slot at article end, reading progress, prev/next, JSON-LD",
       "dependencies": [
         "v2-astro-header-footer",
@@ -163,7 +163,7 @@
       "id": "v2-astro-blog-list-pagination",
       "endpoint": null,
       "spec": "13-blog-list-pagination.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "/blog (\"Writing\") with tag filter chips (links) and dated rows, /blog/page/[n] pagination",
       "dependencies": [
         "v2-astro-header-footer",
@@ -199,7 +199,7 @@
       "id": "v2-astro-about-and-404",
       "endpoint": null,
       "spec": "16-about-and-404.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "/about from author MDX + career timeline, custom 404",
       "dependencies": [
         "v2-astro-header-footer",
@@ -211,7 +211,7 @@
       "id": "v2-astro-projects-page",
       "endpoint": null,
       "spec": "17-projects-page.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Featured + browser-framed project cards (fact tiles, astro:assets AVIF/WebP screenshots, hover zoom/pan), on-demand /projects with CDN caching",
       "dependencies": [
         "v2-astro-header-footer"
@@ -296,7 +296,7 @@
       "id": "v2-astro-feeds-sitemap-robots",
       "endpoint": null,
       "spec": "24-feeds-sitemap-robots.md",
-      "status": "pending",
+      "status": "done",
       "summary": "RSS /feed.xml + per-tag feeds, @astrojs/sitemap with lastmod, robots.txt",
       "dependencies": [
         "v2-astro-content-collections"

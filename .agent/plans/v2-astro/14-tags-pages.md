@@ -35,3 +35,6 @@ Recreate `/tags` (all tags sorted by count) and `/tags/[tag]` (posts for a tag, 
 ## Patterns to Follow
 
 - v1 `app/tags/page.tsx`, `app/tags/[tag]/page.tsx`, `components/homepage/PopularTags.tsx`, `data/popularTags.ts`.
+
+
+> **Note from task 24 review:** after building the tag pages, confirm `sitemap-0.xml` lists `/tags` and every `/tags/<slug>` page (6 today); the sitemap integration picks them up automatically once they are prerendered.

@@ -3,6 +3,7 @@
 import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, envField } from 'astro/config';
@@ -12,6 +13,7 @@ import { remarkAlert } from 'remark-github-blockquote-alert';
 import { loadEnv } from 'vite';
 import { resolveBuildInfo } from './scripts/build-info.mjs';
 import devPages from './src/integrations/dev-pages.ts';
+import { blogLastmod } from './src/lib/sitemap-lastmod.mjs';
 import { linkIconHast } from './src/plugins/heading-link-icon.mjs';
 import remarkCodeTitles from './src/plugins/remark-code-titles.mjs';
 
@@ -28,6 +30,9 @@ const { GITHUB_API_TOKEN } = loadEnv(
   process.cwd(),
   ''
 );
+/** Post URL → frontmatter `lastmod ?? date` for the sitemap (v1 values). */
+const postLastmod = blogLastmod();
+
 const buildInfo = await resolveBuildInfo({ githubToken: GITHUB_API_TOKEN, network: process.argv.includes('build') });
 
 export default defineConfig({
@@ -35,7 +40,21 @@ export default defineConfig({
   trailingSlash: 'never',
   adapter: vercel(),
   // expressiveCode() must come before mdx() (it handles the fenced code blocks).
-  integrations: [expressiveCode(), mdx(), react(), devPages()],
+  integrations: [
+    expressiveCode(),
+    mdx(),
+    react(),
+    devPages(),
+    // Task 24. `/projects` is on-demand (task 17), so it is listed explicitly (v1 sitemap had it).
+    sitemap({
+      filter: (page) => !page.includes('/dev/'), // defensive: dev pages are never built (task 06)
+      customPages: ['https://karhdo.dev/projects'],
+      serialize(item) {
+        const lastmod = postLastmod[new URL(item.url).pathname];
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
+  ],
   // Explicit unified processor (Astro 7 defaults to Sätteri): rehypeHeadingIds runs before
   // autolink so every heading has an id. @astrojs/mdx inherits this processor.
   markdown: {
