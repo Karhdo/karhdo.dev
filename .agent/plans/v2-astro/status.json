@@ -71,7 +71,7 @@
       "id": "v2-astro-db-drizzle",
       "endpoint": null,
       "spec": "05-db-drizzle.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Drizzle schema mapped exactly to existing stats/StatsType (Neon pooler, pull-only, strict) + the one additive stats_daily table via a reviewed manual SQL migration; delete prisma/",
       "dependencies": [
         "v2-astro-site-config-env"

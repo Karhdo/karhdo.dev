@@ -56,3 +56,6 @@ Port the views + reactions feature onto the existing `stats` table via Drizzle (
 
 - v1 `app/api/stats/route.ts`, `components/blog/Reactions.tsx`, `components/blog/ViewCounter.tsx`, `hooks/use-blog-stats.ts`.
 - Reference `src/pages/api/stats.ts`, `src/components/widgets/Reactions.tsx`, `src/components/widgets/ViewsCounter.tsx` (hta218/leohuynh.dev).
+
+
+> **Note from task 05 review:** `StatsType` is defined twice (`src/lib/db/schema.ts` derives it from the pgEnum; `src/types/stats.ts` declares it by hand). Make `src/types/stats.ts` re-export the schema-derived type so there is one source of truth. `getDb()` now disables SSL for `localhost`/`127.0.0.1`, so the docker-compose Postgres works for local testing.

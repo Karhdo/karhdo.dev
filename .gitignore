@@ -17,6 +17,9 @@ dist/
 .astro/
 .vercel/
 
+# drizzle-kit pull output (introspection only, never committed)
+.drizzle-introspect/
+
 # pagefind index (generated at build)
 public/pagefind/
 
