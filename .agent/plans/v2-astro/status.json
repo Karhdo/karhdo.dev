@@ -409,7 +409,7 @@
       "id": "v2-astro-token-burn",
       "endpoint": "GET /api/token-burn",
       "spec": "31-token-burn.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "GET /api/token-burn from the Anthropic Usage & Cost Admin API (14 UTC days, today, month, cost, split; s-maxage=900; available:false fallback) + vanilla Token burn card; fixture-driven tests",
       "dependencies": [
         "v2-astro-site-config-env",

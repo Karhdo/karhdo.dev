@@ -1,8 +1,13 @@
 ---
 /**
- * Bento "Token burn" card (mockup `.c-burn`; replaces the old local-time card).
- * <!-- filled by task 31 --> Task 31 replaces the body with the vanilla `GET /api/token-burn` reader.
- * Until then a fixed-size skeleton keeps the final height (no CLS).
+ * Bento "Token burn" card (mockup `.c-burn`, task 31). A plain module script (no React): once the card
+ * scrolls into view it fetches `GET /api/token-burn` (Anthropic Usage & Cost Admin API, aggregated on the
+ * server; the Admin key never reaches the browser) and fills tokens today + cost, 14 UTC day bars (today
+ * highlighted), the month-to-date cache/input/output split and the month total.
+ *
+ * Loading, filled and empty (`available: false`) states share one fixed layout: every row has a fixed
+ * height and the 14 bars and 3 split segments are always rendered, so nothing shifts. The flame flickers,
+ * and the bars and split grow in, only with motion allowed and only once data is shown.
  * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
  */
 import { Flame } from '@lucide/astro';
@@ -18,22 +23,237 @@ interface Props {
 }
 
 const { class: className, style } = Astro.props;
+
+const BARS = 14;
+const SPLIT = [
+  { key: 'cache', color: 'var(--blue)' },
+  { key: 'input', color: 'var(--purple)' },
+  { key: 'output', color: 'var(--orange)' },
+] as const;
 ---
 
-<!-- filled by task 31 -->
 <Card
-  class={cn('flex flex-col gap-3', className)}
+  class={cn('burn flex flex-col gap-3', className)}
   style={`min-height: ${CARD_MIN_HEIGHT.tokenBurn}px; ${style ?? ''}`}
   data-tilt
+  data-token-burn
+  data-state="loading"
   aria-busy="true"
 >
-  <CardEyebrow><Flame class="text-orange" size={14} aria-hidden="true" />Token burn</CardEyebrow>
-  <div class="flex items-end justify-between gap-2.5">
-    <CardSkeleton height={34} width="55%" />
-    <CardSkeleton height={22} width="56px" />
+  <CardEyebrow>
+    <Flame class="flame loop-anim shrink-0" size={14} aria-hidden="true" />
+    Token burn
+    <Fragment slot="end">API usage · UTC</Fragment>
+  </CardEyebrow>
+
+  <div class="burn-top">
+    <p class="burn-num">
+      <span data-burn-today><CardSkeleton height={28} width="96px" class="inline-block align-bottom" /></span><small
+        >tokens today</small
+      >
+    </p>
+    <span class="burn-cost" data-burn-cost><CardSkeleton height={16} width="40px" class="inline-block align-middle" /></span>
   </div>
-  <CardSkeleton height={46} radius="4px" />
-  <CardSkeleton height={6} radius="6px" />
-  <CardSkeleton height={12} width="80%" />
-  <CardSkeleton height={14} width="60%" />
+
+  <div class="burn-bars" role="img" aria-label="Tokens per day over the last 14 days, UTC: loading" data-burn-bars>
+    {Array.from({ length: BARS }, (_, i) => <i class:list={[i === BARS - 1 && 'today']} style={`--i: ${i}`} />)}
+  </div>
+
+  <div class="burn-split" aria-hidden="true" data-burn-split>
+    {SPLIT.map(({ key, color }) => <span data-part={key} style={`--c: ${color}; --w: 0%`} />)}
+  </div>
+
+  <div class="burn-row">
+    <p class="burn-legend" data-burn-legend>
+      {
+        SPLIT.map(({ key, color }) => (
+          <span>
+            <i style={`--c: ${color}`} />
+            {key} <span data-burn-pct={key}>–</span>
+          </span>
+        ))
+      }
+    </p>
+    <p class="burn-empty" data-burn-empty hidden>No API usage data</p>
+  </div>
+
+  <p class="burn-foot"><span data-burn-month>–</span> this month</p>
 </Card>
+
+<script>
+  import { mountTokenBurn, unmountTokenBurn } from './token-burn';
+
+  document.addEventListener('astro:page-load', mountTokenBurn);
+  document.addEventListener('astro:before-swap', unmountTokenBurn);
+</script>
+
+<style>
+  .burn :global(.flame) {
+    color: var(--orange);
+  }
+
+  .burn-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    height: 34px;
+  }
+
+  .burn-num {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .burn-num small {
+    margin-left: 6px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--fg-soft);
+  }
+
+  .burn-cost {
+    flex-shrink: 0;
+    border: 1px solid color-mix(in srgb, var(--orange) 35%, transparent);
+    border-radius: 8px;
+    padding: 1px 8px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 20px;
+    /* Orange nudged toward --fg so 14 px text passes AA on the Day glass (plain --orange is ~4.3:1). */
+    color: color-mix(in srgb, var(--orange) 80%, var(--fg));
+    font-variant-numeric: tabular-nums;
+  }
+
+  .burn-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 46px;
+  }
+
+  /* `--h` = share of the busiest day (at least a 3 px stub) inside the fixed 46 px row; the `barUp`
+     transform composes with it. */
+  .burn-bars i {
+    flex: 1;
+    height: calc(max(var(--h, 0.35), 0.066) * 100%);
+    transform-origin: 50% 100%;
+    border-radius: 3px 3px 1px 1px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--orange) 55%, transparent), var(--red));
+    opacity: 0.55;
+  }
+
+  .burn-bars i.today {
+    opacity: 1;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--red) 45%, transparent);
+  }
+
+  .burn-split {
+    display: flex;
+    gap: 2px;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--line); /* the track shows even when every share is 0 */
+  }
+
+  .burn-split span {
+    width: var(--w);
+    background: var(--c);
+  }
+
+  .burn-row {
+    height: 17px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 17px;
+    white-space: nowrap;
+  }
+
+  .burn-legend,
+  .burn-empty {
+    margin: 0;
+    color: var(--fg-soft);
+  }
+
+  .burn-legend {
+    display: flex;
+    gap: 12px;
+  }
+
+  .burn-legend > span {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .burn-legend i {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 5px;
+    border-radius: 2px;
+    background: var(--c);
+  }
+
+  .burn-foot {
+    margin: 0;
+    height: 20px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--fg-soft);
+    white-space: nowrap;
+  }
+
+  /* ---------- Loading: flat neutral bars and track ---------- */
+  :global([data-token-burn][data-state='loading']) .burn-bars i {
+    background: var(--line);
+    box-shadow: none;
+    opacity: 1;
+  }
+
+  /* ---------- Empty (`available: false`): calm and static ---------- */
+  :global([data-token-burn][data-state='empty']) :global(.flame) {
+    color: var(--muted);
+  }
+
+  :global([data-token-burn][data-state='empty']) [data-burn-today] {
+    font-weight: 300;
+    color: var(--muted);
+  }
+
+  :global([data-token-burn][data-state='empty']) .burn-cost {
+    visibility: hidden;
+  }
+
+  :global([data-token-burn][data-state='empty']) .burn-bars i {
+    height: 3px;
+    background: var(--line-strong);
+    box-shadow: none;
+    opacity: 1;
+  }
+
+  /* ---------- Motion: only once real data is shown (not a zero month), only with motion allowed ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-token-burn][data-state='ready']:not([data-quiet])) :global(.flame) {
+      transform-origin: 50% 90%;
+      animation: flick 1.6s ease-in-out infinite;
+    }
+
+    :global([data-token-burn][data-state='ready']:not([data-quiet])) .burn-bars i {
+      animation: barUp 0.8s var(--ease-spring) both;
+      animation-delay: calc(0.1s + var(--i) * 35ms);
+    }
+
+    :global([data-token-burn][data-state='ready']:not([data-quiet])) .burn-split span {
+      transform-origin: 0 50%;
+      animation: splitIn 1s var(--ease-out) 0.3s both;
+    }
+  }
+</style>
