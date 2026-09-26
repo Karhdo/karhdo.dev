@@ -173,3 +173,6 @@ Build the CSS foundation in Tailwind v4 CSS-first syntax, copying the **mockup t
 - Reference `src/styles/theme.css` and `src/styles/prose.css` (hta218/leohuynh.dev) for v4 `@theme` and typography layout.
 - Tailwind v4 docs: "Dark mode → using a data attribute" (`@custom-variant`), "@theme inline", "@plugin".
 - Astro docs: Integration API, `injectRoute`, `astro:config:setup` `command`.
+
+
+> **Note from task 01 review:** Tailwind v4 auto source detection currently scans the whole repo (incl. `data/`, `.agent/`). Set explicit sources in `src/styles/global.css` (e.g. `@import "tailwindcss" source("../");` plus `@source not "../../.agent";` or `source(none)` + `@source "../**/*.{astro,ts,tsx,mdx,md}"`) so unused utilities are not generated.

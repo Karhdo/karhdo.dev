@@ -57,3 +57,6 @@ Move MDX content into `src/content/` and define Astro content-layer collections 
 
 - v1 `contentlayer.config.ts` (fields, `createTagCount`, `structuredData`).
 - Reference `src/content.config.ts`, `src/lib/content.ts` (hta218/leohuynh.dev).
+
+
+> **Note from task 01 review:** `tsconfig.json` temporarily has `"data"` in `exclude` (v1 data files import deleted modules). When this task moves/deletes `data/`, remove that exclude entry.
