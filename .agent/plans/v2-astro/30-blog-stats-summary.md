@@ -78,3 +78,6 @@ Totals and reactions come from the cumulative `stats` table. The daily series an
 
 - Mockup "Blog stats" CSS section (`.views-head`, `.delta`, `.area`, `.react-bar`, `.react-legend`, `.most-read`) and its area-chart sample script (path building only).
 - Task 18 (`src/lib/stats/*`, `src/lib/security/origin.ts`, the thin endpoint adapter pattern).
+
+
+> **Implementation note (task 30):** the Blog stats card is a vanilla module script (`src/components/home/blog-stats.ts`), not a React island, so the homepage ships no React. `/api/stats/summary` sends `Cache-Control: public, max-age=0, must-revalidate` plus `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=600` (per the 00-overview cache-header rule), replacing the `s-maxage` header in the acceptance criteria above. Measure layout with `clientWidth`/`offsetWidth`, not `getBoundingClientRect`, inside cards that can be transformed (rise/tilt).

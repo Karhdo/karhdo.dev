@@ -368,6 +368,29 @@
   }
 }
 
+/* ---------- Blog stats card (task 30, blog-stats.ts) ---------- */
+/* Delays count from the data render (fetched when the card nears the viewport), not from page load. */
+@media (prefers-reduced-motion: no-preference) {
+  .blog-stats .area .line {
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: var(--len);
+    animation: draw 1.6s var(--ease-out) 0.1s forwards;
+  }
+
+  .blog-stats .area .fill {
+    animation: fadeFill 1s ease 0.5s both;
+  }
+
+  .blog-stats .area .dot {
+    animation: dotPop 0.5s var(--ease-spring) 1.5s both;
+  }
+
+  .blog-stats .react-bar span {
+    transform-origin: 0 50%;
+    animation: splitIn 1s var(--ease-out) 0.2s both;
+  }
+}
+
 /*
  * `.loop-anim` is a marker class (no styles here): it tags an infinite animation that task 26
  * (PauseOffscreen) pauses while it is off-screen.

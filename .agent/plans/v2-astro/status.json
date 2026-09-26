@@ -396,7 +396,7 @@
       "id": "v2-astro-blog-stats-summary",
       "endpoint": "GET /api/stats/summary",
       "spec": "30-blog-stats-summary.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "GET /api/stats/summary (totals, reaction split, 30-day series + delta from stats_daily, most-read); Blog stats card with area chart, delta pill, reaction bar",
       "dependencies": [
         "v2-astro-db-drizzle",

@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, between, desc, eq, inArray, sql } from 'drizzle-orm';
 import { getDb } from './client';
 import { type StatsRow, type StatsType, stats, statsDaily } from './schema';
 
@@ -61,4 +61,83 @@ export async function recordDailyView(type: StatsType, slug: string): Promise<vo
       target: [statsDaily.type, statsDaily.slug, statsDaily.date],
       set: { views: sql`${statsDaily.views} + 1` },
     });
+}
+
+// ---------- Blog stats summary (task 30) ----------
+
+export type BlogTotals = Record<CounterKey, number>;
+
+/** Sums the counters of the given blog slugs (published posts only, so junk rows never count). `null` → 0. */
+export async function getBlogTotals(slugs: readonly string[]): Promise<BlogTotals> {
+  const zero: BlogTotals = { views: 0, loves: 0, applauses: 0, ideas: 0, bullseye: 0 };
+  if (slugs.length === 0) return zero;
+  const sum = (column: (typeof stats)[CounterKey]) => sql<number>`coalesce(sum(${column}), 0)::int`;
+  const rows = await getDb()
+    .select({
+      views: sum(stats.views),
+      loves: sum(stats.loves),
+      applauses: sum(stats.applauses),
+      ideas: sum(stats.ideas),
+      bullseye: sum(stats.bullseye),
+    })
+    .from(stats)
+    .where(and(eq(stats.type, 'blog'), inArray(stats.slug, [...slugs])));
+  const row = rows[0];
+  if (!row) return zero;
+  return {
+    views: Number(row.views),
+    loves: Number(row.loves),
+    applauses: Number(row.applauses),
+    ideas: Number(row.ideas),
+    bullseye: Number(row.bullseye),
+  };
+}
+
+/** The most-viewed of the given blog slugs, or `null` when none has a row. */
+export async function getMostRead(slugs: readonly string[]): Promise<{ slug: string; views: number } | null> {
+  if (slugs.length === 0) return null;
+  const rows = await getDb()
+    .select({ slug: stats.slug, views: stats.views })
+    .from(stats)
+    .where(and(eq(stats.type, 'blog'), inArray(stats.slug, [...slugs])))
+    .orderBy(desc(stats.views), stats.slug)
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export type DailyViews = { date: string; views: number };
+
+/** Postgres `undefined_table`; drizzle wraps driver errors, so the code may sit on `cause`. */
+function isUndefinedTable(error: unknown): boolean {
+  for (let e: unknown = error, depth = 0; e && depth < 3; e = (e as { cause?: unknown }).cause, depth++) {
+    if ((e as { code?: unknown }).code === '42P01') return true;
+  }
+  return false;
+}
+
+/**
+ * Daily blog views (summed over the given slugs) for the UTC days `fromDate`..`toDate` (`YYYY-MM-DD`,
+ * inclusive), ordered by date; days without rows are absent. Returns `[]` while `stats_daily` doesn't
+ * exist yet (`42P01`, before `0001_create_stats_daily.sql` has run).
+ */
+export async function getDailyViews(slugs: readonly string[], fromDate: string, toDate: string): Promise<DailyViews[]> {
+  if (slugs.length === 0) return [];
+  try {
+    const rows = await getDb()
+      .select({ date: statsDaily.date, views: sql<number>`sum(${statsDaily.views})::int` })
+      .from(statsDaily)
+      .where(
+        and(
+          eq(statsDaily.type, 'blog'),
+          inArray(statsDaily.slug, [...slugs]),
+          between(statsDaily.date, fromDate, toDate)
+        )
+      )
+      .groupBy(statsDaily.date)
+      .orderBy(statsDaily.date);
+    return rows.map((row) => ({ date: row.date, views: Number(row.views) }));
+  } catch (error) {
+    if (isUndefinedTable(error)) return [];
+    throw error;
+  }
 }

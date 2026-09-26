@@ -1,8 +1,9 @@
 ---
 /**
- * Bento "Blog stats" card (mockup `.c-stats`): views, 30-day chart, reactions, most read.
- * <!-- filled by task 30 --> Task 30 replaces the body with the `BlogStats` island
- * (`GET /api/stats/summary`). Until then a fixed-size skeleton keeps the final height (no CLS).
+ * Bento "Blog stats · 30 days" card (mockup `.c-stats`): total views + 30-day delta, daily-views area
+ * chart, reaction split + legend, most read. The server renders a skeleton with the same fixed row
+ * heights as every data state; `blog-stats.ts` (vanilla, no React) fetches `GET /api/stats/summary`
+ * when the card nears the viewport and swaps the rows in. The card keeps the task-15 min-height.
  * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
  */
 import Card from '~/components/ui/Card.astro';
@@ -19,20 +20,232 @@ interface Props {
 const { class: className, style } = Astro.props;
 ---
 
-<!-- filled by task 30 -->
 <Card
   class={cn('flex flex-col gap-3', className)}
   style={`min-height: ${CARD_MIN_HEIGHT.blogStats}px; ${style ?? ''}`}
   data-tilt
-  aria-busy="true"
 >
-  <CardEyebrow>Blog stats</CardEyebrow>
-  <div class="flex items-end justify-between">
-    <CardSkeleton height={34} width="50%" />
-    <CardSkeleton height={20} width="56px" radius="99px" />
+  <CardEyebrow>Blog stats · 30 days</CardEyebrow>
+  <div class="blog-stats" data-blog-stats aria-busy="true">
+    <div class="views-head">
+      <CardSkeleton height={34} width="50%" />
+      <CardSkeleton height={20} width="56px" radius="99px" />
+    </div>
+    <div class="bs-chart"><CardSkeleton height={70} radius="6px" /></div>
+    <div class="react-bar react-bar--skeleton"><CardSkeleton height={6} radius="6px" /></div>
+    <div class="react-legend"><CardSkeleton height={16} width="90%" /></div>
+    <div class="most-read most-read--skeleton"><CardSkeleton height={36} /></div>
   </div>
-  <CardSkeleton height={70} radius="6px" />
-  <CardSkeleton height={6} radius="6px" />
-  <CardSkeleton height={16} width="90%" />
-  <CardSkeleton height={36} class="mt-auto" />
 </Card>
+
+<script>
+  import { mountBlogStats, unmountBlogStats } from './blog-stats';
+
+  document.addEventListener('astro:page-load', mountBlogStats);
+  document.addEventListener('astro:before-swap', unmountBlogStats);
+</script>
+
+<style is:global>
+  /* Mockup `.c-stats` rules, scoped to the card body. Small text uses --fg-soft (--muted fails AA in
+     Day); Day --green / --red / --blue text is deepened with --fg to reach 4.5:1 (as the statusline). */
+  .blog-stats {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    --bs-blue-text: light-dark(color-mix(in srgb, var(--blue) 70%, var(--fg)), var(--blue));
+  }
+
+  .blog-stats .views-head {
+    display: flex;
+    flex-shrink: 0;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+    height: 34px;
+  }
+
+  .blog-stats .big {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .blog-stats .big b {
+    color: var(--fg);
+    font-size: 34px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .blog-stats .big > span {
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .blog-stats .delta {
+    --tone: var(--green);
+    padding: 2px 8px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--tone) 12%, transparent);
+    color: light-dark(color-mix(in srgb, var(--tone) 70%, var(--fg)), var(--tone));
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+  }
+
+  .blog-stats .delta[data-direction='down'] {
+    --tone: var(--red);
+  }
+
+  .blog-stats .delta[data-direction='flat'] {
+    --tone: var(--fg-soft);
+  }
+
+  .blog-stats .bs-chart {
+    position: relative;
+    flex-shrink: 0;
+    height: 70px;
+  }
+
+  .blog-stats .area {
+    display: block;
+    width: 100%;
+    height: 70px;
+    overflow: visible;
+  }
+
+  .blog-stats .area .line {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .blog-stats .area .grid {
+    stroke: var(--line);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Static, not only in the dotPop `from` keyframe: transform-box animates discretely there, so the
+     pop would scale around the SVG origin for most of its run. */
+  .blog-stats .area .dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    fill: var(--blue);
+    stroke: var(--surface-solid);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .blog-stats .bs-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 6px;
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .blog-stats .react-bar {
+    display: flex;
+    flex-shrink: 0;
+    gap: 2px;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--line);
+  }
+
+  .blog-stats .react-bar span {
+    width: var(--w);
+    background: var(--c);
+  }
+
+  .blog-stats .react-bar--skeleton {
+    background: none;
+  }
+
+  .blog-stats .react-legend {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    height: 20px;
+    color: var(--fg-soft);
+    font-size: 13px;
+  }
+
+  .blog-stats .react-legend b {
+    color: var(--fg);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .blog-stats .most-read {
+    display: grid;
+    flex-shrink: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 2px 10px;
+    box-sizing: border-box;
+    height: 48px;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line-strong);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .blog-stats .most-read--skeleton {
+    display: block;
+  }
+
+  .blog-stats .mr-e {
+    grid-column: 1 / -1;
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    line-height: 14px;
+    text-transform: uppercase;
+  }
+
+  .blog-stats .mr-t {
+    overflow: hidden;
+    font-weight: 500;
+    line-height: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .blog-stats .mr-v {
+    color: var(--bs-blue-text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  .blog-stats a.most-read:hover .mr-t {
+    color: var(--bs-blue-text);
+  }
+
+  .blog-stats a.most-read:focus-visible {
+    border-radius: 4px;
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+</style>

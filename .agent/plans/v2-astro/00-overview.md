@@ -202,3 +202,6 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Implementation note (task 19):** the Spotify card is a vanilla module script (no React island). Polling stops when the tab is hidden, the card is off-screen or you navigate away, and album art uses Spotify's own 64/300/640 srcset (not the Vercel image service, to save the image quota).
+
+
+> **Implementation note (task 30):** the Blog stats card is a vanilla module script (`src/components/home/blog-stats.ts`), not a React island, so the homepage ships no React. `/api/stats/summary` sends `Cache-Control: public, max-age=0, must-revalidate` plus `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=600` (per the 00-overview cache-header rule), replacing the `s-maxage` header in the acceptance criteria above. Measure layout with `clientWidth`/`offsetWidth`, not `getBoundingClientRect`, inside cards that can be transformed (rise/tilt).
