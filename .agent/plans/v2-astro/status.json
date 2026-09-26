@@ -128,7 +128,7 @@
       "id": "v2-astro-content-collections",
       "endpoint": null,
       "spec": "10-content-collections.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Move MDX to src/content, glob collections mirroring contentlayer, pure tag/reading-time helpers with tests vs v1 tag-data.json",
       "dependencies": [
         "v2-astro-site-config-env"

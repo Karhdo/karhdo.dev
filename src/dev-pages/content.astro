@@ -1,0 +1,41 @@
+---
+/** Dev-only preview (served at `/dev/content` by the dev-pages router): ids, dates, tag slugs, reading time. */
+import { getPublishedPosts, getReadingTime, getTagCounts, postUrl } from '~/lib/content';
+import { tagSlug } from '~/lib/tags';
+import { formatDate } from '~/lib/utils/format-date';
+
+const posts = await getPublishedPosts();
+const tagCounts = await getTagCounts();
+---
+
+<section>
+  <h1>Content</h1>
+  <h2>Posts ({posts.length})</h2>
+  <table>
+    <thead>
+      <tr><th>id</th><th>url</th><th>date</th><th>draft</th><th>tags</th><th>reading time</th></tr>
+    </thead>
+    <tbody>
+      {
+        posts.map((post) => (
+          <tr>
+            <td><code>{post.id}</code></td>
+            <td><a href={postUrl(post)}>{postUrl(post)}</a></td>
+            <td>{formatDate(post.data.date)}</td>
+            <td>{String(post.data.draft)}</td>
+            <td>{post.data.tags.map((tag) => tagSlug(tag)).join(', ')}</td>
+            <td>{getReadingTime(post.body ?? '').text}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <h2>Tags ({Object.keys(tagCounts).length})</h2>
+  <ul>
+    {
+      Object.entries(tagCounts).map(([slug, { label, count }]) => (
+        <li><code>{slug}</code> ({label}): {count}</li>
+      ))
+    }
+  </ul>
+</section>

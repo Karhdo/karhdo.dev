@@ -43,3 +43,6 @@ Generate 1200×630 Open Graph images at build time with Satori (JSX-like object 
 
 - v1 `app/blog/[...slug]/page.tsx` `generateMetadata` (image fallback rules), `data/siteMetadata.js` `socialBanner`.
 - Satori README (object tree without React, font requirements); Astro docs "Endpoints → static file endpoints".
+
+
+> **Note from task 10 review:** the blog schema allows `images` to be a string or an array (v1 parity). Normalise before use: `const img = Array.isArray(images) ? images[0] : images;` (not `images?.[0]`, which would take the first character of a string).
