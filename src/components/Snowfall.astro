@@ -1,9 +1,15 @@
 ---
 /**
- * Homepage snowfall canvas. Stub from task 15: renders nothing.
- * Task 29 fills this file (vanilla canvas, `SITE.snowfall` gating inside the component), so
- * `src/pages/index.astro` never needs to change.
+ * Homepage snowfall (task 29): a fixed, full-viewport canvas behind the page, animated by the
+ * plain-TS `snowfall/snowfall.ts` script (no React, no dependency). Gated by `SITE.snowfall`:
+ * `false` renders nothing (no canvas, no script); `'december'` animates only in the visitor's
+ * local December, checked client-side because the page is prerendered. The canvas sits at
+ * z-index -1, visible only because the page background lives on `body`, never on `html`.
  */
+import SnowfallCanvas from '~/components/snowfall/SnowfallCanvas.astro';
+import { SITE } from '~/config/site';
+
+const mode = SITE.snowfall;
 ---
 
-<!-- filled by task 29 -->
+{mode !== false && <SnowfallCanvas december={mode === 'december'} />}

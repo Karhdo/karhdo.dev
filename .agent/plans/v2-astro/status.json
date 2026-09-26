@@ -270,7 +270,7 @@
       "id": "v2-astro-newsletter-buttondown",
       "endpoint": "POST /api/newsletter",
       "spec": "22-newsletter-buttondown.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Buttondown subscribe endpoint (origin allowlist) + progressive-enhancement form island",
       "dependencies": [
         "v2-astro-site-config-env",
@@ -283,7 +283,7 @@
       "id": "v2-astro-search-command-palette",
       "endpoint": null,
       "spec": "23-search-command-palette.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Pagefind index + \u2318K palette lazily imported by a vanilla loader (no React/cmdk until first open)",
       "dependencies": [
         "v2-astro-header-footer",
@@ -384,7 +384,7 @@
       "id": "v2-astro-snowfall",
       "endpoint": null,
       "spec": "29-snowfall.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Fill Snowfall stub: vanilla single-layer canvas, 119 flakes with larger/slower flakes (r .8-2.6, speed .25-1.2, v1 wind/opacity), pure model.ts + tests, -z-1 with body-only background, --snow-c, reduced-motion change listener, SnowfallMode flag",
       "dependencies": [
         "v2-astro-homepage-bento",

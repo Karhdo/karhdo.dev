@@ -1,0 +1,20 @@
+---
+/**
+ * The snowfall canvas and its script. Rendered only by `Snowfall.astro` when `SITE.snowfall` is
+ * on, so `snowfall: false` ships neither the canvas nor the script (Astro emits a component's
+ * processed script only where the component renders).
+ */
+type Props = { december?: boolean };
+
+const { december = false } = Astro.props;
+---
+
+<canvas
+  id="snowfall"
+  data-snowfall
+  data-snowfall-mode={december ? 'december' : undefined}
+  aria-hidden="true"
+  class="pointer-events-none fixed inset-0 -z-1 h-screen w-screen"
+></canvas>
+
+<script src="./snowfall.ts"></script>

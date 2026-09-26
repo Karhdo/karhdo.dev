@@ -74,3 +74,6 @@ Keep v1's single-layer homepage snowfall of 119 round flakes, with **slightly la
 
 
 > **Note from task 03:** `SnowfallMode` and the optional `snowfall` field already exist in `SiteConfig` (`src/config/site.ts`); add only the value.
+
+
+> **Implementation notes (task 29):** the canvas and script live in `src/components/snowfall/SnowfallCanvas.astro`, rendered only when `SITE.snowfall !== false`, because Astro emits a component script whenever the component renders even if its markup is conditional. The model keeps the approved mockup sway (`x += wind + sin(phase) * 0.25`, phase += 0.01).

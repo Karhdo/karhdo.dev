@@ -77,6 +77,8 @@ export const SITE = {
   timezone: 'Asia/Ho_Chi_Minh',
   location: 'Ho Chi Minh, Viet Nam',
   postsPerPage: 5,
+  /** Homepage snowfall (task 29): `true` always (v1), `false` never, `'december'` in December only. */
+  snowfall: true as SnowfallMode,
   /** Footer version switcher (task 09). `v1.karhdo.dev` goes live after v2 ships (task 28). */
   versions: [
     { branch: 'main', stack: 'Astro × Bun', url: 'https://karhdo.dev', current: true },
