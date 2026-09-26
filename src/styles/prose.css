@@ -11,7 +11,8 @@
     --tw-prose-body: var(--fg-soft);
     --tw-prose-headings: var(--fg);
     --tw-prose-lead: var(--fg-soft);
-    --tw-prose-links: var(--blue);
+    /* Day --blue on --bg is 3.1:1; deepen toward --fg in Day only (≥4.5:1). Night keeps the raw token. */
+    --tw-prose-links: light-dark(color-mix(in srgb, var(--blue) 60%, var(--fg)), var(--blue));
     --tw-prose-bold: var(--fg);
     --tw-prose-counters: var(--muted);
     --tw-prose-bullets: var(--muted);
