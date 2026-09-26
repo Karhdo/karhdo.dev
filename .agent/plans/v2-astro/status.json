@@ -307,7 +307,7 @@
       "id": "v2-astro-og-images",
       "endpoint": null,
       "spec": "25-og-images.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Build-time per-post OG PNGs with Satori + resvg using mockup colours, wired into SEO",
       "dependencies": [
         "v2-astro-content-collections",

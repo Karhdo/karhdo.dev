@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { absoluteUrl, buildBlogPostingJsonLd, buildWebsiteJsonLd, pageTitle, serializeJsonLd } from './seo';
+import {
+  absoluteUrl,
+  buildBlogPostingJsonLd,
+  buildWebsiteJsonLd,
+  ogImagePath,
+  pageTitle,
+  postImage,
+  serializeJsonLd,
+} from './seo';
 
 describe('absoluteUrl', () => {
   test('home has no trailing slash', () => {
@@ -48,9 +56,9 @@ describe('JSON-LD', () => {
     });
   });
 
-  test('BlogPosting falls back to the site banner and author', () => {
+  test('BlogPosting falls back to the generated OG card and the site author', () => {
     const ld = buildBlogPostingJsonLd({ ...post, data: { ...post.data, images: undefined } });
-    expect(ld.image).toBe('https://karhdo.dev/static/images/projects/karhdo-blog.png');
+    expect(ld.image).toBe('https://karhdo.dev/og/hello-world.png');
     expect(ld.author).toEqual([{ '@type': 'Person', name: 'Trong Khanh' }]);
   });
 
@@ -60,5 +68,25 @@ describe('JSON-LD', () => {
 
   test('serialisation cannot close the script tag', () => {
     expect(serializeJsonLd({ a: '</script>' })).toBe('{"a":"\\u003c/script>"}');
+  });
+});
+
+describe('postImage', () => {
+  test('a frontmatter image wins (string or list)', () => {
+    expect(postImage('/static/a.png', 'p')).toBe('/static/a.png');
+    expect(postImage(['/static/a.png', '/static/b.png'], 'p')).toBe('/static/a.png');
+  });
+  test('a string is not indexed character by character', () => {
+    expect(postImage('https://example.com/x.png')).toBe('https://example.com/x.png');
+  });
+  test('otherwise the generated OG card', () => {
+    expect(postImage(undefined, 'exploring-module-in-nestjs')).toBe('/og/exploring-module-in-nestjs.png');
+    expect(postImage([], 'p')).toBe('/og/p.png');
+  });
+  test('without an id the site OG card', () => {
+    expect(postImage(undefined)).toBe('/og/default.png');
+  });
+  test('ogImagePath', () => {
+    expect(ogImagePath('default')).toBe('/og/default.png');
   });
 });

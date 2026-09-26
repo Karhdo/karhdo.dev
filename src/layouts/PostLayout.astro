@@ -38,7 +38,7 @@ export type Props = PageProps & {
 
 const { post, headings, readingMinutes, authorProfiles, neighbours, ...pageProps } = Astro.props;
 const { id, data } = post;
-const image = postImage(data.images);
+const image = postImage(data.images, id);
 ---
 
 <PageLayout {...pageProps}>

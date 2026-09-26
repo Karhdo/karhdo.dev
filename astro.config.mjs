@@ -99,5 +99,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     define: { __BUILD_INFO__: JSON.stringify(buildInfo) },
+    // Task 25: native binary, loaded from node_modules by the prerendered OG route, never bundled.
+    ssr: { external: ['@resvg/resvg-js'] },
   },
 });

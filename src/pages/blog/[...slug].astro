@@ -45,7 +45,7 @@ const authorProfiles =
   modifiedTime={post.data.lastmod ?? post.data.date}
   tags={post.data.tags}
   authors={authorProfiles.map((author) => author.name)}
-  image={postImage(post.data.images)}
+  image={postImage(post.data.images, post.id)}
   canonical={post.data.canonicalUrl ?? postUrl(post)}
   jsonLd={buildBlogPostingJsonLd(post, authorEntries)}
 >

@@ -25,10 +25,18 @@ type PostLike = Pick<Post, 'id'> & {
 };
 type AuthorLike = { data: Pick<Author['data'], 'name'> };
 
-/** First frontmatter image (string or list), else the site banner. */
-export function postImage(images: Post['data']['images']): string {
-  const first = typeof images === 'string' ? images : images?.[0];
-  return first ?? SITE.socialBanner;
+/** Path of the build-time Open Graph card for a post (task 25), or `default` for the site card. */
+export function ogImagePath(id: string): string {
+  return `/og/${id}.png`;
+}
+
+/**
+ * A post's social image: its first frontmatter image (string or list) wins, else its generated
+ * `/og/{id}.png` card. Without an id it falls back to the site card `/og/default.png`.
+ */
+export function postImage(images: Post['data']['images'], id?: string): string {
+  const first = Array.isArray(images) ? images[0] : images;
+  return first ?? ogImagePath(id ?? 'default');
 }
 
 /** schema.org `BlogPosting` for a post (v1 `structuredData` + the page's `author` list). */
@@ -41,7 +49,7 @@ export function buildBlogPostingJsonLd(post: PostLike, author?: AuthorLike | Aut
     datePublished: post.data.date.toISOString(),
     dateModified: (post.data.lastmod ?? post.data.date).toISOString(),
     description: post.data.summary,
-    image: absoluteUrl(postImage(post.data.images)),
+    image: absoluteUrl(postImage(post.data.images, post.id)),
     url: absoluteUrl(`/blog/${post.id}`),
     author: (authors.length > 0 ? authors : [SITE.author]).map((name) => ({ '@type': 'Person', name })),
   };

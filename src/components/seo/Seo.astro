@@ -5,7 +5,7 @@
  * post `generateMetadata`.
  */
 import { SITE } from '~/config/site';
-import { absoluteUrl, buildWebsiteJsonLd, pageTitle, serializeJsonLd } from '~/lib/seo';
+import { absoluteUrl, buildWebsiteJsonLd, ogImagePath, pageTitle, serializeJsonLd } from '~/lib/seo';
 import { themeColor } from '~/styles/palette';
 
 export interface Props {
@@ -28,7 +28,7 @@ export interface Props {
 const {
   title,
   description = SITE.description,
-  image = SITE.socialBanner,
+  image = ogImagePath('default'),
   type = 'website',
   publishedTime,
   modifiedTime,
@@ -45,6 +45,8 @@ const fullTitle = pageTitle(title);
 const socialTitle = type === 'article' && title ? title : fullTitle;
 const canonical = absoluteUrl(canonicalPath ?? Astro.url.pathname);
 const imageUrl = absoluteUrl(image);
+// Generated `/og/*.png` cards are always 1200 × 630 (task 25); other images' sizes are unknown.
+const isOgCard = image.startsWith('/og/');
 const robots = noindex
   ? 'noindex, follow'
   : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
@@ -62,6 +64,9 @@ const robots = noindex
 <meta property="og:locale" content="en_US" />
 <meta property="og:type" content={type} />
 <meta property="og:image" content={imageUrl} />
+{isOgCard && <meta property="og:image:width" content="1200" />}
+{isOgCard && <meta property="og:image:height" content="630" />}
+<meta property="og:image:alt" content={socialTitle} />
 {
   type === 'article' && (
     <>
@@ -77,6 +82,7 @@ const robots = noindex
 <meta name="twitter:title" content={socialTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={socialTitle} />
 
 <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/feed.xml" />
 {rssFeed && <link rel="alternate" type="application/rss+xml" title={fullTitle} href={rssFeed} />}
