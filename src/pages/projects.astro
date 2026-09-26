@@ -1,7 +1,9 @@
 ---
 /**
  * /projects: work and side projects from `src/config/projects.ts`. Rendered on demand with CDN
- * caching so task 20 can add live GitHub repo data without a rebuild; for now it is static data only.
+ * caching, so live GitHub repo data (task 20: stars, forks, languages, topics, and the repo
+ * description when a project has none, as v1 did) stays fresh without a rebuild. Repos are fetched
+ * in parallel; a `null` (no token, GitHub down) keeps the static card.
  */
 import GithubRepoMeta from '~/components/projects/GithubRepoMeta.astro';
 import ProjectCard from '~/components/projects/ProjectCard.astro';
@@ -9,6 +11,8 @@ import ProjectGrid from '~/components/projects/ProjectGrid.astro';
 import SectionHeader from '~/components/ui/SectionHeader.astro';
 import { PROJECTS, type Project } from '~/config/projects';
 import PageLayout from '~/layouts/PageLayout.astro';
+import { fetchRepoData } from '~/lib/services/github';
+import type { GithubRepository } from '~/types/github';
 
 export const prerender = false;
 
@@ -16,12 +20,23 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-
 
 const description = 'My open-source side projects and stuff that I built with my colleagues at work';
 
+type Entry = { project: Project; repoData: GithubRepository | null };
+
+const entries: Entry[] = await Promise.all(
+  PROJECTS.map(async (project) => {
+    const repoData = project.repo ? await fetchRepoData({ repo: project.repo, includeLastCommit: false }) : null;
+    // v1 preferred the repo description (`repository?.description || description`); per the task-17 note it is now only a fallback.
+    const description = project.description || repoData?.description || undefined;
+    return { project: { ...project, description }, repoData };
+  })
+);
+
 // One pass (v1 logic).
-const workProjects: Project[] = [];
-const sideProjects: Project[] = [];
-for (const project of PROJECTS) {
-  if (project.type === 'work') workProjects.push(project);
-  else sideProjects.push(project);
+const workProjects: Entry[] = [];
+const sideProjects: Entry[] = [];
+for (const entry of entries) {
+  if (entry.project.type === 'work') workProjects.push(entry);
+  else sideProjects.push(entry);
 }
 
 const sections = [
@@ -40,9 +55,13 @@ const sections = [
             {title}
           </h2>
           <ProjectGrid>
-            {projects.map((project) => (
-              <ProjectCard project={project} variant={project.featured ? 'featured' : 'framed'}>
-                {project.repo && <GithubRepoMeta slot="meta" repo={project.repo} />}
+            {projects.map(({ project, repoData }) => (
+              <ProjectCard
+                project={project}
+                variant={project.featured ? 'featured' : 'framed'}
+                stars={repoData?.stargazerCount}
+              >
+                {repoData && <GithubRepoMeta slot="meta" repo={repoData} />}
               </ProjectCard>
             ))}
           </ProjectGrid>

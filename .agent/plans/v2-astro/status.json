@@ -246,7 +246,7 @@
       "id": "v2-astro-github-integration",
       "endpoint": "GET /api/github, GET /api/github/activity",
       "spec": "20-github-integration.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "GitHub service: projects enrichment, /api/github parity endpoint, 46-week heatmap with contributions, day streak and public repos (fills GithubActivityCard stub)",
       "dependencies": [
         "v2-astro-site-config-env",

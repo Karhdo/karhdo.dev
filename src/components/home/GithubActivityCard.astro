@@ -1,13 +1,22 @@
 ---
 /**
- * Bento "GitHub · @Karhdo" card (mockup `.c-github`).
- * <!-- filled by task 20 --> Task 20 replaces the body with the `GithubActivity` island
- * (`GET /api/github/activity`). Until then a fixed-size skeleton keeps the final height (no CLS).
+ * Bento "GitHub · @Karhdo" card (mockup `.c-github`, task 20): a 46-week contribution heatmap and
+ * three stats (contributions in the window, day streak, public repos) from `GET /api/github/activity`.
+ *
+ * Vanilla, not a React island: one fetch and a render, so the homepage ships no React for it. The
+ * fetch starts when the card nears the viewport (like `client:visible`). Everything has a fixed size
+ * from the first paint (heat box 7 × 11 px rows + 3 px gaps plus a reserved thin-scrollbar strip;
+ * stat numbers with a fixed line height), so filling it causes no layout shift. The heatmap's
+ * accessible name summarises it and the cells are decorative. With motion allowed the cells ripple
+ * in column by column (`cellIn`, delay `--c × 14 ms`) and the numbers count up once; at rest (and
+ * with reduced motion) everything is at its final state. On failure (no token, GitHub down) the card
+ * shows a calm empty state with a link to the profile.
  * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
  */
 import Card from '~/components/ui/Card.astro';
 import Icon from '~/components/ui/Icon.astro';
 import { SITE } from '~/config/site';
+import { ACTIVITY_WEEKS } from '~/lib/github-activity';
 import { cn } from '~/lib/utils/cn';
 import CardEyebrow from './CardEyebrow.astro';
 import CardSkeleton from './CardSkeleton.astro';
@@ -19,25 +28,252 @@ interface Props {
 }
 
 const { class: className, style } = Astro.props;
+const login = SITE.socialAccounts.github;
+const profileUrl = `https://github.com/${login}`;
+const stats = [
+  { key: 'total', label: 'contributions' },
+  { key: 'streak', label: 'day streak' },
+  { key: 'publicRepos', label: 'public repos' },
+] as const;
 ---
 
-<!-- filled by task 20 -->
 <Card
-  class={cn('flex flex-col gap-3.5', className)}
+  class={cn('gh-card flex flex-col gap-3.5', className)}
   style={`min-height: ${CARD_MIN_HEIGHT.github}px; ${style ?? ''}`}
   data-tilt
+  data-gh-activity
   aria-busy="true"
 >
-  <CardEyebrow><Icon name="Github" size={14} />GitHub · @{SITE.socialAccounts.github}</CardEyebrow>
-  <CardSkeleton height={95} radius="6px" />
-  <div class="flex gap-5.5">
+  <CardEyebrow>
+    <Icon name="Github" size={14} />
+    <a class="gh-link" href={profileUrl} target="_blank" rel="noopener noreferrer">GitHub · @{login}</a>
+  </CardEyebrow>
+  <div class="heat-wrap" data-heat-wrap>
+    <CardSkeleton height={95} radius="6px" class="heat-skeleton" />
+    <div class="heat" data-heat role="img" aria-label={`Contribution heatmap for the last ${ACTIVITY_WEEKS} weeks`} hidden>
+    </div>
+    <p class="heat-empty" data-heat-empty hidden>
+      Activity is unavailable right now.
+      <a href={profileUrl} target="_blank" rel="noopener noreferrer">See it on GitHub →</a>
+    </p>
+  </div>
+  <div class="gh-stats">
     {
-      [0, 1, 2].map(() => (
-        <div class="flex min-w-0 max-w-[84px] flex-1 flex-col gap-1.5">
-          <CardSkeleton height={24} width="48px" />
-          <CardSkeleton height={12} />
+      stats.map(({ key, label }) => (
+        <div>
+          <b data-gh-stat={key}>
+            <CardSkeleton height={20} width="44px" radius="6px" class="stat-skeleton" />
+          </b>
+          <span>{label}</span>
         </div>
       ))
     }
   </div>
 </Card>
+
+<style>
+  .gh-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .gh-link:hover,
+  .gh-link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* Fixed height: 95 px heatmap + an 8 px strip reserved for a thin horizontal scrollbar, so the box
+     is the same size with or without the heatmap, on overlay and classic scrollbars alike. */
+  .heat-wrap {
+    height: 103px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .heat {
+    display: grid;
+    grid-template-rows: repeat(7, 11px);
+    grid-auto-flow: column;
+    grid-auto-columns: 11px;
+    gap: 3px;
+    width: max-content;
+  }
+  .heat[hidden],
+  .heat-empty[hidden] {
+    display: none;
+  }
+  .heat :global(i) {
+    border-radius: 3px;
+    background: var(--heat-0);
+  }
+  .heat :global(i[data-l="1"]) {
+    background: var(--heat-1);
+  }
+  .heat :global(i[data-l="2"]) {
+    background: var(--heat-2);
+  }
+  .heat :global(i[data-l="3"]) {
+    background: var(--heat-3);
+  }
+  .heat :global(i[data-l="4"]) {
+    background: var(--heat-4);
+  }
+  .heat-empty {
+    margin: 0;
+    height: 95px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13.5px;
+    color: var(--fg-soft);
+    border-radius: 6px;
+    background: var(--heat-0);
+    padding: 0 14px;
+  }
+  /* --heat-4 nudged toward --fg: plain --heat-4 is ~4.6:1 on this tint in Day, too close to AA. */
+  .heat-empty a {
+    color: color-mix(in srgb, var(--heat-4) 80%, var(--fg));
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .heat-empty a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .gh-stats {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .gh-stats div {
+    display: flex;
+    flex-direction: column;
+  }
+  /* Fixed line boxes: the skeleton, the number and "—" all take the same height. */
+  .gh-stats b {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  /* --fg-soft, not the mockup's --muted, which fails AA for 12 px text in Day. */
+  .gh-stats span {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Longhands (see the task-12 note); cells are full size at rest. */
+    .heat :global(i) {
+      animation-name: cellIn;
+      animation-duration: 0.5s;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-delay: calc(var(--c) * 14ms);
+    }
+  }
+</style>
+
+<script>
+  import type { GithubActivity } from '~/lib/github-activity';
+  import { describeActivity } from '~/lib/github-activity';
+  import { formatCount, observeCounts } from '~/lib/motion/count-up';
+  import { fetchJson } from '~/lib/utils/fetch-json';
+
+  /** One request per page session; view-transition revisits reuse it (the CDN caches it anyway). */
+  let request: Promise<GithubActivity> | undefined;
+  const load = () => {
+    request ??= fetchJson<GithubActivity>('/api/github/activity').catch((error: unknown) => {
+      request = undefined; // retry on the next visit
+      throw error;
+    });
+    return request;
+  };
+
+  function renderHeat(heat: HTMLElement, activity: GithubActivity) {
+    const fragment = document.createDocumentFragment();
+    activity.weeks.forEach((week, column) => {
+      for (const day of week.days) {
+        const cell = document.createElement('i');
+        cell.style.setProperty('--c', String(column));
+        cell.dataset.l = String(day.level);
+        cell.title = `${day.count.toLocaleString('en-US')} contribution${day.count === 1 ? '' : 's'} on ${day.date}`;
+        fragment.append(cell);
+      }
+    });
+    heat.replaceChildren(fragment);
+    heat.setAttribute('aria-label', describeActivity(activity, activity.weeks.length));
+  }
+
+  function renderStats(card: HTMLElement, activity: GithubActivity | null) {
+    for (const el of card.querySelectorAll<HTMLElement>('[data-gh-stat]')) {
+      const key = el.dataset.ghStat as 'total' | 'streak' | 'publicRepos';
+      if (!activity) {
+        const dash = Object.assign(document.createElement('span'), { textContent: '—' });
+        dash.setAttribute('aria-hidden', 'true');
+        el.replaceChildren(dash, Object.assign(document.createElement('span'), { className: 'sr-only', textContent: 'unavailable' }));
+        continue;
+      }
+      const value = activity[key];
+      // Count-up contract: data-count holds the raw number, the text is grouped (formatCount).
+      el.dataset.count = String(value);
+      el.textContent = formatCount(value);
+    }
+    // The shared one-shot observer counts each number up once it is in view (no-op under reduced motion).
+    if (activity) observeCounts(card);
+  }
+
+  async function fill(card: HTMLElement) {
+    const wrap = card.querySelector<HTMLElement>('[data-heat-wrap]');
+    const heat = card.querySelector<HTMLElement>('[data-heat]');
+    const empty = card.querySelector<HTMLElement>('[data-heat-empty]');
+    const skeleton = card.querySelector<HTMLElement>('.heat-skeleton');
+    if (!wrap || !heat || !empty) return;
+    let activity: GithubActivity | null = null;
+    try {
+      activity = await load();
+    } catch {
+      activity = null;
+    }
+    if (!card.isConnected) return;
+    skeleton?.remove();
+    if (activity) {
+      renderHeat(heat, activity);
+      heat.hidden = false;
+      // Most recent weeks first when the heatmap is wider than the card.
+      wrap.scrollLeft = wrap.scrollWidth;
+    } else {
+      empty.hidden = false;
+    }
+    renderStats(card, activity);
+    card.setAttribute('aria-busy', 'false');
+  }
+
+  function init() {
+    for (const card of document.querySelectorAll<HTMLElement>('[data-gh-activity]')) {
+      if (card.dataset.bound === 'true') continue;
+      card.dataset.bound = 'true';
+      if (typeof IntersectionObserver === 'undefined') {
+        void fill(card);
+        continue;
+      }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          void fill(card);
+        },
+        { rootMargin: '200px' }
+      );
+      observer.observe(card);
+    }
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>
