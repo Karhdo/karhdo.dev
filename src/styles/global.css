@@ -1,1 +1,107 @@
-@import "tailwindcss";
+/* Only scan src/ for class candidates (not data/, .agent/, node_modules, …). */
+@import "tailwindcss" source(none);
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/jetbrains-mono";
+@import "./theme.css";
+@import "./prose.css";
+@import "./animations.css";
+
+@source "../**/*.{astro,ts,tsx,js,mjs,md,mdx,html}";
+
+@plugin "@tailwindcss/typography";
+
+/*
+ * `dark:` follows the data-theme attribute, and falls back to the OS scheme when the attribute
+ * is absent (JS off). Prefer the semantic tokens (bg-surface, text-muted) over `dark:`.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+@layer base {
+  /* html only carries color-scheme (from theme.css); the page background lives on body so it
+     propagates to the canvas and negative-z layers (snowfall) stay visible. */
+  body {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(900px 500px at 12% -10%, var(--glow-a), transparent 60%),
+      radial-gradient(700px 480px at 95% 5%, var(--glow-b), transparent 60%);
+    background-attachment: fixed;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    min-height: 100%;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--blue) 28%, transparent);
+    color: var(--fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+@layer components {
+  /* ---------- v1 carry-overs (css/tailwind.css) ---------- */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    transition:
+      background-color 600000s 0s,
+      color 600000s 0s;
+  }
+
+  .task-list-item::before {
+    display: none;
+  }
+
+  .task-list-item {
+    list-style: none;
+  }
+
+  .footnotes {
+    margin-top: 3rem;
+    border-top: 1px solid var(--line-strong);
+    padding-top: 2rem;
+  }
+
+  .data-footnote-backref {
+    text-decoration: none;
+  }
+
+  .content-header-link {
+    opacity: 0;
+    margin-left: -24px;
+    padding-right: 4px;
+  }
+
+  .content-header:hover .content-header-link,
+  .content-header-link:hover {
+    opacity: 1;
+  }
+}

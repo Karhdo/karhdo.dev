@@ -13,6 +13,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "biome lint .",
+    "lint:palette": "bun scripts/lint-palette.ts",
     "format": "biome format --write .",
     "check": "astro check && biome check .",
     "check:fix": "biome check --write .",

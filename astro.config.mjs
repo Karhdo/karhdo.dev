@@ -4,6 +4,7 @@ import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, envField } from 'astro/config';
+import devPages from './src/integrations/dev-pages.ts';
 
 /** Every variable is optional: the site must build and run with none of them set. */
 const secret = () => envField.string({ context: 'server', access: 'secret', optional: true });
@@ -13,7 +14,7 @@ export default defineConfig({
   site: 'https://karhdo.dev',
   trailingSlash: 'never',
   adapter: vercel(),
-  integrations: [mdx(), react()],
+  integrations: [mdx(), react(), devPages()],
   env: {
     schema: {
       // Server secrets

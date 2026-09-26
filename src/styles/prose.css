@@ -1,0 +1,133 @@
+/*
+ * Post typography: v1's `typography` config ported to tokens, so one rule set serves both
+ * themes. Layered on top of @tailwindcss/typography's `.prose` by overriding its variables.
+ *
+ * Layer: @tailwindcss/typography emits `.prose` into `@layer utilities`, so these overrides must
+ * live in the same layer (after it) to win; `@layer components` would lose to the plugin.
+ * Descendant selectors use `:where()` to match the plugin's specificity (0,1,0).
+ */
+@layer utilities {
+  .prose {
+    --tw-prose-body: var(--fg-soft);
+    --tw-prose-headings: var(--fg);
+    --tw-prose-lead: var(--fg-soft);
+    --tw-prose-links: var(--blue);
+    --tw-prose-bold: var(--fg);
+    --tw-prose-counters: var(--muted);
+    --tw-prose-bullets: var(--muted);
+    --tw-prose-hr: var(--line-strong);
+    --tw-prose-quotes: var(--fg);
+    --tw-prose-quote-borders: var(--line-strong);
+    --tw-prose-captions: var(--muted);
+    --tw-prose-kbd: var(--fg);
+    --tw-prose-kbd-shadows: var(--line-strong);
+    --tw-prose-code: var(--purple);
+    --tw-prose-pre-code: var(--code-fg);
+    --tw-prose-pre-bg: var(--code-bg);
+    --tw-prose-th-borders: var(--line-strong);
+    --tw-prose-td-borders: var(--line);
+
+    color: var(--fg-soft);
+    font-size: 18px;
+    max-width: none;
+  }
+
+  .prose :where(a) {
+    color: var(--blue);
+    text-underline-offset: 4px;
+  }
+
+  .prose :where(a):hover {
+    color: var(--cyan);
+  }
+
+  .prose :where(a code) {
+    color: var(--blue);
+  }
+
+  .prose :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--fg);
+    scroll-margin-top: 6em;
+  }
+
+  .prose :where(h1, h2) {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .prose :where(h2) {
+    font-size: 28px;
+    margin: 0 0 12px 0;
+  }
+
+  .prose :where(h3) {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .prose :where(strong) {
+    color: var(--fg);
+  }
+
+  /* Inline code: --purple on --code-bg, no backticks. */
+  .prose :where(:not(pre) > code) {
+    color: var(--purple);
+    background-color: var(--code-bg);
+    padding: 2px 4px;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
+
+  .prose :where(code)::before,
+  .prose :where(code)::after {
+    content: none;
+  }
+
+  .prose :where(blockquote) {
+    color: var(--fg);
+    background: var(--surface-solid);
+    border-left-color: var(--line-strong);
+    border-radius: 0 12px 12px 0;
+    padding: 0.25em 1em;
+  }
+
+  .prose :where(details) {
+    background-color: var(--surface-solid);
+    border-radius: 0.25rem;
+    padding: 2px 4px;
+  }
+
+  .prose :where(hr) {
+    border-color: var(--line-strong);
+  }
+
+  .prose :where(ol > li)::marker {
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .prose :where(ul > li)::marker {
+    color: var(--muted);
+  }
+
+  .prose :where(img) {
+    margin: 0 auto;
+    border-radius: 12px;
+  }
+
+  .prose :where(table) {
+    border-color: var(--line);
+  }
+
+  .prose :where(thead th) {
+    color: var(--fg);
+  }
+
+  .prose :where(thead) {
+    border-bottom-color: var(--line-strong);
+  }
+
+  .prose :where(tbody tr) {
+    border-bottom-color: var(--line);
+  }
+}

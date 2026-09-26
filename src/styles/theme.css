@@ -1,0 +1,177 @@
+/*
+ * Design tokens: Tokyonight Day (light) on :root, Tokyonight Night (dark) via the
+ * prefers-color-scheme fallback and [data-theme="dark"].
+ *
+ * Copied verbatim from the approved mockup (.agent/plans/v2-astro/mockup/karhdo-v2.src.html).
+ * This file (and its TS mirror src/styles/palette.ts) is the ONLY place colours are defined.
+ * The two dark blocks must stay identical (enforced by src/styles/theme.test.ts).
+ */
+:root {
+  color-scheme: light;
+  --bg: #e1e2e7;
+  --bg-2: #d5d6db;
+  --surface: rgba(255, 255, 255, 0.55);
+  --surface-solid: #eceef3;
+  --line: rgba(55, 96, 191, 0.14);
+  --line-strong: rgba(55, 96, 191, 0.28);
+  --fg: #343b58;
+  --fg-soft: #4c5578;
+  --muted: #6172b0;
+  --faint: #8990b3;
+  --blue: #2e7de9;
+  --purple: #9854f1;
+  --cyan: #007197;
+  --green: #587539;
+  --orange: #b15c00;
+  --red: #f52a65;
+  --teal: #118c74;
+  --yellow: #8c6c3e;
+  --blue1: #188092;
+  --shine: rgba(225, 226, 231, 0.75);
+  --spotify: var(--green);
+  --code-bg: #e9e9ed;
+  --code-fg: #3760bf;
+  --glow-a: rgba(46, 125, 233, 0.2);
+  --glow-b: rgba(152, 84, 241, 0.16);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 12px 32px -18px rgba(52, 59, 88, 0.35);
+  --snow-c: #6172b0;
+  --heat-0: rgba(55, 96, 191, 0.08);
+  --heat-1: #b7c7ee;
+  --heat-2: #7ea1ea;
+  --heat-3: #4d80e4;
+  --heat-4: #2e62c9;
+  --r: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #16161e;
+    --bg-2: #1a1b26;
+    --surface: rgba(36, 40, 59, 0.55);
+    --surface-solid: #1f2335;
+    --line: rgba(122, 162, 247, 0.12);
+    --line-strong: rgba(122, 162, 247, 0.26);
+    --fg: #c0caf5;
+    --fg-soft: #a9b1d6;
+    --muted: #7982a9;
+    --faint: #565f89;
+    --blue: #7aa2f7;
+    --purple: #bb9af7;
+    --cyan: #7dcfff;
+    --green: #9ece6a;
+    --orange: #ff9e64;
+    --red: #f7768e;
+    --teal: #73daca;
+    --yellow: #e0af68;
+    --blue1: #2ac3de;
+    --shine: rgba(192, 202, 245, 0.75);
+    --spotify: var(--green);
+    --code-bg: #1a1b26;
+    --code-fg: #c0caf5;
+    --glow-a: rgba(122, 162, 247, 0.18);
+    --glow-b: rgba(187, 154, 247, 0.14);
+    --shadow: 0 1px 0 rgba(192, 202, 245, 0.06) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.6);
+    --snow-c: #c0caf5;
+    --heat-0: rgba(122, 162, 247, 0.07);
+    --heat-1: #2a3a66;
+    --heat-2: #3d59a1;
+    --heat-3: #5a7ed6;
+    --heat-4: #7aa2f7;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #16161e;
+  --bg-2: #1a1b26;
+  --surface: rgba(36, 40, 59, 0.55);
+  --surface-solid: #1f2335;
+  --line: rgba(122, 162, 247, 0.12);
+  --line-strong: rgba(122, 162, 247, 0.26);
+  --fg: #c0caf5;
+  --fg-soft: #a9b1d6;
+  --muted: #7982a9;
+  --faint: #565f89;
+  --blue: #7aa2f7;
+  --purple: #bb9af7;
+  --cyan: #7dcfff;
+  --green: #9ece6a;
+  --orange: #ff9e64;
+  --red: #f7768e;
+  --teal: #73daca;
+  --yellow: #e0af68;
+  --blue1: #2ac3de;
+  --shine: rgba(192, 202, 245, 0.75);
+  --spotify: var(--green);
+  --code-bg: #1a1b26;
+  --code-fg: #c0caf5;
+  --glow-a: rgba(122, 162, 247, 0.18);
+  --glow-b: rgba(187, 154, 247, 0.14);
+  --shadow: 0 1px 0 rgba(192, 202, 245, 0.06) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.6);
+  --snow-c: #c0caf5;
+  --heat-0: rgba(122, 162, 247, 0.07);
+  --heat-1: #2a3a66;
+  --heat-2: #3d59a1;
+  --heat-3: #5a7ed6;
+  --heat-4: #7aa2f7;
+}
+
+/* Expose the raw tokens to Tailwind utilities (bg-surface, text-muted, border-line, …).
+   Scoped component styles should use the raw tokens (var(--blue)), not --color-*. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-surface-solid: var(--surface-solid);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-blue: var(--blue);
+  --color-purple: var(--purple);
+  --color-cyan: var(--cyan);
+  --color-green: var(--green);
+  --color-orange: var(--orange);
+  --color-red: var(--red);
+  --color-teal: var(--teal);
+  --color-yellow: var(--yellow);
+  --color-blue1: var(--blue1);
+  --color-shine: var(--shine);
+  --color-spotify: var(--spotify);
+  --color-code-bg: var(--code-bg);
+  --color-code-fg: var(--code-fg);
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+  --color-snow: var(--snow-c);
+  /* v1 alias: v1's primary #7aa2f7 is the Night --blue. v1 `coral` is not carried over; use --color-red. */
+  --color-primary-500: var(--blue);
+
+  --shadow-card: var(--shadow);
+  --radius-card: var(--r);
+}
+
+/* Fonts and motion tokens. `static`: always emitted, so scoped component styles can use
+   var(--font-mono) / var(--ease-*). --ease-out deliberately overrides Tailwind's default `ease-out`. */
+@theme static {
+  --font-sans: "Outfit Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Animation utilities (keyframes live in animations.css). */
+  --animate-wave: wave 2.5s linear infinite;
+  --animate-music-bar-1: music-bar-1 0.8s linear infinite;
+  --animate-music-bar-2: music-bar-2 0.8s linear infinite;
+  --animate-music-bar-3: music-bar-3 0.8s linear infinite;
+  --animate-music-bar-4: music-bar-4 0.8s linear infinite;
+  --animate-scale-up: scale-up 150ms ease-in-out forwards;
+  --animate-rise: rise 0.6s var(--ease-out) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}

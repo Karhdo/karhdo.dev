@@ -82,7 +82,7 @@
       "id": "v2-astro-design-tokens",
       "endpoint": null,
       "spec": "06-design-tokens.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Tokyonight-only tokens (Day/Night via data-theme + JS-off fallback; yellow, blue1, shine; spotify = green; no magenta) + palette.ts mirror + lint:palette grep, fonts, prose, glass, motion tokens/keyframes/.rise/.reveal, dev-only /dev pages",
       "dependencies": [
         "v2-astro-tooling-biome"
@@ -93,7 +93,7 @@
       "id": "v2-astro-base-layout",
       "endpoint": null,
       "spec": "07-base-layout.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "BaseLayout with SEO/OG/JSON-LD, data-theme no-flash script, theme-color #e1e2e7/#16161e, ClientRouter, Umami (UMAMI_WEBSITE_ID)",
       "dependencies": [
         "v2-astro-site-config-env",
@@ -105,7 +105,7 @@
       "id": "v2-astro-ui-primitives",
       "endpoint": null,
       "spec": "08-ui-primitives.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Glass Card, Button, Tag, Link, icons, brand SVGs, SimpleIcon (simple-icons, build-time SVG), local Twemoji 17.0.3",
       "dependencies": [
         "v2-astro-design-tokens"

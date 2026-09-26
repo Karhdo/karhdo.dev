@@ -1,0 +1,217 @@
+---
+/**
+ * /dev/tokens (bun dev only): every design token, the motion primitives, the glass card and
+ * text samples, with a theme switcher (data-theme light / dark / unset = follow the OS).
+ */
+import '~/styles/global.css';
+import { tokenNames } from '~/styles/palette';
+
+const colourTokens = [...Object.values(tokenNames), '--spotify'];
+const utilities = [
+  'bg-surface',
+  'bg-surface-solid',
+  'bg-bg-2',
+  'bg-code-bg',
+  'bg-blue',
+  'bg-purple',
+  'bg-green',
+  'bg-red',
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>/dev/tokens</title>
+  </head>
+  <body class="px-4 pb-24">
+    <main class="mx-auto flex max-w-5xl flex-col gap-10 pt-8">
+      <header class="glass sticky top-3 z-10 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <h1 class="font-bold text-xl">Design tokens</h1>
+        <div class="flex items-center gap-2 font-mono text-sm" role="group" aria-label="Theme">
+          <span class="text-muted">data-theme:</span>
+          <button type="button" class="rounded-lg border border-line px-3 py-1 hover:border-line-strong" data-set-theme="light">light</button>
+          <button type="button" class="rounded-lg border border-line px-3 py-1 hover:border-line-strong" data-set-theme="dark">dark</button>
+          <button type="button" class="rounded-lg border border-line px-3 py-1 hover:border-line-strong" data-set-theme="">unset (OS)</button>
+          <output id="theme-state" class="text-faint">unset</output>
+        </div>
+      </header>
+
+      <section class="flex flex-col gap-4">
+        <h2 class="font-semibold text-2xl">Colour tokens</h2>
+        <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {
+            colourTokens.map((token) => (
+              <li class="overflow-hidden rounded-card border border-line bg-surface-solid">
+                <div class="h-16 border-line border-b" style={`background: var(${token})`} />
+                <div class="flex flex-col px-3 py-2 font-mono text-xs">
+                  <b class="text-fg">{token}</b>
+                  <span class="text-muted" data-token-value={token} />
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="flex flex-wrap gap-2">
+          {utilities.map((cls) => <span class={`${cls} rounded-lg border border-line px-3 py-1 font-mono text-fg text-xs`}>{cls}</span>)}
+          <span class="rounded-lg bg-primary-500 px-3 py-1 font-mono text-bg text-xs">bg-primary-500 (v1 alias)</span>
+          <span class="rounded-lg border border-line px-3 py-1 font-mono text-xs dark:text-purple">dark:text-purple</span>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <h2 class="font-semibold text-2xl">Contrast (live, against --bg)</h2>
+        <table class="w-full max-w-md font-mono text-sm">
+          <tbody id="contrast" class="[&_td]:border-line [&_td]:border-b [&_td]:py-1"></tbody>
+        </table>
+        <p class="font-mono text-faint text-xs">
+          html background: <span id="html-bg"></span> · body background-color: <span id="body-bg"></span>
+        </p>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <h2 class="font-semibold text-2xl">Surfaces</h2>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="glass p-5">
+            <p class="font-mono text-muted text-xs uppercase tracking-widest">.glass</p>
+            <p class="mt-2 text-fg-soft">Surface, line border, shadow, 14px blur, --r radius.</p>
+          </div>
+          <div class="rounded-card border border-line bg-surface-solid p-5 shadow-card">
+            <p class="font-mono text-muted text-xs uppercase tracking-widest">bg-surface-solid</p>
+            <p class="mt-2 text-fg-soft">shadow-card + rounded-card utilities.</p>
+          </div>
+          <div class="shimmer loop-anim h-24 rounded-card motion-safe:animate-shimmer" aria-label="Skeleton"></div>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <h2 class="font-semibold text-2xl">Typography</h2>
+        <p class="text-lg">
+          Outfit Variable — The quick brown fox jumps over the lazy dog. <b class="font-semibold">Semibold</b>,
+          <span class="font-light">light</span>, <span class="text-fg-soft">fg-soft</span>,
+          <span class="text-muted">muted</span>, <span class="text-faint">faint</span>.
+        </p>
+        <p class="font-mono text-code-fg">JetBrains Mono Variable — const answer = 42; // 0O1lI</p>
+        <article class="prose">
+          <h2>Prose heading</h2>
+          <p>
+            Body copy with a <a href="#tokens">link</a>, <strong>bold text</strong> and <code>inline code</code>.
+          </p>
+          <blockquote><p>A blockquote on --surface-solid with a --line-strong border.</p></blockquote>
+          <table>
+            <thead><tr><th>Token</th><th>Use</th></tr></thead>
+            <tbody><tr><td>--line</td><td>table rows</td></tr><tr><td>--line-strong</td><td>table head</td></tr></tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <h2 class="font-semibold text-2xl">Motion</h2>
+        <p class="text-muted text-sm">Everything below is fully visible at rest and with reduced motion.</p>
+        <div class="flex flex-wrap items-center gap-6">
+          <span class="inline-block origin-[70%_70%] text-3xl motion-safe:animate-wave" aria-hidden="true">👋</span>
+          <span class="flex h-6 items-end gap-0.75" aria-hidden="true">
+            <i class="w-1 rounded-sm bg-spotify motion-safe:animate-music-bar-1"></i>
+            <i class="w-1 rounded-sm bg-spotify motion-safe:animate-music-bar-2"></i>
+            <i class="w-1 rounded-sm bg-spotify motion-safe:animate-music-bar-3"></i>
+            <i class="w-1 rounded-sm bg-spotify motion-safe:animate-music-bar-4"></i>
+          </span>
+          <button type="button" id="scale-up" class="rounded-lg border border-line px-3 py-1 font-mono text-sm">animate-scale-up</button>
+          <span class="rounded-lg border border-line px-3 py-1 font-mono text-sm motion-safe:animate-rise">animate-rise</span>
+          <button type="button" id="replay" class="rounded-lg border border-line-strong px-3 py-1 font-mono text-sm">replay .rise</button>
+        </div>
+        <div id="rise-grid" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <div class="rise glass p-4 font-mono text-sm" style={`--i: ${i}`}>.rise --i:{i}</div>)}
+        </div>
+        <p class="text-muted text-sm">Scroll down: the cards below use <code class="text-purple">.reveal</code> (scroll-driven, Chrome).</p>
+        <div class="h-[60vh]"></div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          {[1, 2, 3, 4].map((n) => <div class="reveal glass p-6">.reveal #{n}</div>)}
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const root = document.documentElement;
+      const state = document.getElementById('theme-state');
+      const render = () => {
+        if (state) state.textContent = root.dataset.theme ?? 'unset';
+        const styles = getComputedStyle(root);
+        for (const el of document.querySelectorAll<HTMLElement>('[data-token-value]')) {
+          el.textContent = styles.getPropertyValue(el.dataset.tokenValue ?? '').trim();
+        }
+        renderContrast(styles);
+        const htmlBg = document.getElementById('html-bg');
+        const bodyBg = document.getElementById('body-bg');
+        if (htmlBg) htmlBg.textContent = getComputedStyle(root).backgroundColor;
+        if (bodyBg) bodyBg.textContent = getComputedStyle(document.body).backgroundColor;
+      };
+
+      const toRgb = (colour: string): number[] => {
+        const ctx = document.createElement('canvas').getContext('2d');
+        if (!ctx) return [0, 0, 0];
+        ctx.fillStyle = colour;
+        ctx.fillRect(0, 0, 1, 1);
+        return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3);
+      };
+      const luminance = (rgb: number[]) => {
+        const [r = 0, g = 0, b = 0] = rgb.map((v) => {
+          const c = v / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const ratio = (a: string, b: string) => {
+        const [l1, l2] = [luminance(toRgb(a)), luminance(toRgb(b))].sort((x, y) => y - x) as [number, number];
+        return (l1 + 0.05) / (l2 + 0.05);
+      };
+      const renderContrast = (styles: CSSStyleDeclaration) => {
+        const tbody = document.getElementById('contrast');
+        if (!tbody) return;
+        const bg = styles.getPropertyValue('--bg').trim();
+        const rows: [string, number][] = [
+          ['--fg', 4.5],
+          ['--fg-soft', 4.5],
+          ['--muted', 3],
+        ];
+        tbody.replaceChildren(
+          ...rows.map(([token, min]) => {
+            const value = ratio(styles.getPropertyValue(token).trim(), bg);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${token}</td><td>${value.toFixed(2)}:1</td><td>${value >= min ? 'PASS' : 'FAIL'} (≥ ${min})</td>`;
+            return tr;
+          })
+        );
+      };
+
+      for (const button of document.querySelectorAll<HTMLButtonElement>('[data-set-theme]')) {
+        button.addEventListener('click', () => {
+          const theme = button.dataset.setTheme;
+          if (theme) root.dataset.theme = theme;
+          else delete root.dataset.theme;
+          render();
+        });
+      }
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+
+      document.getElementById('replay')?.addEventListener('click', () => {
+        for (const el of document.querySelectorAll<HTMLElement>('#rise-grid .rise')) {
+          el.classList.remove('rise');
+          void el.offsetWidth;
+          el.classList.add('rise');
+        }
+      });
+      const scaleUp = document.getElementById('scale-up');
+      scaleUp?.addEventListener('click', () => {
+        scaleUp.classList.remove('animate-scale-up');
+        void scaleUp.offsetWidth;
+        scaleUp.classList.add('animate-scale-up');
+      });
+
+      document.fonts.ready.then(render);
+      render();
+    </script>
+  </body>
+</html>

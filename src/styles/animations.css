@@ -1,0 +1,381 @@
+/*
+ * Glass surfaces and the motion-system foundation (keyframes + primitives).
+ * Orchestration/QA of motion lives in task 26; later tasks apply these by class.
+ *
+ * At-rest rule: no class leaves an element at opacity 0 or off-position outside a running
+ * animation. Keyframes animate FROM an offset TO none, so the page is complete with JS off,
+ * with reduced motion, and before any animation runs.
+ *
+ * Tilt-safe rule (M-A): keyframes that can run on a [data-tilt] card (riseIn, revealIn) animate
+ * the individual `translate` / `scale` / `rotate` / `opacity` properties, never `transform`.
+ */
+
+@layer components {
+  /* ---------- Glass ---------- */
+  .glass {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-radius: var(--r);
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background: var(--surface-solid);
+    }
+  }
+}
+
+/* ---------- Keyframes: v1 carry-overs ---------- */
+@keyframes wave {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  10%,
+  30% {
+    transform: rotate(14deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  40% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes music-bar-1 {
+  0%,
+  100% {
+    height: 0%;
+  }
+  50% {
+    height: 70%;
+  }
+}
+
+@keyframes music-bar-2 {
+  0%,
+  100% {
+    height: 50%;
+  }
+  25% {
+    height: 0%;
+  }
+  75% {
+    height: 100%;
+  }
+}
+
+@keyframes music-bar-3 {
+  0%,
+  100% {
+    height: 70%;
+  }
+  15% {
+    height: 100%;
+  }
+  65% {
+    height: 0%;
+  }
+}
+
+@keyframes music-bar-4 {
+  0%,
+  100% {
+    height: 50%;
+  }
+  35.7% {
+    height: 0%;
+  }
+  85.7% {
+    height: 70%;
+  }
+}
+
+@keyframes scale-up {
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.18;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* ---------- Keyframes: new utilities ---------- */
+/* Mockup "Load-in": from a visible state, individual `translate` so it is tilt-safe. */
+@keyframes rise {
+  from {
+    translate: 0 10px;
+  }
+  to {
+    translate: none;
+  }
+}
+
+/* Skeleton shimmer: pair with a `--shine` gradient background (see .shimmer below). */
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@layer components {
+  .shimmer {
+    background-color: var(--line);
+    background-image: linear-gradient(100deg, transparent 30%, var(--shine) 50%, transparent 70%);
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+  }
+}
+
+/* ---------- Keyframes: mockup "Motion system" ---------- */
+@keyframes wordIn {
+  from {
+    transform: translateY(0.35em) rotate(2deg);
+    filter: blur(6px);
+  }
+  to {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes nameFlow {
+  0% {
+    background-position:
+      160% 50%,
+      0% 50%;
+  }
+  18% {
+    background-position:
+      -60% 50%,
+      35% 50%;
+  }
+  60% {
+    background-position:
+      -60% 50%,
+      100% 50%;
+  }
+  100% {
+    background-position:
+      -60% 50%,
+      0% 50%;
+  }
+}
+
+@keyframes dotPulse {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(-3px) scale(1.15);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    translate: 0 14px;
+    scale: 0.985;
+  }
+  to {
+    translate: none;
+    scale: none;
+  }
+}
+
+@keyframes revealIn {
+  from {
+    translate: 0 24px;
+    opacity: 0.35;
+  }
+  to {
+    translate: none;
+    opacity: 1;
+  }
+}
+
+@keyframes cellIn {
+  from {
+    transform: scale(0.2);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes barUp {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes splitIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes burst {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.5) rotate(-10deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes floatUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+}
+
+@keyframes pageOut {
+  to {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+}
+
+@keyframes pageIn {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeFill {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dotPop {
+  from {
+    transform: scale(0);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes mq {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Overrides Tailwind's animate-pulse (the live-dot ring); use animate-shimmer for skeletons. */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 60%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes flick {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  40% {
+    transform: scale(1.08, 1.14) rotate(-3deg);
+  }
+  70% {
+    transform: scale(0.96, 1.04) rotate(2deg);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.97) translateY(-6px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes chWave {
+  0% {
+    transform: none;
+  }
+  40% {
+    transform: translateY(-5px);
+    color: var(--cyan);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ---------- Primitives (motion-safe only) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Staggered load-in with a soft scale; set --i on each element. */
+  .rise {
+    animation: riseIn 0.7s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 50ms);
+  }
+
+  /* Scroll-driven reveal; progressive enhancement, no JS fallback. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: revealIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+/*
+ * `.loop-anim` is a marker class (no styles here): it tags an infinite animation that task 26
+ * (PauseOffscreen) pauses while it is off-screen.
+ */
+
+/* ---------- Reduced-motion guard ---------- */
+/* biome-ignore-start lint/complexity/noImportantStyles: the global guard must beat every component animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end of the reduced-motion guard. */

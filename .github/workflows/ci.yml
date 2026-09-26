@@ -21,6 +21,9 @@ jobs:
       - name: Biome
         run: bunx biome ci .
 
+      - name: Palette lint
+        run: bun run lint:palette
+
       - name: Astro check
         run: bunx astro check
 
