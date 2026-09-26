@@ -73,12 +73,8 @@ const { class: className, style } = Astro.props;
         />
       </div>
       <div class="flex min-w-0 flex-1 flex-col">
-        <a
-          class="truncate font-semibold text-fg leading-[1.25] no-underline hover:underline"
-          data-sp-title
-          data-umami-event="spotify-now-playing"
-          target="_blank"
-          rel="noopener noreferrer"></a>
+        {/* A `<span>` until there is a song URL; the script swaps in an `<a>` (never an `<a>` without `href`). */}
+        <span class="truncate font-semibold text-fg leading-[1.25] no-underline" data-sp-title></span>
         <p class="m-0 truncate text-fg-soft text-sm" data-sp-sub></p>
       </div>
     </div>
@@ -153,6 +149,8 @@ const { class: className, style } = Astro.props;
   import type { SpotifyNowPlayingData } from '~/types/spotify';
 
   const POLL_MS = 30_000;
+  /** Attributes that belong only on the `<a>` form of the Spotify title. */
+  const LINK_ATTRS = ['href', 'title', 'target', 'rel', 'data-umami-event'];
   const TICK_MS = 1000;
 
   const motionQuery = matchMedia('(prefers-reduced-motion: no-preference)');
@@ -168,7 +166,7 @@ const { class: className, style } = Astro.props;
       cover: HTMLElement;
       offline: HTMLElement;
       img: HTMLImageElement;
-      title: HTMLAnchorElement;
+      title: HTMLElement;
       sub: HTMLElement;
       progress: HTMLElement;
       bar: HTMLElement;
@@ -202,7 +200,7 @@ const { class: className, style } = Astro.props;
         cover: q('cover'),
         offline: q('offline'),
         img: q<HTMLImageElement>('img'),
-        title: q<HTMLAnchorElement>('title'),
+        title: q('title'),
         sub: q('sub'),
         progress: q('progress'),
         bar: q('bar'),
@@ -295,9 +293,7 @@ const { class: className, style } = Astro.props;
         el.img.hidden = true;
         el.cover.hidden = true;
         el.offline.hidden = false;
-        el.title.removeAttribute('href');
-        el.title.removeAttribute('title');
-        el.title.textContent = 'Not playing';
+        this.#setTitle('Not playing');
         el.sub.textContent = 'Offline · Spotify';
         el.progress.style.visibility = 'hidden';
         return;
@@ -319,15 +315,38 @@ const { class: className, style } = Astro.props;
         el.cover.hidden = false;
       }
       const sub = [data.artist, data.album].filter(Boolean).join(' · ');
-      if (data.songUrl) el.title.href = data.songUrl;
-      else el.title.removeAttribute('href');
-      el.title.textContent = data.title;
-      el.title.title = sub ? `${data.title} — ${sub}` : data.title;
+      this.#setTitle(data.title, data.songUrl, sub ? `${data.title} — ${sub}` : data.title);
       el.sub.textContent = sub || 'Spotify';
       const hasTiming = data.durationMs !== undefined && data.durationMs > 0;
       el.progress.style.visibility = hasTiming ? '' : 'hidden';
       el.dur.textContent = formatTime(data.durationMs ?? 0);
       this.#renderPosition(false);
+    }
+
+    /** The title is a link only when there is a song URL (Lighthouse `crawlable-anchors`). */
+    #setTitle(text: string, href?: string, tooltip?: string) {
+      let title = this.#el.title;
+      const tag = href ? 'A' : 'SPAN';
+      if (title.tagName !== tag) {
+        const next = document.createElement(tag.toLowerCase());
+        // Keep every attribute (class, data-sp-title, Astro's scoped-style data-astro-cid-*) except the link ones.
+        for (const { name, value } of title.attributes) {
+          if (!LINK_ATTRS.includes(name)) next.setAttribute(name, value);
+        }
+        if (href) {
+          next.dataset.umamiEvent = 'spotify-now-playing';
+          next.setAttribute('target', '_blank');
+          next.setAttribute('rel', 'noopener noreferrer');
+        }
+        title.replaceWith(next);
+        this.#el.title = next;
+        title = next;
+      }
+      if (href) title.setAttribute('href', href);
+      title.classList.toggle('hover:underline', Boolean(href));
+      if (tooltip) title.title = tooltip;
+      else title.removeAttribute('title');
+      title.textContent = text;
     }
 
     #renderPosition(animate: boolean) {

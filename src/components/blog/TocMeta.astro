@@ -1,5 +1,8 @@
 ---
-/** The stat row under the TOC (mockup `.toc .stat`): `tags · …` and `updated · YYYY-MM-DD`. */
+/**
+ * The stat row under the TOC (mockup `.toc .stat`): `tags · …` and `updated · YYYY-MM-DD`.
+ * Each tag link is at least 24 px tall (WCAG 2.5.8 target size); rows need no extra `gap-y`.
+ */
 import Tag from '~/components/ui/Tag.astro';
 
 interface Props {
@@ -14,10 +17,10 @@ const iso = updated.toISOString().slice(0, 10);
 <div class="mt-[22px] flex flex-col gap-1.5 font-mono text-[12.5px] text-fg-soft">
   {
     tags.length > 0 && (
-      <p class="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <p class="m-0 flex flex-wrap items-center gap-x-2">
         <span>tags ·</span>
         {tags.map((tag) => (
-          <Tag text={tag} />
+          <Tag text={tag} class="inline-flex min-h-6 items-center" />
         ))}
       </p>
     )

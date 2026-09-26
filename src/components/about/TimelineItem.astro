@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 /**
  * One career entry (v1 `components/about/TimelineItem.tsx`): org logo, dates, org link, Twemoji +
  * title, and the rich details in a native `<details>` (v1's +/- toggle, zero JS). The header sits
@@ -8,6 +9,7 @@
 import { Minus, Plus } from '@lucide/astro';
 import Twemoji from '~/components/ui/Twemoji.astro';
 import type { Experience } from '~/config/experiences';
+import { localAsset } from '~/lib/local-assets';
 import { cn } from '~/lib/utils/cn';
 import { EXPERIENCE_DETAILS } from './experiences';
 
@@ -19,6 +21,8 @@ interface Props {
 const { exp, last = false } = Astro.props;
 const { org, url, logo, start, end, title, icon, event } = exp;
 const Details = EXPERIENCE_DETAILS[event];
+const logoAsset = localAsset(logo);
+const logoClass = 'relative z-1 size-12 shrink-0 rounded-[10px] border border-line bg-surface-solid object-contain';
 ---
 
 <div
@@ -27,15 +31,13 @@ const Details = EXPERIENCE_DETAILS[event];
     !last && 'has-line'
   )}
 >
-  <img
-    src={logo}
-    alt={org}
-    width="48"
-    height="48"
-    loading="lazy"
-    decoding="async"
-    class="relative z-1 size-12 shrink-0 rounded-[10px] border border-line bg-surface-solid object-contain"
-  />
+  {
+    logoAsset ? (
+      <Image src={logoAsset} alt={org} width={48} height={48} densities={[1, 2]} quality={75} class={logoClass} />
+    ) : (
+      <img src={logo} alt={org} width="48" height="48" loading="lazy" decoding="async" class={logoClass} />
+    )
+  }
   <div class="relative min-w-0 flex-1">
     <div class="pr-10">
       <span class="block font-mono text-[12.5px] text-fg-soft tabular-nums">

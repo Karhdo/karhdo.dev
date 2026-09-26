@@ -43,7 +43,8 @@ export default defineConfig({
     // Vercel image optimisation: AVIF/WebP negotiation and resizing for astro:assets and remote avatars/covers.
     imageService: true,
     imagesConfig: {
-      sizes: [320, 480, 640, 768, 960, 1200, 1280],
+      // 64–256 serve the small avatars and logos (32–160 px at 1x/2x) without a 320 px download.
+      sizes: [64, 96, 128, 160, 256, 320, 480, 640, 768, 960, 1200, 1280],
       formats: ['image/avif', 'image/webp'],
       domains: ['i.scdn.co', 'avatars.githubusercontent.com'],
     },
@@ -56,7 +57,8 @@ export default defineConfig({
     devPages(),
     // Task 24. `/projects` is on-demand (task 17), so it is listed explicitly (v1 sitemap had it).
     sitemap({
-      filter: (page) => !page.includes('/dev/'), // defensive: dev pages are never built (task 06)
+      // Dev pages are never built (task 06; defensive). `/newsletter` is the on-demand, noindex no-JS form result.
+      filter: (page) => !page.includes('/dev/') && new URL(page).pathname !== '/newsletter',
       customPages: ['https://karhdo.dev/projects'],
       serialize(item) {
         const lastmod = postLastmod[new URL(item.url).pathname];

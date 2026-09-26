@@ -3,17 +3,21 @@
  * About sidebar (v1 `layouts/AuthorLayout.tsx` left column): avatar, name, occupation, company,
  * email/GitHub/LinkedIn/Twitter links and the Resume button, on a glass card.
  */
+import { Image } from 'astro:assets';
 import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
 import Icon, { type IconName } from '~/components/ui/Icon.astro';
 import Twemoji from '~/components/ui/Twemoji.astro';
 import type { Author } from '~/lib/content';
+import { localAsset } from '~/lib/local-assets';
 
 interface Props {
   author: Author['data'];
 }
 
 const { name, avatar, occupation, company, email, github, linkedin, twitter } = Astro.props.author;
+const avatarAsset = localAsset(avatar);
+const avatarClass = 'size-40 rounded-full border border-line-strong bg-surface-solid object-cover p-1';
 
 const socials = [
   { icon: 'Mail', label: 'Email', href: email && `mailto:${email}` },
@@ -25,14 +29,19 @@ const socials = [
 
 <Card class="flex flex-col items-center p-6 text-center">
   {
-    avatar && (
-      <img
-        src={avatar}
+    avatarAsset ? (
+      <Image
+        src={avatarAsset}
         alt={name}
-        width="160"
-        height="160"
-        class="size-40 rounded-full border border-line-strong bg-surface-solid object-cover p-1"
+        width={160}
+        height={160}
+        densities={[1, 2]}
+        quality={75}
+        loading="eager"
+        class={avatarClass}
       />
+    ) : (
+      avatar && <img src={avatar} alt={name} width="160" height="160" class={avatarClass} />
     )
   }
   <h2 class="m-0 mt-5 font-bold text-2xl text-fg tracking-[-0.02em]">{name}</h2>

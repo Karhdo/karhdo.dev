@@ -1,10 +1,10 @@
 # v2-astro: final verification (task 28)
 
-Run on 2026-09-27 against commit `29e19d3` (branch `v2`), from a fresh local `git clone` into a scratch directory. Nothing was pushed or deployed, and no third-party account or the production database was touched. The only repo change is the new `scripts/verify-urls.ts` (the URL checker listed in the spec).
+Run on 2026-09-27 against commit `29e19d3` (branch `v2`), from a fresh local `git clone` into a scratch directory. Nothing was pushed or deployed, and no third-party account or the production database was touched. The first pass added only `scripts/verify-urls.ts` (the URL checker listed in the spec; committed with this report in `0c920f4`). **The 6 bugs it found were then fixed on top of `0c920f4` (uncommitted working tree) and re-measured: see [Re-verification after the fixes](#re-verification-after-the-fixes).**
 
 ## Verdict
 
-**Ready for a Vercel preview.** 3 real but small bugs are worth fixing before the merge (Spotify anchor → SEO 92 on `/`, the 349 KB avatar on posts and `/about`, `/newsletter` in the sitemap). Every local check passes: URL parity with v1, the build and test suite, security headers, 0 CSP violations, the no-env build, and axe outside Expressive Code. Lighthouse meets the targets on `/`, `/blog` and `/projects` except SEO 92 on `/` (bug 1); the post and `/about` miss mobile Perf (84/86, mostly bug 2). Everything that needs a preview deploy, real keys or the production database is **deferred to you**; see the [pre-launch checklist](#pre-launch-checklist-for-the-user).
+**Ready for a Vercel preview.** All 6 bugs from the first pass are **fixed**. Every local check passes: URL parity with v1, the build and test suite, security headers, 0 CSP violations, the no-env build, and axe (0 violations outside the accepted Expressive Code token contrast). After the fixes, Lighthouse meets mobile Perf ≥ 95 and SEO 100 on `/`, the post and `/about` (96/96/97). The remaining gaps are all accepted or local-only: A11y 96 on the post (EC token contrast), BP 96 (console errors from the no-env 503s and a local-only 403), and mobile LCP around 2.5 s in the local emulator. Everything that needs a preview deploy, real keys or the production database is **deferred to you**; see the [pre-launch checklist](#pre-launch-checklist-for-the-user).
 
 How the local checks were run:
 
@@ -21,8 +21,8 @@ How the local checks were run:
 | 3a | 7 security headers on pages, posts, API, static files, `/_astro/*`, 404 | **PASS** | All 7 on `/`, `/blog/exploring-module-in-nestjs`, `/api/spotify`, `/projects`, `/static/resume.pdf`, `/_astro/`, 404. Values byte-identical to v1 `next.config.mjs` except the 2 documented CSP additions (`'wasm-unsafe-eval'`, `analytics.karhdo.dev`) and `font-src data:`. |
 | 3b | CSP console errors across a navigation tour | **PASS: 0 violations** | Hard load of `/`, then ClientRouter navigations `/blog` → post (scroll to Giscus) → `/tags` → `/tags/nestjs` → `/projects` → `/about` → `/blog` → ⌘K palette (Pagefind WASM, 2 results for "nestjs module") → theme toggle → `/`, then hard loads of the 2 other posts and a 404. The task-23 `data:` script error is gone (task 26 fix confirmed). The only console errors are the designed 503s of the no-env build and the local-only items below. |
 | 3c | Giscus theme CSS with CORS | **PASS locally**, DEFERRED on preview | `curl -H "Origin: https://giscus.app" /static/giscus/tokyonight-day.css`: one `Access-Control-Allow-Origin: *`, `content-type: text/css`. In the browser, giscus.app (https) can't fetch the theme from `http://127.0.0.1` (`ERR_FAILED`, a local mixed-content/private-network limit), so the themed iframe must be checked on the preview. |
-| 4 | Lighthouse, mobile + desktop, 3 runs, median | **PARTIAL** | See [Lighthouse](#lighthouse). A local approximation of Vercel. |
-| 5 | axe (scrolled to the bottom), 9 pages × light/dark × 1280/390 px | **PASS** outside Expressive Code; 2 minor findings | 0 violations on `/`, `/blog`, `/tags`, `/tags/nestjs`, `/projects`, `/about`. Posts: only EC `color-contrast` (accepted), plus EC `landmark-unique` and the `.ec-lang` badge (bug 4). 404 page at 1280 px: glass header over the blue button (bug 6). |
+| 4 | Lighthouse, mobile + desktop, 3 runs, median | **PASS after fixes** (except the accepted EC contrast, the no-env console errors, and mobile LCP ≈ 2.5 s locally) | First pass: [Lighthouse](#lighthouse). After the fixes: [re-verification](#re-verification-after-the-fixes). A local approximation of Vercel. |
+| 5 | axe (scrolled to the bottom), 9 pages × light/dark × 1280/390 px | **PASS** (after fixes: only the accepted EC token contrast) | First pass: 0 violations on `/`, `/blog`, `/tags`, `/tags/nestjs`, `/projects`, `/about`. Posts had EC `color-contrast` (accepted), plus EC `landmark-unique` and the `.ec-lang` badge (bug 4); the 404 at 1280 px had the glass header over the blue button (bug 6). After the fixes, both are gone: 36 runs, 0 violations except EC token `color-contrast` on the 2 posts. |
 | 6 | `bun install --frozen-lockfile && bun run build` (fresh clone) | **PASS** | Built in ~9 s: 14 HTML pages, 4 OG PNGs, 7 feeds, sitemap, Pagefind (14 pages). No markdown-processor deprecation warning. The only warnings are Vite `MODULE_LEVEL_DIRECTIVE` notes about Astro's internal `"use astro:head-inject"` in MDX modules (harmless, upstream). `[build-info] branch=v2 sha=29e19d3 stars=78` (no token needed). |
 | 6 | `bunx biome ci .` | **PASS** | 270 files, no issues (the new `scripts/verify-urls.ts` also passes `biome check`). |
 | 6 | `bun run lint:palette` | **PASS** | "no colour literals outside the Tokyonight tokens". |
@@ -157,16 +157,64 @@ Build with **no** env vars (not even public ones) served by the emulator, pages 
 
 ## Bugs found
 
-None of these block the preview. 1 and 2 are worth fixing before the merge. Nothing was changed in the code.
+Found in the first pass, then **all fixed** in the follow-up (see [re-verification](#re-verification-after-the-fixes)). The descriptions below are from the first pass.
 
-1. **Home SEO 92: Spotify title is an `<a>` without `href` when nothing is playing** (`crawlable-anchors`, mobile and desktop). *Where:* `src/components/home/SpotifyCard.astro:76-81` renders `<a data-sp-title …>` with no `href`, and the script removes `href` when offline (lines 298, 323). Idle is the common production state, so production is likely to score SEO 92 too. *Fix:* give the anchor a stable fallback `href` (for example the Spotify profile URL) and swap in `songUrl` when playing, or render the title as a `<span>` and wrap it in a link only when `songUrl` exists.
-2. **349 KB avatar for a 32 px image on every post and on `/about`** (mobile Perf 84/86). *Where:* `src/components/blog/PostHeader.astro:49` (`<img src={avatar}>` with the author's `/static/images/avatar.jpg`) and `src/components/about/ProfileCard.astro:29`. The About timeline logos (`src/components/about/TimelineItem.astro:30`, from `public/static/images/experiences/`) are also unoptimized. *Fix:* import `~/assets/images/avatar.jpg` (already used by `IntroCard.astro`) and render `<Image src={avatar} width={32} height={32} densities={[1, 2]} quality={75} alt="" />`, and the same for the profile card. Move the experience logos to `src/assets/` and use `<Image quality={75}>`.
-3. **`/newsletter` is in the sitemap although it is `noindex`**. `sitemap-0.xml` lists `https://karhdo.dev/newsletter`, and the comment in `src/pages/newsletter.astro` ("on-demand pages are not in the sitemap") is wrong: `@astrojs/sitemap` includes it. Search Console will report "Submitted URL marked noindex". *Fix:* in `astro.config.mjs`, `filter: (page) => !page.includes('/dev/') && new URL(page).pathname !== '/newsletter'`.
-4. **Minor, Expressive Code chrome a11y:** the `.ec-lang` badge (`src/plugins/ec-language-badge.mjs`) is 3.81:1 in Day; use `--fg-soft` for it. Two unlabeled scrollable `pre[role=region]` trip `landmark-unique`. Optional: have the badge plugin add an `aria-label` (title or language) to scrollable `pre`s.
-5. **Minor, touch targets:** the tag links in the post TOC aside (`.tag-label`, `text-xs`) fail Lighthouse `target-size` (desktop A11y 93, together with the EC contrast). *Fix:* give them `min-height: 24px` / `inline-flex` padding.
-6. **Minor:** the glass header over the 404's blue "Back home" button drops the nav link contrast to 3.65:1 / 2.97:1 while scrolled (axe). A slightly more opaque `.glass` on the sticky header, or no saturated button right under it, fixes it. Also the search button's `aria-label="Search"` doesn't include its visible "⌘K" (`label-content-name-mismatch`, unscored): drop the `aria-label` and mark the `kbd` `aria-hidden`, or set `aria-label="Search (⌘K)"`.
+1. **[FIXED]** **Home SEO 92: Spotify title is an `<a>` without `href` when nothing is playing** (`crawlable-anchors`, mobile and desktop). *Where:* `src/components/home/SpotifyCard.astro:76-81` renders `<a data-sp-title …>` with no `href`, and the script removes `href` when offline (lines 298, 323). Idle is the common production state, so production is likely to score SEO 92 too. *Fix:* give the anchor a stable fallback `href` (for example the Spotify profile URL) and swap in `songUrl` when playing, or render the title as a `<span>` and wrap it in a link only when `songUrl` exists.
+2. **[FIXED]** **349 KB avatar for a 32 px image on every post and on `/about`** (mobile Perf 84/86). *Where:* `src/components/blog/PostHeader.astro:49` (`<img src={avatar}>` with the author's `/static/images/avatar.jpg`) and `src/components/about/ProfileCard.astro:29`. The About timeline logos (`src/components/about/TimelineItem.astro:30`, from `public/static/images/experiences/`) are also unoptimized. *Fix:* import `~/assets/images/avatar.jpg` (already used by `IntroCard.astro`) and render `<Image src={avatar} width={32} height={32} densities={[1, 2]} quality={75} alt="" />`, and the same for the profile card. Move the experience logos to `src/assets/` and use `<Image quality={75}>`.
+3. **[FIXED]** **`/newsletter` is in the sitemap although it is `noindex`**. `sitemap-0.xml` lists `https://karhdo.dev/newsletter`, and the comment in `src/pages/newsletter.astro` ("on-demand pages are not in the sitemap") is wrong: `@astrojs/sitemap` includes it. Search Console will report "Submitted URL marked noindex". *Fix:* in `astro.config.mjs`, `filter: (page) => !page.includes('/dev/') && new URL(page).pathname !== '/newsletter'`.
+4. **[FIXED]** **Minor, Expressive Code chrome a11y:** the `.ec-lang` badge (`src/plugins/ec-language-badge.mjs`) is 3.81:1 in Day; use `--fg-soft` for it. Two unlabeled scrollable `pre[role=region]` trip `landmark-unique`. Optional: have the badge plugin add an `aria-label` (title or language) to scrollable `pre`s.
+5. **[FIXED]** **Minor, touch targets:** the tag links in the post TOC aside (`.tag-label`, `text-xs`) fail Lighthouse `target-size` (desktop A11y 93, together with the EC contrast). *Fix:* give them `min-height: 24px` / `inline-flex` padding.
+6. **[FIXED]** **Minor:** the glass header over the 404's blue "Back home" button drops the nav link contrast to 3.65:1 / 2.97:1 while scrolled (axe). A slightly more opaque `.glass` on the sticky header, or no saturated button right under it, fixes it. Also the search button's `aria-label="Search"` doesn't include its visible "⌘K" (`label-content-name-mismatch`, unscored): drop the `aria-label` and mark the `kbd` `aria-hidden`, or set `aria-label="Search (⌘K)"`.
 
 Not bugs (for the record): `POST /api/stats` → 403 from `http://127.0.0.1:4728` (production builds allow only the site, `localhost:4321` and this deployment's `VERCEL_URL`/`VERCEL_BRANCH_URL`). Giscus can't load the theme CSS from an http localhost origin (local only). The Vite `MODULE_LEVEL_DIRECTIVE` build warnings are upstream Astro. The `ts(80007)` hint is in a test file. The local `.env` typo `NEXT_PUBLIC_GISCUS_REPOSITORY_ID==` is config, not code (checklist 2.5).
+
+## Re-verification after the fixes
+
+Working tree on top of `0c920f4`, synced into the scratch copy (no `.env`) and built with only the public Giscus vars, then served by the same emulator (ports 4728 / 9728, stopped afterwards).
+
+### What changed
+
+| Bug | Fix | Files |
+| --- | --- | ----- |
+| 1 Spotify `<a>` without `href` | The title renders as a `<span>`. The script swaps in an `<a href=songUrl target=_blank …>` only when a song URL exists, and swaps back when idle. Every attribute is copied across (class, `data-sp-title`, Astro's scoped `data-astro-cid-*`), so the fixed layout is unchanged. Checked idle (`<span>Not playing</span>`) and playing (mocked `/api/spotify` → `<a href="https://open.spotify.com/track/…">`). | `src/components/home/SpotifyCard.astro` |
+| 2 Unoptimized avatar and logos | New `src/lib/local-assets.ts` (`import.meta.glob`) maps a `/static/images/**` path to its `src/assets` twin. `PostHeader` (32 px), `ProfileCard` (160 px, eager) and `TimelineItem` (48 px) now render `<Image quality={75} densities={[1, 2]}>`, with the plain `<img>` as a fallback for unknown paths. The logos are copied to `src/assets/experiences/`; the `public/` copies stay for v1 URL parity. The adapter snaps widths to `imagesConfig.sizes`, which started at 320, so `64, 96, 128, 160, 256` were added. The avatar now loads at `w=64` on posts and `w=160` / `320` (2x) on `/about`, instead of the 349 KB original. | `src/lib/local-assets.ts`, `src/components/blog/PostHeader.astro`, `src/components/about/{ProfileCard,TimelineItem}.astro`, `src/assets/experiences/*`, `src/config/experiences.ts` (comment), `astro.config.mjs` (`imagesConfig.sizes`) |
+| 3 `/newsletter` in the sitemap | `filter: (page) => !page.includes('/dev/') && new URL(page).pathname !== '/newsletter'`; the page comment is corrected. `sitemap-0.xml` no longer lists it. | `astro.config.mjs`, `src/pages/newsletter.astro` |
+| 4 EC badge contrast + `landmark-unique` | `.ec-lang` is now `light-dark(color-mix(in srgb, var(--muted) 60%, var(--fg)), color-mix(in srgb, var(--muted) 75%, var(--fg-soft)))`: 5.3:1 Day, about 5.5:1 Night (was 3.8:1 / 4.5:1). Each EC figure gets `data-ec-label` ("Code: <filename>" or "<LANG> code"). A plugin `jsModules` script, bundled into the external `/_astro/ec.*.js` so it stays CSP-safe, names every `pre[role=region]` that EC's own script creates, numbering repeats ("Code: app.module.ts (2)"). It re-runs on `astro:page-load` and when `role` changes, and leaves plain `pre`s unlabeled, since `aria-label` is prohibited on generic elements. | `src/plugins/ec-language-badge.mjs` |
+| 5 TOC tag target size | TOC tags are `inline-flex min-h-6 items-center` (24 px tall); the row drops its `gap-y-1`, so the spacing looks the same. | `src/components/blog/TocMeta.astro` |
+| 6 Header contrast + search name | The header card (`.site-glass`) uses `color-mix(in srgb, var(--surface-solid) 90%, transparent)` instead of `--surface` (55 %); the blur stays. Worst case (any token colour, even full `--fg` or white, right behind it): nav `--fg-soft` ≥ 5.3:1 Day and ≥ 5.4:1 Night. The search button has no `aria-label` now: its name is its text, "Search" (sr-only below `md`) plus the visible "⌘K", which reads "Search ⌘K" on desktop and "Search" on mobile. | `src/components/header/{Header,SearchTrigger}.astro` |
+
+### Results
+
+| Check | Result |
+| ----- | ------ |
+| `bunx biome ci .` | PASS (272 files) |
+| `bun run lint:palette` | PASS |
+| `bunx astro check` | PASS: 0 errors, 0 warnings, 1 hint (unchanged, test file) |
+| `bun test` | PASS: 428/428 |
+| Scratch build | PASS: no deprecation warnings; `/newsletter` gone from `sitemap-0.xml` |
+| `bun scripts/verify-urls.ts http://127.0.0.1:4728 --no-env` | PASS: 57/57 |
+| CSP tour (same route as check 3b) | PASS: 0 violations; ⌘K still finds 2 results |
+| axe, 9 pages × light/dark × 1280/390 px | PASS: 0 violations except the accepted EC token `color-contrast` on the 2 posts. `landmark-unique`, `.ec-lang` and the 404 header are gone. |
+| Accessible names | Scrollable code frames: "Code: modules/product/product.module.ts", "… (2)", "… (3)", "Code: app.module.ts", …, "TS code". Search button: "Search ⌘K" (desktop) / "Search" (390 px). TOC tag links: 24 px tall. |
+
+### Lighthouse after the fixes (median of 3)
+
+| Page | Perf | A11y | BP | SEO | FCP | LCP | TBT | CLS | Perf runs | Before (Perf/A11y/BP/SEO) |
+| ---- | ---- | ---- | -- | --- | --- | --- | --- | --- | --------- | ------------------------- |
+| mobile `/` | **96** | 100 | 100 | **100** | 1.66 s | 2.63 s | 0 ms | 0.001 | 94/96/96 | 96/100/100/92 |
+| mobile `/blog/exploring-module-in-nestjs` | **96** | 96 | 96 | 100 | 1.73 s | 2.48 s | 0 ms | 0.001 | 96/95/97 | 84/96/96/100 |
+| mobile `/about` | **97** | 100 | 100 | 100 | 1.51 s | 2.56 s | 0 ms | 0.001 | 97/95/97 | 86/100/100/100 |
+| desktop `/` | 100 | 100 | 96 | **100** | 0.51 s | 0.57 s | 0 ms | 0.000 | 100/100/100 | 100/100/96/92 |
+| desktop `/blog/exploring-module-in-nestjs` | 100 | **96** | 96 | 100 | 0.53 s | 0.57 s | 0 ms | 0.032 | 100/100/100 | 99/93/96/100 |
+| desktop `/about` | 100 | 100 | 100 | 100 | 0.47 s | 0.55 s | 0 ms | 0.000 | 100/100/100 | 99/100/100/100 |
+
+What's left, all accepted or local-only:
+
+- **A11y 96 on the post:** only EC token `color-contrast` (accepted). `target-size` now passes.
+- **BP 96:** `errors-in-console`, from the no-env 503s (`/api/github/activity`, `/api/stats*`) and, on the post, the local-only 403 (the emulator's `127.0.0.1:4728` origin isn't allowed by a production build). Expect 100 on the preview with env vars.
+- **Mobile LCP ≈ 2.5–2.6 s** (target < 2 s) and render-blocking CSS: measure on the preview (HTTP/2, real CDN) before acting.
+- **Desktop post CLS rose from 0.005 to 0.032** (still under 0.05). Lighthouse attributes it to a code-block `figure` pushed down when the first **unsized lazy markdown image** (`/static/images/blogs/module-in-nestjs.png`, no width/height) loads. That image loads earlier now that the 349 KB avatar no longer competes for bandwidth. It was already flagged as `unsized-images` in the first pass and is **outside the 6 fixes**. Suggested follow-up: have `src/components/mdx/MdxImage.astro` read the intrinsic size of `/static/...` images at build (e.g. `sharp(...).metadata()`, or move post images to `src/content/` and let `astro:assets` handle them), then emit `width`/`height`. That also removes the last ~19 KB `image-delivery` saving on the post.
+- **Home intro avatar** (72 px shown, `width={144}`) now snaps to `w=128` instead of `w=320`, a side effect of the new small sizes. That's about 1.8x density, visually indistinguishable. Add `144` to `imagesConfig.sizes` if you want exact 2x.
 
 ## Pre-launch checklist for the user
 
@@ -174,7 +222,7 @@ Do these in order. Every command is read-only unless marked otherwise.
 
 ### 1. Fix or accept the bugs, then push
 
-1. Decide on bugs 1–3 below (small fixes in the owning tasks; 4–6 can wait). Commit `scripts/verify-urls.ts` and this report.
+1. Bugs 1–6 are fixed in the working tree (see re-verification). Commit them (for example `fix(verify): resolve final-verification findings`), and optionally fix the unsized markdown images (follow-up below).
 2. `git push origin v2`, then open a **draft PR `v2 → main`**. CI (`.github/workflows/ci.yml`) must be green.
 
 ### 2. Vercel project settings (before the preview build)

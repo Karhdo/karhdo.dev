@@ -4,8 +4,10 @@
  * (avatar · author · date · reading time · views). The `stats` slot holds the view count
  * (PostViewCount, rendered by PostLayout). Only the title is indexed by Pagefind.
  */
+import { Image } from 'astro:assets';
 import PageTitle from '~/components/ui/PageTitle.astro';
 import Tag from '~/components/ui/Tag.astro';
+import { localAsset } from '~/lib/local-assets';
 import { formatDate } from '~/lib/utils/format-date';
 
 interface Props {
@@ -19,6 +21,7 @@ interface Props {
 
 const { id, title, date, tags, readingMinutes, authors } = Astro.props;
 const avatar = authors.find((author) => author.avatar)?.avatar;
+const avatarAsset = localAsset(avatar);
 ---
 
 <header class="mb-7">
@@ -45,8 +48,20 @@ const avatar = authors.find((author) => author.avatar)?.avatar;
   }
   <div class="flex items-center gap-3" data-pagefind-ignore>
     {
-      avatar && (
-        <img src={avatar} alt="" width="32" height="32" class="size-8 shrink-0 rounded-[10px] object-cover" decoding="async" />
+      avatarAsset ? (
+        <Image
+          src={avatarAsset}
+          alt=""
+          width={32}
+          height={32}
+          densities={[1, 2]}
+          quality={75}
+          class="size-8 shrink-0 rounded-[10px] object-cover"
+        />
+      ) : (
+        avatar && (
+          <img src={avatar} alt="" width="32" height="32" class="size-8 shrink-0 rounded-[10px] object-cover" decoding="async" />
+        )
       )
     }
     <p class="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5 text-[15px] text-fg-soft">

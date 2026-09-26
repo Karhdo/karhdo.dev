@@ -6,9 +6,11 @@
 import Icon from '~/components/ui/Icon.astro';
 ---
 
-<button type="button" class="icon-btn gap-2 px-2.5!" aria-label="Search" aria-keyshortcuts="Meta+K Control+K" data-search-trigger>
+{/* No aria-label: the name comes from the text ("Search" + the visible ⌘K hint from md up), so it
+    always contains the visible label (WCAG 2.5.3). Below md the word is sr-only. */}
+<button type="button" class="icon-btn gap-2 px-2.5!" aria-keyshortcuts="Meta+K Control+K" data-search-trigger>
   <Icon name="Search" size={18} />
-  <span class="hidden text-sm md:inline">Search</span>
+  <span class="sr-only text-sm md:not-sr-only">Search</span>
   <kbd class="hidden rounded-[5px] border border-line-strong border-b-2 px-1.5 font-mono text-[11px] text-fg-soft md:inline" data-search-kbd>⌘K</kbd>
 </button>
 

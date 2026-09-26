@@ -360,7 +360,7 @@
       "id": "v2-astro-final-verification",
       "endpoint": null,
       "spec": "28-final-verification.md",
-      "status": "pending",
+      "status": "done",
       "summary": "Preview deploy (+ANTHROPIC_ADMIN_API_KEY, stats_daily migration), URL + feature parity incl. nav, statusline, version switcher, token burn, rich cards, motion; data integrity, headers, CI, Lighthouse",
       "dependencies": [
         "v2-astro-stats-views-reactions",

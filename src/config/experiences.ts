@@ -7,7 +7,7 @@ import type { EmojiName } from '~/lib/emoji';
 export interface Experience {
   org: string;
   url: string;
-  /** Served from `public/static/images/experiences/`. */
+  /** `public/static/images/experiences/` path (v1 URL); rendered from its `src/assets/experiences/` twin. */
   logo: string;
   start: string;
   end: string;

@@ -3,7 +3,7 @@
  * No-JS result page for the newsletter form (task 22). `POST /api/newsletter` from a plain form post
  * answers `303 /newsletter?status=…&from=/blog/…`; this on-demand page shows the outcome, a link back
  * to `from` (validated same-site path), and the form again when the sign-up did not go through.
- * With JS the form never navigates here. Not indexed; on-demand pages are not in the sitemap.
+ * With JS the form never navigates here. Not indexed, and excluded from the sitemap in `astro.config.mjs`.
  */
 import NewsletterForm from '~/components/blog/NewsletterForm.astro';
 import Button from '~/components/ui/Button.astro';
