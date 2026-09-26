@@ -20,7 +20,7 @@ import Icon from '~/components/ui/Icon.astro';
     for (const kbd of document.querySelectorAll('[data-search-kbd]')) kbd.textContent = apple ? '⌘K' : 'Ctrl K';
     for (const button of document.querySelectorAll<HTMLElement>('[data-search-trigger]')) {
       if (button.dataset.bound) continue;
-      button.dataset.bound = '';
+      button.dataset.bound = 'true';
       button.addEventListener('click', () => window.dispatchEvent(new CustomEvent('open-command-palette')));
     }
   }
