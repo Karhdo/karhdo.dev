@@ -92,3 +92,6 @@ Prove v2 is a complete, safe replacement for v1 before merging `v2` into `main`:
 
 - v1 production site `https://karhdo.dev` and its `sitemap.xml` as the source of truth for URLs.
 - v1 `next.config.mjs` headers for the expected header values.
+
+
+> **Note from task 04 review:** `@astrojs/vercel` does not merge `vercel.json` into `.vercel/output/config.json`; the Vercel platform merges it at deploy time (`vercel build` / Git deploys; user routes first). Verify headers, the `/stats` rewrite and redirects with `curl -I` on the preview. **Never deploy with `astro build` + `vercel deploy --prebuilt` without `vercel build`**; that skips the merge and drops the security headers and redirects. The CSP has two documented additions (`'wasm-unsafe-eval'`, `analytics.karhdo.dev`), not three.

@@ -60,7 +60,7 @@
       "id": "v2-astro-vercel-config",
       "endpoint": null,
       "spec": "04-vercel-config.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "vercel.json: v1 security headers, /stats Umami rewrite, sitemap + /blog/page/1 redirects, Bun install/build",
       "dependencies": [
         "v2-astro-scaffold-astro"
