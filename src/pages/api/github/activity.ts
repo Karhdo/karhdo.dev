@@ -13,10 +13,16 @@ export const GET: APIRoute = async () => {
   if (!activity) {
     return Response.json(
       { message: 'GitHub activity unavailable' },
-      { status: 503, headers: { 'Cache-Control': 'public, s-maxage=60' } }
+      {
+        status: 503,
+        headers: { 'Cache-Control': 'public, max-age=0, must-revalidate', 'Vercel-CDN-Cache-Control': 'max-age=60' },
+      }
     );
   }
   return Response.json(activity, {
-    headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
+    headers: {
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Vercel-CDN-Cache-Control': 'max-age=3600, stale-while-revalidate=86400',
+    },
   });
 };

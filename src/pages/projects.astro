@@ -16,7 +16,9 @@ import type { GithubRepository } from '~/types/github';
 
 export const prerender = false;
 
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+// Browsers always revalidate; only Vercel's CDN caches (see the 00-overview cache-header rule).
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+Astro.response.headers.set('Vercel-CDN-Cache-Control', 'max-age=3600, stale-while-revalidate=86400');
 
 const description = 'My open-source side projects and stuff that I built with my colleagues at work';
 

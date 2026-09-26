@@ -11,14 +11,18 @@ import { fetchRepoData } from '~/lib/services/github';
 
 export const prerender = false;
 
-const CACHE_OK = 'public, s-maxage=600, stale-while-revalidate=3600';
+// Vercel CDN cache only; browsers always revalidate (see the 00-overview cache-header rule).
+const CACHE_OK = 'max-age=600, stale-while-revalidate=3600';
 /** Upstream failures and rejections: cache briefly so a burst doesn't hit GitHub, but recover fast. */
-const CACHE_SHORT = 'public, s-maxage=60';
+const CACHE_SHORT = 'max-age=60';
 
 const ALLOWED = [SITE.siteRepo, ...PROJECTS.flatMap((project) => (project.repo ? [project.repo] : []))];
 
-const json = (body: unknown, status: number, cache: string) =>
-  Response.json(body, { status, headers: { 'Cache-Control': cache } });
+const json = (body: unknown, status: number, cdnCache: string) =>
+  Response.json(body, {
+    status,
+    headers: { 'Cache-Control': 'public, max-age=0, must-revalidate', 'Vercel-CDN-Cache-Control': cdnCache },
+  });
 
 export const GET: APIRoute = async ({ url }) => {
   const param = parseRepoParam(url.searchParams.get('repo'), ALLOWED);

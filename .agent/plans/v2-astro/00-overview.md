@@ -196,3 +196,6 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Implementation note (task 18):** views and reactions ship as plain module scripts, NOT React islands (`ViewCounter.tsx`/`Reactions.tsx` in the spec were replaced with the lead's approval), so post pages hydrate no React for stats. Abuse: the Origin check stops browser CSRF, but scripted clients can forge Origin (+1 view / +5 per reaction per request). Follow-up for task 28: add a Vercel WAF rate-limit rule on `/api/stats` (e.g. ~30 POST/min per IP).
+
+
+> **Cache-header rule (found in task 31 review, applies to every on-demand route):** never send `s-maxage` / `stale-while-revalidate` in `Cache-Control` without a browser `max-age`: browsers then serve stale responses for the SWR window. Use `Cache-Control: public, max-age=0, must-revalidate` for the browser plus `Vercel-CDN-Cache-Control: max-age=N, stale-while-revalidate=M` for the CDN.
