@@ -1,0 +1,55 @@
+---
+/**
+ * Footer top row (mockup `.foot-top`): the wordmark + site description, and the Site / Personal /
+ * Elsewhere link columns from `FOOTER_COLUMNS` (v1 parity).
+ */
+import Wordmark from '~/components/brand/Wordmark.astro';
+import { FOOTER_COLUMNS } from '~/config/navigation';
+import { SITE } from '~/config/site';
+
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+const slug = (title: string) => title.toLowerCase().replace(/\s+/g, '-');
+---
+
+<div class="flex flex-wrap justify-between gap-7">
+  <div class="flex max-w-[36ch] flex-col items-start gap-2">
+    <Wordmark placement="footer" />
+    <p class="m-0 font-light text-fg-soft">{SITE.description}</p>
+  </div>
+  <nav class="flex flex-wrap gap-12" aria-label="Footer">
+    {
+      FOOTER_COLUMNS.map((column) => (
+        <div class="flex flex-col gap-1.5">
+          <h2 class="mb-1 font-medium font-mono text-[11.5px] text-fg-soft uppercase tracking-[.08em]">{column.title}</h2>
+          {column.links.map(({ href, title }) =>
+            isExternal(href) ? (
+              <a
+                class="foot-link"
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-umami-event={`footer-${slug(title)}`}
+              >
+                {title}
+              </a>
+            ) : (
+              <a class="foot-link" href={href}>
+                {title}
+              </a>
+            )
+          )}
+        </div>
+      ))
+    }
+  </nav>
+</div>
+
+<style>
+  .foot-link {
+    color: var(--fg-soft);
+    text-decoration: none;
+  }
+  .foot-link:hover {
+    color: var(--blue);
+  }
+</style>

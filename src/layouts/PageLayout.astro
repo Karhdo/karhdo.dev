@@ -1,16 +1,18 @@
 ---
 /**
- * BaseLayout + site header/footer (wired in task 09) + the page-width container.
+ * BaseLayout + site header/footer (task 09) + the page-width container.
  */
+import Footer from '~/components/footer/Footer.astro';
+import Header from '~/components/header/Header.astro';
 import BaseLayout, { type Props as BaseProps } from './BaseLayout.astro';
 
 export type Props = BaseProps;
 ---
 
 <BaseLayout {...Astro.props}>
-  {/* task 09: <Header slot="header" /> */}
+  <Header slot="header" />
   <div class="mx-auto w-full max-w-5xl px-4 sm:px-6 xl:max-w-6xl xl:px-0">
     <slot />
   </div>
-  {/* task 09: <Footer slot="footer" /> */}
+  <Footer slot="footer" />
 </BaseLayout>

@@ -1,0 +1,16 @@
+---
+/** Opens the public Umami dashboard in a new tab (v1 `AnalyticsLink.tsx`). */
+import Icon from '~/components/ui/Icon.astro';
+import { SITE } from '~/config/site';
+---
+
+<a
+  href={SITE.analyticsURL}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Open analytics (opens in a new tab)"
+  data-umami-event="nav-analytics"
+  class="icon-btn"
+>
+  <Icon name="ChartArea" size={18} />
+</a>

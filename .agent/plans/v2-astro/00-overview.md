@@ -178,3 +178,6 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Note from task 06 review (applies to every task porting mockup CSS):** the mockup uses `var(--sans)` / `var(--mono)`; in the codebase these are `var(--font-sans)` / `var(--font-mono)`. Use raw colour tokens (`var(--blue)`) in scoped styles, not `--color-*` (those exist only when a Tailwind utility uses them). Component classes such as `.glass` and `.shimmer` live in `@layer components`, so Tailwind utilities override them; `prose.css` overrides live in `@layer utilities` after the typography plugin (use `not-prose` to escape). The mockup `pulse` keyframe replaces Tailwind `animate-pulse`; use `animate-shimmer` for skeletons.
+
+
+> **Note from task 09 review (applies to all UI tasks):** in the Tokyonight Day theme, `--faint` (~2.4-2.9:1) and `--muted` (~3.6-4:1) fail WCAG AA for small text. Use `--fg-soft` or `--fg` for any small text that carries meaning, and keep `--faint`/`--muted` for decorative marks and large text only. Never put `--bg` text on a `--blue` background in Day (3.1:1); use `--heat-4` background with `--surface-solid` text for solid accent chips (4.88:1).

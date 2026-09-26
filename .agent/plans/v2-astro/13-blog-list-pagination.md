@@ -48,3 +48,6 @@ Recreate `/blog` and `/blog/page/[page]` (5 posts per page, as v1) in the mockup
 - v1 `layouts/ListLayout.tsx`, `layouts/ListLayoutWithTags.tsx` (behaviour/pagination only).
 - Reference `src/components/PostList.astro`, `src/pages/blog/page/[page].astro` (hta218/leohuynh.dev).
 - Astro docs: "Pagination" (`paginate()`).
+
+
+> **Note from task 09:** the header search button dispatches `window.dispatchEvent(new CustomEvent("open-command-palette"))` (no detail). The palette loader must listen on `window` for that event, and any other "Search posts" button (task 13) must dispatch the same event on `window`.

@@ -75,6 +75,11 @@ export const SITE = {
   timezone: 'Asia/Ho_Chi_Minh',
   location: 'Ho Chi Minh, Viet Nam',
   postsPerPage: 5,
+  /** Footer version switcher (task 09). `v1.karhdo.dev` goes live after v2 ships (task 28). */
+  versions: [
+    { branch: 'main', stack: 'Astro × Bun', url: 'https://karhdo.dev', current: true },
+    { branch: 'v1', stack: 'Next.js 16 × pnpm', url: 'https://v1.karhdo.dev' },
+  ] satisfies SiteVersion[],
 } as const satisfies SiteConfig;
 
 /**

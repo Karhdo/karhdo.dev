@@ -116,7 +116,7 @@
       "id": "v2-astro-header-footer",
       "endpoint": null,
       "spec": "09-header-footer.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Header (Blog \u00b7 Projects \u00b7 About, theme, \u2318K, mobile dialog); footer per mockup: link columns + Neovim statusline (build-time stars/sha/commit date, live HCMC time diff, Made in Vietnam) + keyboard-accessible version switcher (SITE.versions)",
       "dependencies": [
         "v2-astro-base-layout",

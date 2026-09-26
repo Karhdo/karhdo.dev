@@ -1,0 +1,29 @@
+---
+/**
+ * Opens the ⌘K command palette: dispatches `open-command-palette` on `window` (task 23 listens).
+ * The shortcut hint shows ⌘K on Apple platforms and Ctrl K elsewhere (detected in script).
+ */
+import Icon from '~/components/ui/Icon.astro';
+---
+
+<button type="button" class="icon-btn gap-2 px-2.5!" aria-label="Search" aria-keyshortcuts="Meta+K Control+K" data-search-trigger>
+  <Icon name="Search" size={18} />
+  <span class="hidden text-sm md:inline">Search</span>
+  <kbd class="hidden rounded-[5px] border border-line-strong border-b-2 px-1.5 font-mono text-[11px] text-fg-soft md:inline" data-search-kbd>⌘K</kbd>
+</button>
+
+<script>
+  function initSearchTrigger(): void {
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const platform = nav.userAgentData?.platform ?? navigator.platform ?? '';
+    const apple = /mac|iphone|ipad|ipod/i.test(platform);
+    for (const kbd of document.querySelectorAll('[data-search-kbd]')) kbd.textContent = apple ? '⌘K' : 'Ctrl K';
+    for (const button of document.querySelectorAll<HTMLElement>('[data-search-trigger]')) {
+      if (button.dataset.bound) continue;
+      button.dataset.bound = '';
+      button.addEventListener('click', () => window.dispatchEvent(new CustomEvent('open-command-palette')));
+    }
+  }
+
+  document.addEventListener('astro:page-load', initSearchTrigger);
+</script>

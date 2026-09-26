@@ -50,3 +50,6 @@ Replace v1's kbar + `search.json` with Pagefind full-text search generated after
 - v1 `components/header/SearchButton.tsx`, `data/siteMetadata.js` `search` (kbar) — behaviour only.
 - Pagefind docs "Using the Pagefind JS API"; astro-pagefind README.
 - cmdk README (`Command.Dialog`).
+
+
+> **Note from task 09:** the header search button dispatches `window.dispatchEvent(new CustomEvent("open-command-palette"))` (no detail). The palette loader must listen on `window` for that event, and any other "Search posts" button (task 13) must dispatch the same event on `window`.

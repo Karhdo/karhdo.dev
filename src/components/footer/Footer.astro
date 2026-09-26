@@ -1,0 +1,12 @@
+---
+/** Site footer (task 09, mockup `footer.site`): brand + link columns, then the Neovim-style statusline. */
+import FooterTop from './FooterTop.astro';
+import Statusline from './Statusline.astro';
+---
+
+<footer class="mx-auto mt-16 w-full max-w-5xl px-4 sm:px-6 xl:max-w-6xl xl:px-0">
+  <div class="flex flex-col gap-7 border-line border-t pt-8 pb-10 text-muted text-sm">
+    <FooterTop />
+    <Statusline />
+  </div>
+</footer>

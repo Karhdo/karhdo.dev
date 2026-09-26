@@ -9,6 +9,8 @@ import { defineConfig, envField } from 'astro/config';
 import expressiveCode from 'astro-expressive-code';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { remarkAlert } from 'remark-github-blockquote-alert';
+import { loadEnv } from 'vite';
+import { resolveBuildInfo } from './scripts/build-info.mjs';
 import devPages from './src/integrations/dev-pages.ts';
 import { linkIconHast } from './src/plugins/heading-link-icon.mjs';
 import remarkCodeTitles from './src/plugins/remark-code-titles.mjs';
@@ -16,6 +18,17 @@ import remarkCodeTitles from './src/plugins/remark-code-titles.mjs';
 /** Every variable is optional: the site must build and run with none of them set. */
 const secret = () => envField.string({ context: 'server', access: 'secret', optional: true });
 const serverPublic = () => envField.string({ context: 'server', access: 'public', optional: true });
+
+/**
+ * Footer statusline facts (task 09), resolved once here and baked in via `define`; never at runtime.
+ * Only `astro build` calls GitHub (stars, commit-date fallback); dev and check are git-only.
+ */
+const { GITHUB_API_TOKEN } = loadEnv(
+  process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  process.cwd(),
+  ''
+);
+const buildInfo = await resolveBuildInfo({ githubToken: GITHUB_API_TOKEN, network: process.argv.includes('build') });
 
 export default defineConfig({
   site: 'https://karhdo.dev',
@@ -58,5 +71,6 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    define: { __BUILD_INFO__: JSON.stringify(buildInfo) },
   },
 });

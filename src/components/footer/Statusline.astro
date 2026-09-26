@@ -1,0 +1,150 @@
+---
+/**
+ * Neovim-style statusline (task 09, mockup `.sl-wrap` > `.statusline`). Every value is resolved at
+ * build time (`BUILD_INFO`); ./statusline.ts keeps the HCMC clock and the commit age live.
+ * The `<footer>` already carries the contentinfo role, so this is a labelled group.
+ */
+import Icon from '~/components/ui/Icon.astro';
+import { SITE } from '~/config/site';
+import { BUILD_INFO } from '~/lib/build-info';
+import { formatHcmTime } from '~/lib/utils/local-time';
+import { formatRelative } from '~/lib/utils/relative-time';
+import MadeInVietnam from './MadeInVietnam.astro';
+import VersionSwitcher from './VersionSwitcher.astro';
+
+const { sha, shortSha, committedAt, stars } = BUILD_INFO;
+const builtAt = new Date();
+const committedRelative = committedAt ? formatRelative(committedAt, builtAt) : null;
+---
+
+<div class="sl-wrap">
+  <div class="statusline" role="group" aria-label="Site status">
+    <a class="sl-mode" href={SITE.siteRepo} title="Star karhdo.dev on GitHub" data-umami-event="footer-repo">
+      karhdo.dev
+      {
+        stars !== null && (
+          <>
+            <Icon name="Star" size={13} class="sl-star" />
+            <span>
+              {stars}
+              <span class="sr-only">GitHub stars</span>
+            </span>
+          </>
+        )
+      }
+    </a>
+    <VersionSwitcher />
+    <span>
+      <Icon name="MapPin" size={13} />
+      {SITE.location}
+    </span>
+    <span>
+      <span class="sl-live" aria-hidden="true"></span>
+      <time data-hcm-time datetime={builtAt.toISOString()}>{formatHcmTime(builtAt, SITE.timezone)}</time>
+      <span class="sl-dim" data-hcm-diff></span>
+    </span>
+    <span class="sl-spacer" aria-hidden="true"></span>
+    {
+      sha && shortSha && (
+        <a href={`${SITE.siteRepo}/commit/${sha}`} title="Latest commit" data-umami-event="footer-commit">
+          <span class="sl-hash">#{shortSha}</span>
+          {committedAt && committedRelative && (
+            <span class="sl-dim" data-committed-at={committedAt}>
+              · committed {committedRelative}
+            </span>
+          )}
+        </a>
+      )
+    }
+    <a class="sl-miv" href={SITE.siteRepo} title="Made in Vietnam" data-umami-event="made-in-vietnam">
+      <MadeInVietnam />
+    </a>
+  </div>
+</div>
+
+<style>
+  .sl-wrap {
+    position: relative;
+    /* Day --green / --purple are < 4.5:1 on the statusline surface at 12.5px: deepen them with --fg
+       in Day only (color-scheme is set per theme in theme.css); Night keeps the raw tokens. */
+    --sl-green: light-dark(color-mix(in srgb, var(--green) 70%, var(--fg)), var(--green));
+    --sl-purple: light-dark(color-mix(in srgb, var(--purple) 70%, var(--fg)), var(--purple));
+  }
+  .statusline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Segments. Not segments: the version menu (absolute, anchored to .sl-wrap), <noscript>, and the
+     component <script> Astro renders inline. */
+  .statusline > :global(:not(.ver-menu, noscript, script)) {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-right: 1px solid var(--line);
+    white-space: nowrap;
+    color: var(--fg-soft);
+    text-decoration: none;
+  }
+  .statusline > :global(:last-child) {
+    border-right: 0;
+  }
+  .statusline > a:hover {
+    color: var(--blue);
+  }
+  .sl-mode {
+    background: var(--heat-4);
+    color: var(--surface-solid) !important;
+    font-weight: 600;
+  }
+  .sl-mode:hover {
+    filter: brightness(1.08);
+  }
+  .sl-spacer {
+    flex: 1;
+    padding: 0 !important;
+    border-right: 0 !important;
+  }
+  .sl-dim {
+    color: var(--fg-soft);
+  }
+  .sl-hash {
+    color: var(--sl-purple);
+  }
+  .sl-live {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .sl-miv :global(svg) {
+    display: block;
+    width: auto;
+    height: 18px;
+  }
+  @media (max-width: 600px) {
+    .sl-spacer {
+      display: none !important;
+    }
+    .statusline > :global(:not(.ver-menu, noscript, script)) {
+      width: 100%;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .statusline > :global(:last-child) {
+      border-bottom: 0;
+    }
+  }
+</style>
+
+<script>
+  import './statusline';
+</script>
