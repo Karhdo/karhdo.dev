@@ -1,0 +1,59 @@
+---
+/**
+ * Newsletter glass card (task 22): heading, one line of copy and the sign-up form. Rendered after the
+ * post navigation (via `PostNewsletter.astro`) and as `<BlogNewsletterForm />` in MDX (v1 name).
+ *
+ * When `BUTTONDOWN_API_KEY` is not set at build time the card is omitted in production (a form that
+ * can only answer 503 is noise); in dev it still renders, so the 503 "not taking sign-ups" state can
+ * be checked. The endpoint stays graceful either way.
+ */
+import Icon from '~/components/ui/Icon.astro';
+import { buttondown } from '~/lib/services/buttondown';
+import NewsletterForm from './NewsletterForm.astro';
+
+interface Props {
+  title?: string;
+  class?: string;
+}
+
+const { title = 'Subscribe to the newsletter', class: className } = Astro.props;
+const show = buttondown !== null || import.meta.env.DEV;
+const headingId = `newsletter-title-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+{
+  show && (
+    <section
+      aria-labelledby={headingId}
+      data-pagefind-ignore
+      class:list={['glass not-prose relative overflow-hidden p-5 sm:p-6', className]}
+    >
+      <div class="mb-4 flex items-start gap-3">
+        <span class="nl-badge" aria-hidden="true">
+          <Icon name="Mail" size={18} />
+        </span>
+        <div>
+          <h2 id={headingId} class="m-0 font-bold text-fg text-lg tracking-[-0.01em]">
+            {title}
+          </h2>
+          <p class="m-0 mt-1 text-[15px] text-fg-soft">Get new posts on web development and tooling in your inbox.</p>
+        </div>
+      </div>
+      <NewsletterForm />
+    </section>
+  )
+}
+
+<style>
+  .nl-badge {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--heat-0);
+    color: var(--blue);
+  }
+</style>

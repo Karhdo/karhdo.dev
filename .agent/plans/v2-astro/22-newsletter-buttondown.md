@@ -42,3 +42,6 @@ Replace pliny's `NewsletterAPI` (Buttondown provider) with a small Astro endpoin
 
 - v1 `app/api/newsletter/route.ts`, `components/ui/MDXComponents.tsx` (`BlogNewsletterForm`).
 - Buttondown API docs (subscribers endpoint).
+
+
+> **Implementation notes (task 22):** the newsletter form is a vanilla form plus a module script (no React). It does NOT send `type: "regular"`, so the Buttondown double opt-in setting applies (nobody can subscribe another person without confirmation). If BUTTONDOWN_API_KEY is missing at build time the card is hidden; adding the key later needs a redeploy. Pre-launch: one real-key check with a `+test` address, then delete that subscriber; add a Vercel Firewall rate limit on `/api/newsletter`.

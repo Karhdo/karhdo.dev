@@ -107,3 +107,9 @@ Prove v2 is a complete, safe replacement for v1 before merging `v2` into `main`:
 
 
 > **Preview check (task 19):** `curl -sI <preview>/api/spotify` twice within 30 s: the second response shows `x-vercel-cache: HIT` and a non-zero `age`, and `Cache-Control` reaching the browser has no `s-maxage`. Do the same spot-check for `/api/github`, `/api/github/activity`, `/api/stats/summary` and `/api/token-burn` (browser gets `max-age=0, must-revalidate`).
+
+
+> **Implementation notes (task 22):** the newsletter form is a vanilla form plus a module script (no React). It does NOT send `type: "regular"`, so the Buttondown double opt-in setting applies (nobody can subscribe another person without confirmation). If BUTTONDOWN_API_KEY is missing at build time the card is hidden; adding the key later needs a redeploy. Pre-launch: one real-key check with a `+test` address, then delete that subscriber; add a Vercel Firewall rate limit on `/api/newsletter`.
+
+
+> **Note from task 23 review:** after a ClientRouter navigation to a page whose last module script is inline (e.g. ListLayout's search-button script), Astro injects `<script src="data:application/javascript,">`, which the CSP (`script-src` has no `data:`) blocks with a harmless console error. Either make those small inline scripts bundled (non-inline) modules, or accept and document it. Check the console on /blog after a view-transition navigation.

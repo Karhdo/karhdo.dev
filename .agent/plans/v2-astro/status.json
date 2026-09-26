@@ -270,7 +270,7 @@
       "id": "v2-astro-newsletter-buttondown",
       "endpoint": "POST /api/newsletter",
       "spec": "22-newsletter-buttondown.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Buttondown subscribe endpoint (origin allowlist) + progressive-enhancement form island",
       "dependencies": [
         "v2-astro-site-config-env",
