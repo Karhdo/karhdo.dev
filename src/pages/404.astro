@@ -1,0 +1,80 @@
+---
+/**
+ * Custom 404 (v1 `app/not-found.tsx` copy, "dont" → "don't"): big 404, Back to homepage, a Search
+ * button that opens the ⌘K palette, and the 3 latest posts. Prerendered; Astro emits it as `404.html`.
+ */
+import Button from '~/components/ui/Button.astro';
+import Card from '~/components/ui/Card.astro';
+import Icon from '~/components/ui/Icon.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { getPublishedPosts, postUrl } from '~/lib/content';
+import { formatDate } from '~/lib/utils/format-date';
+
+const latest = (await getPublishedPosts()).slice(0, 3);
+---
+
+<PageLayout title="Page not found" description="Sorry we couldn't find this page." noindex>
+  <div class="mx-auto max-w-3xl py-12 sm:py-20">
+    <div class="flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-10">
+      <h1
+        class="m-0 font-bold font-mono text-7xl text-blue leading-none tracking-[-0.04em] md:border-line-strong md:border-r md:pr-10 md:text-9xl"
+      >
+        404
+      </h1>
+      <div class="max-w-md">
+        <p class="m-0 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">error · page not found</p>
+        <p class="m-0 mt-2 font-bold text-2xl text-fg tracking-[-0.02em] md:text-3xl">Sorry we couldn't find this page.</p>
+        <p class="m-0 mt-3 text-fg-soft">But don't worry, you can find plenty of other things on our homepage.</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <Button href="/" variant="primary">Back to homepage</Button>
+          <Button variant="ghost" aria-keyshortcuts="Meta+K Control+K" data-search-trigger>
+            <Icon name="Search" size={16} />
+            <span>Search</span>
+            <kbd
+              class="rounded-[5px] border border-line-strong border-b-2 px-1.5 font-mono text-[11px] text-fg-soft"
+              data-search-kbd>⌘K</kbd
+            >
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    {
+      latest.length > 0 && (
+        <Card as="section" class="mt-14 p-0" aria-labelledby="latest-posts">
+          <h2 id="latest-posts" class="m-0 px-5 pt-5 pb-2 font-mono font-normal text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">
+            Latest posts
+          </h2>
+          <ul class="m-0 list-none p-0">
+            {latest.map((post) => (
+              <li class="border-line border-t">
+                <a
+                  href={postUrl(post)}
+                  class="post group grid gap-1 px-5 py-4 text-inherit no-underline hover:bg-surface sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-5"
+                >
+                  <time datetime={post.data.date.toISOString()} class="whitespace-nowrap pt-0.5 font-mono text-[13px] text-fg-soft tabular-nums">
+                    {formatDate(post.data.date)}
+                  </time>
+                  <span class="min-w-0">
+                    <span class="block font-semibold text-fg group-hover:text-blue group-focus-visible:text-blue">{post.data.title}</span>
+                    {post.data.summary && (
+                      <span class="mt-1 line-clamp-2 block text-[15px] text-fg-soft">{post.data.summary}</span>
+                    )}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )
+    }
+  </div>
+</PageLayout>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .post {
+      transition: background-color 0.2s;
+    }
+  }
+</style>

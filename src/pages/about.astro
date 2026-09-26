@@ -1,0 +1,43 @@
+---
+/**
+ * /about (v1 `app/about/page.tsx` + `layouts/AuthorLayout.tsx`): the `default` author MDX beside
+ * the profile card, then the career timeline. Prerendered.
+ */
+import { render } from 'astro:content';
+import CareerTimeline from '~/components/about/CareerTimeline.astro';
+import ProfileCard from '~/components/about/ProfileCard.astro';
+import { mdxComponents } from '~/components/mdx';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { getAuthor } from '~/lib/content';
+
+const author = await getAuthor('default');
+if (!author) throw new Error('Missing author entry: src/content/authors/default.mdx');
+const { Content } = await render(author);
+
+const description = 'Further insights into who I am and the purpose of this blog.';
+---
+
+<PageLayout title="About" description={description}>
+  <div class="py-12 sm:py-16">
+    <SectionHeader eyebrow="~/about" title="About" description={description} />
+
+    <div class="mt-10 grid items-start gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
+      <aside class="lg:sticky lg:top-24">
+        <ProfileCard author={author.data} />
+      </aside>
+
+      <div class="min-w-0">
+        <article class="prose">
+          <Content components={mdxComponents} />
+        </article>
+
+        <section class="mt-14" aria-labelledby="career">
+          <p class="m-0 mb-2 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">experience</p>
+          <h2 id="career" class="m-0 mb-4 font-semibold text-2xl text-fg tracking-[-0.02em] sm:text-3xl">My Career</h2>
+          <CareerTimeline />
+        </section>
+      </div>
+    </div>
+  </div>
+</PageLayout>

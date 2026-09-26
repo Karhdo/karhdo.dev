@@ -186,7 +186,7 @@
       "id": "v2-astro-homepage-bento",
       "endpoint": null,
       "spec": "15-homepage-bento.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Mockup bento: word-by-word hero, staggered cards, stub cards for p5 tasks, Daily stack simple-icons marquee + Now learning, count-up helper, Selected projects (featured + framed)",
       "dependencies": [
         "v2-astro-header-footer",
@@ -199,7 +199,7 @@
       "id": "v2-astro-about-and-404",
       "endpoint": null,
       "spec": "16-about-and-404.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "/about from author MDX + career timeline, custom 404",
       "dependencies": [
         "v2-astro-header-footer",

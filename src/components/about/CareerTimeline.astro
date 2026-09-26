@@ -1,0 +1,15 @@
+---
+/** Career timeline (v1 `components/about/CareerTimeline.tsx`): every entry of `EXPERIENCES`, newest first. */
+import { EXPERIENCES } from '~/config/experiences';
+import TimelineItem from './TimelineItem.astro';
+---
+
+<ol class="m-0 list-none p-0">
+  {
+    EXPERIENCES.map((experience, index) => (
+      <li class="m-0 p-0">
+        <TimelineItem exp={experience} last={index === EXPERIENCES.length - 1} />
+      </li>
+    ))
+  }
+</ol>

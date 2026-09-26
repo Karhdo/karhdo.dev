@@ -1,0 +1,141 @@
+---
+/**
+ * One career entry (v1 `components/about/TimelineItem.tsx`): org logo, dates, org link, Twemoji +
+ * title, and the rich details in a native `<details>` (v1's +/- toggle, zero JS). The header sits
+ * outside `<details>` so the org link isn't nested in `<summary>`; the summary is only the toggle.
+ * A connector line joins each logo to the next one unless `last`.
+ */
+import { Minus, Plus } from '@lucide/astro';
+import Twemoji from '~/components/ui/Twemoji.astro';
+import type { Experience } from '~/config/experiences';
+import { cn } from '~/lib/utils/cn';
+import { EXPERIENCE_DETAILS } from './experiences';
+
+interface Props {
+  exp: Experience;
+  last?: boolean;
+}
+
+const { exp, last = false } = Astro.props;
+const { org, url, logo, start, end, title, icon, event } = exp;
+const Details = EXPERIENCE_DETAILS[event];
+---
+
+<div
+  class={cn(
+    'timeline-item relative -mx-3 flex items-start gap-4 rounded-xl p-3 hover:bg-surface motion-safe:transition-colors',
+    !last && 'has-line'
+  )}
+>
+  <img
+    src={logo}
+    alt={org}
+    width="48"
+    height="48"
+    loading="lazy"
+    decoding="async"
+    class="relative z-1 size-12 shrink-0 rounded-[10px] border border-line bg-surface-solid object-contain"
+  />
+  <div class="relative min-w-0 flex-1">
+    <div class="pr-10">
+      <span class="block font-mono text-[12.5px] text-fg-soft tabular-nums">
+        <span>{start}</span> – <span>{end}</span>
+      </span>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="line-clamp-1 w-fit font-semibold text-[17px] text-fg no-underline hover:text-blue focus-visible:text-blue"
+        >{org}</a
+      >
+      <span class="flex items-center gap-1.5 pt-0.5 text-[15px] text-fg-soft">
+        <Twemoji emoji={icon} size="base" class="mx-0" />
+        <span>{title}</span>
+      </span>
+    </div>
+    <details>
+      <summary
+        class="toggle absolute top-0.5 right-0 grid size-7 cursor-pointer list-none place-items-center rounded-lg border border-line text-fg-soft"
+      >
+        <span class="sr-only">Details for {org}</span>
+        <span class="plus" data-umami-event={`${event} expand`}><Plus size={16} aria-hidden="true" /></span>
+        <span class="minus" data-umami-event={`${event} collapse`}><Minus size={16} aria-hidden="true" /></span>
+      </summary>
+      <div class="details pt-3 text-[15px] text-fg-soft leading-relaxed">
+        <Details />
+      </div>
+    </details>
+  </div>
+</div>
+
+<style>
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .has-line::before {
+    content: '';
+    position: absolute;
+    top: calc(12px + 48px + 6px);
+    bottom: calc(-12px + 6px);
+    left: calc(12px + 24px);
+    width: 1px;
+    background: var(--line-strong);
+  }
+
+  .minus,
+  details[open] .plus {
+    display: none;
+  }
+
+  details[open] .minus {
+    display: block;
+  }
+
+  .toggle:hover,
+  .toggle:focus-visible {
+    border-color: var(--line-strong);
+    color: var(--fg);
+  }
+
+  .toggle:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+
+  .details :global(ul) {
+    margin: 0;
+    padding-left: 1.1em;
+    list-style: disc;
+  }
+
+  .details :global(li) {
+    margin: 0.5em 0;
+  }
+
+  .details :global(li::marker) {
+    color: var(--muted);
+  }
+
+  .details :global(strong) {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .details :global(a) {
+    color: var(--blue);
+    text-underline-offset: 4px;
+  }
+
+  @media (min-width: 768px) {
+    .toggle {
+      opacity: 0;
+    }
+
+    .timeline-item:hover .toggle,
+    .toggle:focus-visible,
+    details[open] .toggle {
+      opacity: 1;
+    }
+  }
+</style>

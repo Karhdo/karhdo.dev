@@ -1,0 +1,88 @@
+---
+/**
+ * About sidebar (v1 `layouts/AuthorLayout.tsx` left column): avatar, name, occupation, company,
+ * email/GitHub/LinkedIn/Twitter links and the Resume button, on a glass card.
+ */
+import Button from '~/components/ui/Button.astro';
+import Card from '~/components/ui/Card.astro';
+import Icon, { type IconName } from '~/components/ui/Icon.astro';
+import Twemoji from '~/components/ui/Twemoji.astro';
+import type { Author } from '~/lib/content';
+
+interface Props {
+  author: Author['data'];
+}
+
+const { name, avatar, occupation, company, email, github, linkedin, twitter } = Astro.props.author;
+
+const socials = [
+  { icon: 'Mail', label: 'Email', href: email && `mailto:${email}` },
+  { icon: 'Github', label: 'GitHub', href: github },
+  { icon: 'Linkedin', label: 'LinkedIn', href: linkedin },
+  { icon: 'Twitter', label: 'Twitter', href: twitter },
+].filter((social): social is { icon: IconName; label: string; href: string } => Boolean(social.href));
+---
+
+<Card class="flex flex-col items-center p-6 text-center">
+  {
+    avatar && (
+      <img
+        src={avatar}
+        alt={name}
+        width="160"
+        height="160"
+        class="size-40 rounded-full border border-line-strong bg-surface-solid object-cover p-1"
+      />
+    )
+  }
+  <h2 class="m-0 mt-5 font-bold text-2xl text-fg tracking-[-0.02em]">{name}</h2>
+  {occupation && <p class="m-0 mt-1 text-fg-soft">{occupation}</p>}
+  {
+    company && (
+      <p class="m-0 mt-2 font-mono text-[12.5px] text-fg-soft">
+        <span aria-hidden="true">@</span>
+        {company}
+      </p>
+    )
+  }
+  <ul class="m-0 mt-5 flex list-none gap-2 p-0">
+    {
+      socials.map(({ icon, label, href }) => (
+        <li>
+          <a
+            href={href}
+            {...(href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+            class="social grid size-10 place-items-center rounded-xl border border-line text-fg-soft hover:border-line-strong hover:text-blue focus-visible:border-line-strong focus-visible:text-blue"
+            aria-label={label}
+          >
+            <Icon name={icon} size={18} />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <Button
+    href="/static/resume.pdf"
+    target="_blank"
+    rel="noopener"
+    class="mt-5 w-full"
+  >
+    <span>Resume</span>
+    <Twemoji emoji="page-facing-up" size="base" />
+  </Button>
+</Card>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .social {
+      transition:
+        border-color 0.2s,
+        color 0.2s,
+        transform 0.2s var(--ease-spring);
+    }
+
+    .social:hover {
+      transform: translateY(-2px);
+    }
+  }
+</style>
