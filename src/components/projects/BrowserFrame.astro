@@ -1,0 +1,135 @@
+---
+/**
+ * Browser-frame screenshot (mockup `.frame` / `.frame-bar` / `.shot`): three decorative dots
+ * (red/yellow/green tokens) and a mono host label over an `astro:assets` screenshot.
+ * The shot box has a fixed size (16/10, or a min-height when featured) and the image is absolutely
+ * positioned inside it, so there is no CLS. The hover zoom/pan (driven by the parent `.proj:hover`)
+ * runs only under `prefers-reduced-motion: no-preference`.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  image: ImageMetadata;
+  imageAlt: string;
+  label: string;
+  featured?: boolean;
+}
+
+const { image, imageAlt, label, featured = false } = Astro.props;
+---
+
+<div class:list={['frame', { featured }]}>
+  <div class="frame-bar">
+    <i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i>
+    <span>{label}</span>
+  </div>
+  <div class="shot">
+    <Image
+      src={image}
+      alt={imageAlt}
+      widths={[480, 768, 1200]}
+      sizes={featured ? '(max-width: 900px) 100vw, 560px' : '(max-width: 600px) 100vw, 50vw'}
+      quality={75}
+      loading="lazy"
+      decoding="async"
+      class="object-cover object-top"
+    />
+  </div>
+</div>
+
+<style>
+  .frame {
+    margin: 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-2);
+    display: flex;
+    flex-direction: column;
+  }
+  .frame.featured {
+    margin: 14px 14px 14px 0;
+  }
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-soft);
+  }
+  .frame-bar i {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+  .frame-bar i:nth-child(1) {
+    background: var(--red);
+  }
+  .frame-bar i:nth-child(2) {
+    background: var(--yellow);
+  }
+  .frame-bar i:nth-child(3) {
+    background: var(--green);
+  }
+  .frame-bar span {
+    margin-left: 8px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .shot {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    flex: 1;
+    max-width: 100%;
+  }
+  .featured .shot {
+    aspect-ratio: auto;
+    min-height: 300px;
+  }
+  .shot :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .shot::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 40%;
+    background: linear-gradient(to top, color-mix(in srgb, var(--bg-2) 70%, transparent), transparent);
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .shot :global(img) {
+      transition:
+        scale 1.2s var(--ease-out),
+        object-position 3s ease;
+    }
+    :global(.proj:hover) .shot :global(img) {
+      scale: 1.05;
+      object-position: bottom center;
+    }
+  }
+  @media (max-width: 900px) {
+    .frame.featured {
+      margin: 0 14px 14px;
+      order: 2;
+    }
+    /* Stacked: back to the fixed 16/10 box (a bare 220 px strip crops the square EcomHeat shot). */
+    .featured .shot {
+      aspect-ratio: 16 / 10;
+      min-height: 220px;
+    }
+  }
+</style>

@@ -175,7 +175,7 @@
       "id": "v2-astro-tags-pages",
       "endpoint": null,
       "spec": "14-tags-pages.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "/tags and /tags/[tag] with github-slugger slugs, chip bar and popular tags",
       "dependencies": [
         "v2-astro-blog-list-pagination"
@@ -211,7 +211,7 @@
       "id": "v2-astro-projects-page",
       "endpoint": null,
       "spec": "17-projects-page.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Featured + browser-framed project cards (fact tiles, astro:assets AVIF/WebP screenshots, hover zoom/pan), on-demand /projects with CDN caching",
       "dependencies": [
         "v2-astro-header-footer"

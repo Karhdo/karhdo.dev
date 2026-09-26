@@ -1,0 +1,17 @@
+---
+/**
+ * Mockup `.proj-grid`: 2 columns, 1 column at ≤ 600 px. A `featured` ProjectCard spans the full row.
+ * Shared by /projects and the homepage "Selected projects" block (task 15).
+ */
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class={cn('proj-grid grid grid-cols-2 gap-3.5 max-[600px]:grid-cols-1', className)}>
+  <slot />
+</div>
