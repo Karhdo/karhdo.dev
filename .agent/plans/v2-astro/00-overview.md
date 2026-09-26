@@ -193,3 +193,6 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Note (found during task 17):** on `@astrojs/vercel`, `<Image>`/`getImage` default to `quality=100`. Always pass an explicit `quality` (75, or `"high"` = 80) on every image.
+
+
+> **Implementation note (task 18):** views and reactions ship as plain module scripts, NOT React islands (`ViewCounter.tsx`/`Reactions.tsx` in the spec were replaced with the lead's approval), so post pages hydrate no React for stats. Abuse: the Origin check stops browser CSRF, but scripted clients can forge Origin (+1 view / +5 per reaction per request). Follow-up for task 28: add a Vercel WAF rate-limit rule on `/api/stats` (e.g. ~30 POST/min per IP).

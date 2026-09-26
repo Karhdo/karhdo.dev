@@ -98,3 +98,6 @@ Prove v2 is a complete, safe replacement for v1 before merging `v2` into `main`:
 
 
 > **Note from task 07 review:** v1 apple-touch-icon, mask-icon and msapplication-TileColor are intentionally dropped; those files never existed, so they were 404s in v1.
+
+
+> **Note from task 18 review:** add a Vercel Firewall rate-limit rule for `POST /api/stats` (≈30/min per IP) to the production checklist, and record it in the README ops section.

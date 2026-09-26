@@ -1,8 +1,19 @@
 ---
 /**
- * Reactions at the end of the article (mockup `.reactions`). Stub from task 12: a fixed-height
- * placeholder that reserves the row, so filling it causes no layout shift; task 18 fills this file only.
+ * Reactions at the end of the article (task 18, mockup `.reactions`): a centred row of 4 emoji buttons.
+ * Vanilla script, no hydration. Ported from v1 `components/blog/Reactions.tsx`:
+ * - max 5 per emoji per visitor, stored in localStorage under the v1 key `blog/{slug}` with the v1 shape
+ *   `{ loves, ideas, applauses, bullseye }`, so returning readers keep their counts;
+ * - the API takes DELTAS: `POST { [key]: clicks since last save }`, saved 1 s after the last click or
+ *   pointer leave, and immediately on blur, `visibilitychange` (hidden) and view-transition navigation
+ *   (v1 only saved on mouse leave, so touch devices never saved);
+ * - motion (mockup item 5): per click the emoji bursts and a `+1` floats up, only under
+ *   `prefers-reduced-motion: no-preference`; the `+1` is absolutely positioned (no layout shift).
+ * Buttons are 42px tall, matching the stub's reserved row.
  */
+import Twemoji from '~/components/ui/Twemoji.astro';
+import { REACTIONS } from '~/lib/stats/reactions';
+
 interface Props {
   slug: string;
 }
@@ -10,7 +21,289 @@ interface Props {
 const { slug } = Astro.props;
 ---
 
-<!-- filled by task 18 -->
 <div data-pagefind-ignore data-post-reactions={slug} class="mt-10 border-line border-t pt-6">
-  <div class="h-[42px]"></div>
+  <div role="group" aria-label="React to this post" class="flex flex-wrap justify-center gap-2.5">
+    {
+      REACTIONS.map(({ key, emoji, label }) => (
+        <button
+          type="button"
+          class="react"
+          data-key={key}
+          data-label={label}
+          aria-label={label}
+          aria-pressed="false"
+          aria-disabled="true"
+          data-umami-event="post-reaction"
+        >
+          <span class="e" aria-hidden="true">
+            <Twemoji emoji={emoji} size="base" class="m-0 align-[-0.15em]" />
+          </span>
+          <span class="n" data-count>
+            --
+          </span>
+        </button>
+      ))
+    }
+  </div>
 </div>
+
+<style>
+  .react {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--fg-soft);
+    font: inherit;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .react:hover {
+    border-color: var(--line-strong);
+  }
+  .react:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  .react[aria-pressed='true'] {
+    border-color: var(--blue);
+    color: var(--fg);
+  }
+  .react[aria-disabled='true'] {
+    cursor: default;
+  }
+  .e {
+    display: inline-block;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .n {
+    min-width: 4ch;
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .e {
+      transition: transform 0.15s;
+    }
+    .react:active .e {
+      transform: scale(1.25);
+    }
+    .react.on .e {
+      animation: burst 0.45s var(--ease-spring);
+    }
+    .react :global(.plus) {
+      position: absolute;
+      top: -4px;
+      right: 10px;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--blue);
+      animation: floatUp 0.7s var(--ease-out) forwards;
+    }
+    .n.max {
+      animation: var(--animate-scale-up);
+    }
+  }
+
+  /* `burst` / `floatUp` keyframes are global (src/styles/animations.css). */
+</style>
+
+<script>
+  import {
+    applyDeltas,
+    displayCount,
+    parseStoredReactions,
+    pendingDeltas,
+    type ReactionState,
+    react,
+    reactionStorageKey,
+    serializeReactions,
+  } from '~/lib/stats/reactions';
+  import { fetchJson } from '~/lib/utils/fetch-json';
+  import type { ReactionKey, Stats } from '~/types/stats';
+
+  const SAVE_DELAY = 1000;
+  const motionAllowed = () => matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  function readStorage(key: string): string | null {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function writeStorage(key: string, state: ReactionState) {
+    try {
+      localStorage.setItem(key, serializeReactions(state));
+    } catch {
+      // storage blocked: reactions still count server-side, they just aren't remembered
+    }
+  }
+
+  function mount(root: HTMLElement) {
+    const slug = root.dataset.postReactions;
+    if (!slug) return;
+    const storageKey = reactionStorageKey('blog', slug);
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('button[data-key]')];
+
+    // `reactions`: this visitor's clicks. `sent`: what's persisted locally and already posted (v1 values
+    // were posted by v1). `counted`: what the last server row already includes.
+    let reactions = parseStoredReactions(readStorage(storageKey));
+    let sent = { ...reactions };
+    let counted = { ...reactions };
+    let server: Stats | undefined;
+    let inFlight = false;
+    let again = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    function paint() {
+      for (const button of buttons) {
+        const key = button.dataset.key as ReactionKey;
+        const count = server ? displayCount(server, key, reactions, counted) : undefined;
+        const n = button.querySelector<HTMLElement>('[data-count]');
+        if (n) n.textContent = count === undefined ? '--' : count.toLocaleString('en-US');
+        button.setAttribute('aria-pressed', String(reactions[key] > 0));
+        button.setAttribute('aria-label', count === undefined ? `${button.dataset.label}` : `${button.dataset.label} (${count})`);
+        button.setAttribute('aria-disabled', String(!server));
+      }
+    }
+
+    async function save({ keepalive = false } = {}) {
+      clearTimeout(timer);
+      if (inFlight && !keepalive) {
+        again = true;
+        return;
+      }
+      const deltas = pendingDeltas(reactions, sent);
+      if (!deltas) return;
+      sent = applyDeltas(sent, deltas);
+      writeStorage(storageKey, sent);
+      inFlight = true;
+      try {
+        const row = await fetchJson<Stats>('/api/stats', {
+          method: 'POST',
+          body: JSON.stringify({ type: 'blog', slug, ...deltas }),
+          keepalive,
+        });
+        counted = applyDeltas(counted, deltas);
+        server = row;
+      } catch {
+        // not counted: roll back so the next save retries these clicks
+        sent = applyDeltas(sent, deltas, -1);
+        writeStorage(storageKey, sent);
+      } finally {
+        inFlight = false;
+        paint();
+        if (again) {
+          again = false;
+          void save();
+        }
+      }
+    }
+
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => void save(), SAVE_DELAY);
+    };
+    const flush = () => void save({ keepalive: true });
+
+    function celebrate(button: HTMLButtonElement) {
+      if (!motionAllowed()) return;
+      button.classList.remove('on');
+      void button.offsetWidth; // restart the burst on every click
+      button.classList.add('on');
+      const plus = document.createElement('span');
+      plus.className = 'plus';
+      plus.setAttribute('aria-hidden', 'true');
+      plus.textContent = '+1';
+      plus.addEventListener('animationend', () => plus.remove(), { once: true });
+      button.append(plus);
+    }
+
+    for (const button of buttons) {
+      const key = button.dataset.key as ReactionKey;
+      button.addEventListener('click', () => {
+        if (!server) return; // counts not loaded (v1: no-op while loading)
+        const result = react(reactions, key);
+        if (result.atMax) {
+          const n = button.querySelector<HTMLElement>('[data-count]');
+          n?.classList.remove('max');
+          void n?.offsetWidth;
+          n?.classList.add('max');
+          return;
+        }
+        reactions = result.state;
+        paint();
+        celebrate(button);
+        schedule();
+      });
+      button.addEventListener('pointerleave', () => {
+        if (pendingDeltas(reactions, sent)) schedule();
+      });
+      button.addEventListener('blur', () => {
+        if (pendingDeltas(reactions, sent)) void save();
+      });
+      button.querySelector('.e')?.addEventListener('animationend', () => button.classList.remove('on'));
+    }
+
+    const onHidden = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    document.addEventListener('visibilitychange', onHidden);
+    window.addEventListener('pagehide', flush);
+    // View-transition navigation doesn't hide the page: save before the swap, then detach.
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        flush();
+        document.removeEventListener('visibilitychange', onHidden);
+        window.removeEventListener('pagehide', flush);
+      },
+      { once: true }
+    );
+
+    paint();
+    fetchJson<Stats>(`/api/stats?type=blog&slug=${encodeURIComponent(slug)}`)
+      .then((row) => {
+        server = row;
+        paint();
+      })
+      .catch(() => {
+        // stats unavailable: keep `--`, buttons stay inert
+      });
+  }
+
+  function init() {
+    for (const root of document.querySelectorAll<HTMLElement>('[data-post-reactions]')) {
+      if (root.dataset.bound === 'true') continue;
+      root.dataset.bound = 'true';
+      // Like `client:visible`: no fetch until the row is near the viewport.
+      if (typeof IntersectionObserver === 'undefined') {
+        mount(root);
+        continue;
+      }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          mount(root);
+        },
+        { rootMargin: '200px' }
+      );
+      observer.observe(root);
+      document.addEventListener('astro:before-swap', () => observer.disconnect(), { once: true });
+    }
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>

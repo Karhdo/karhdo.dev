@@ -1,6 +1,6 @@
 import { and, eq, sql } from 'drizzle-orm';
 import { getDb } from './client';
-import { type StatsRow, type StatsType, stats } from './schema';
+import { type StatsRow, type StatsType, stats, statsDaily } from './schema';
 
 export const REACTION_KEYS = ['loves', 'applauses', 'ideas', 'bullseye'] as const;
 export type ReactionKey = (typeof REACTION_KEYS)[number];
@@ -46,4 +46,19 @@ export async function incrementStats(type: StatsType, slug: string, deltas: Stat
     .onConflictDoUpdate({ target: [stats.type, stats.slug], set })
     .returning();
   return rows[0] ?? emptyStats(type, slug);
+}
+
+/**
+ * Adds one view to today's (UTC) `stats_daily` row, creating it when missing, in a single
+ * `INSERT … ON CONFLICT (type, slug, date) DO UPDATE SET views = stats_daily.views + 1`.
+ * Callers treat it as best-effort: it throws `42P01` until `0001_create_stats_daily.sql` has run.
+ */
+export async function recordDailyView(type: StatsType, slug: string): Promise<void> {
+  await getDb()
+    .insert(statsDaily)
+    .values({ type, slug, date: sql`(now() AT TIME ZONE 'utc')::date`, views: 1 })
+    .onConflictDoUpdate({
+      target: [statsDaily.type, statsDaily.slug, statsDaily.date],
+      set: { views: sql`${statsDaily.views} + 1` },
+    });
 }

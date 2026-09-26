@@ -222,7 +222,7 @@
       "id": "v2-astro-stats-views-reactions",
       "endpoint": "GET|POST /api/stats",
       "spec": "18-stats-views-reactions.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Views + reactions on atomic Drizzle upserts; best-effort stats_daily upsert per view; strict zod deltas, origin allowlist; reactions burst + \"+1\"; tests",
       "dependencies": [
         "v2-astro-db-drizzle",

@@ -59,3 +59,6 @@ Port the views + reactions feature onto the existing `stats` table via Drizzle (
 
 
 > **Note from task 05 review:** `StatsType` is defined twice (`src/lib/db/schema.ts` derives it from the pgEnum; `src/types/stats.ts` declares it by hand). Make `src/types/stats.ts` re-export the schema-derived type so there is one source of truth. `getDb()` now disables SSL for `localhost`/`127.0.0.1`, so the docker-compose Postgres works for local testing.
+
+
+> **Implementation note (task 18):** views and reactions ship as plain module scripts, NOT React islands (`ViewCounter.tsx`/`Reactions.tsx` in the spec were replaced with the lead's approval), so post pages hydrate no React for stats. Abuse: the Origin check stops browser CSRF, but scripted clients can forge Origin (+1 view / +5 per reaction per request). Follow-up for task 28: add a Vercel WAF rate-limit rule on `/api/stats` (e.g. ~30 POST/min per IP).
