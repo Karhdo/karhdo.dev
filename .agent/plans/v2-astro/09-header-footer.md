@@ -162,3 +162,6 @@ v1's `Signature.tsx` SVG and the `BuiltWith` icon row are **not** carried over: 
 - v1: `components/header/{Header,Logo,MobileNav,ThemeSwitch,SearchButton,AnalyticsLink}.tsx`; `components/footer/{index,FooterNav,FooterMeta,FooterBottom,LastCommit}.tsx` (content and time logic); `lib/utils/misc.ts` `getTimeAgo` (superseded by `formatRelative`).
 - WAI-ARIA APG "Menu Button" pattern.
 - Reference `src/components/studio/studio-shell/StatusBar.astro` (hta218/leohuynh.dev) for a statusline in Astro.
+
+
+> **Note from task 03:** `SITE.location` (`"Ho Chi Minh, Viet Nam"`) and `SITE.timezone` already exist, and `src/config/site.ts` already exports `SiteConfig`, `SiteVersion`, `SnowfallMode` and `StackItem` (optional fields). This task only adds the `versions` value (and `FOOTER_COLUMNS` in navigation.ts), not the types.

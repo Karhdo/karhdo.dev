@@ -1,13 +1,41 @@
-import { BrandIconType } from '@/components/ui/BrandIcon';
+/**
+ * Brand icon names: the v1 `BrandIconsMap` keys plus `Astro`, `Drizzle` and
+ * `Bun` for v2. Task 08 builds the icon map (`BrandIcon.astro`) against it.
+ */
+export type BrandIconName =
+  | 'React'
+  | 'Remix'
+  | 'Git'
+  | 'GitHub'
+  | 'Javascript'
+  | 'Typescript'
+  | 'Node'
+  | 'Bash'
+  | 'Liquid'
+  | 'Markdown'
+  | 'NextJS'
+  | 'TailwindCSS'
+  | 'Prisma'
+  | 'Umami'
+  | 'Vercel'
+  | 'Railway'
+  | 'Spotify'
+  | 'NestJS'
+  | 'Docker'
+  | 'Postgres'
+  | 'Mongodb'
+  | 'Astro'
+  | 'Drizzle'
+  | 'Bun';
 
-type PopularTag = {
+export type PopularTag = {
   href: string;
-  iconType: BrandIconType;
+  iconType: BrandIconName;
   slug: string;
   title: string;
 };
 
-const popularTags: PopularTag[] = [
+export const POPULAR_TAGS = [
   {
     href: '/tags/javascript',
     iconType: 'Javascript',
@@ -44,6 +72,4 @@ const popularTags: PopularTag[] = [
     slug: 'devops',
     title: 'Devops',
   },
-];
-
-export default popularTags;
+] as const satisfies readonly PopularTag[];

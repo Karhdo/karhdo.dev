@@ -49,7 +49,7 @@
       "id": "v2-astro-site-config-env",
       "endpoint": null,
       "spec": "03-site-config-env.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "Typed src/config from data/*; astro:env schema keeping v1 env names (NEXT_PUBLIC_GISCUS_*, UMAMI_WEBSITE_ID as server/public); .env.example",
       "dependencies": [
         "v2-astro-scaffold-astro"
@@ -71,7 +71,7 @@
       "id": "v2-astro-db-drizzle",
       "endpoint": null,
       "spec": "05-db-drizzle.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Drizzle schema mapped exactly to existing stats/StatsType (Neon pooler, pull-only, strict) + the one additive stats_daily table via a reviewed manual SQL migration; delete prisma/",
       "dependencies": [
         "v2-astro-site-config-env"
@@ -82,7 +82,7 @@
       "id": "v2-astro-design-tokens",
       "endpoint": null,
       "spec": "06-design-tokens.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Tokyonight-only tokens (Day/Night via data-theme + JS-off fallback; yellow, blue1, shine; spotify = green; no magenta) + palette.ts mirror + lint:palette grep, fonts, prose, glass, motion tokens/keyframes/.rise/.reveal, dev-only /dev pages",
       "dependencies": [
         "v2-astro-tooling-biome"
@@ -128,7 +128,7 @@
       "id": "v2-astro-content-collections",
       "endpoint": null,
       "spec": "10-content-collections.md",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Move MDX to src/content, glob collections mirroring contentlayer, pure tag/reading-time helpers with tests vs v1 tag-data.json",
       "dependencies": [
         "v2-astro-site-config-env"

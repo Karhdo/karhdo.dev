@@ -55,3 +55,6 @@ Port and restyle the reusable v1 UI components as zero-JS Astro components (plus
 - v1 `components/ui/*` (`git show main:components/ui/…`).
 - Reference `src/components/mdx/Twemoji.astro`, `src/lib/emoji.ts`, `src/lib/brand-icons.ts` (hta218/leohuynh.dev).
 - Astro docs: "SVG components" (`import Logo from '~/assets/icons/react.svg'`).
+
+
+> **Note from task 03 review:** `BrandIconName` is declared once in `src/config/popular-tags.ts`. `BrandIcon.astro` must `import type { BrandIconName } from "~/config/popular-tags"` and re-export it (`export type { BrandIconName }`), typing `BRAND_ICONS` as `Record<BrandIconName, …>`; do not redeclare the union.

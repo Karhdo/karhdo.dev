@@ -1,6 +1,16 @@
-import type { Project } from '@/types/data';
+import type { GithubRepository } from '~/types/github';
 
-const projectsData: Project[] = [
+export interface Project {
+  type: 'work' | 'self';
+  title: string;
+  description?: string;
+  imgSrc: string;
+  url?: string;
+  repo?: string | GithubRepository | null;
+  builtWith: string[];
+}
+
+export const PROJECTS: Project[] = [
   {
     type: 'work',
     title: 'EcomHeat - Manage Market Share, Monitor Sales Performance, Optimize Store Operation',
@@ -23,7 +33,7 @@ const projectsData: Project[] = [
     title: 'Personal website',
     imgSrc: '/static/images/projects/karhdo-blog.png',
     repo: 'Karhdo/karhdo.dev',
-    builtWith: ['Next.js', 'Tailwind', 'Typescript', 'Prisma', 'Umami'],
+    builtWith: ['Astro', 'Tailwind', 'Typescript', 'Drizzle', 'Umami'],
   },
   {
     type: 'self',
@@ -41,5 +51,3 @@ const projectsData: Project[] = [
     builtWith: ['Javascript', 'Jquery', 'ThreeJS'],
   },
 ];
-
-export default projectsData;

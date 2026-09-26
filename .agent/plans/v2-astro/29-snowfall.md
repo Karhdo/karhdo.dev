@@ -71,3 +71,6 @@ Keep v1's single-layer homepage snowfall of 119 round flakes, with **slightly la
 - v1 `components/homepage/HomeContent.tsx` (Snowfall props and style), `data/siteMetadata.js` (config style).
 - Mockup `karhdo-v2.src.html` snow module (the `snow` IIFE: `make`, `frame`, `start`, `stop`, and the `--snow-c` MutationObserver).
 - Task 09 script conventions (`astro:page-load` / `astro:before-swap`).
+
+
+> **Note from task 03:** `SnowfallMode` and the optional `snowfall` field already exist in `SiteConfig` (`src/config/site.ts`); add only the value.

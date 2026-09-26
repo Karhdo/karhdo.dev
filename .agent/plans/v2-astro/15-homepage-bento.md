@@ -140,3 +140,6 @@ All static content is pure Astro, and the typed bios are a small script. The sno
 - Mockup `karhdo-v2.src.html` `#view-home` (structure, copy, card names).
 - v1: `components/homepage/*`.
 - Reference `src/components/studio/runtime-rail/*Card.astro` (hta218/leohuynh.dev) for the card + client hydrate split.
+
+
+> **Note from task 03:** `StackItem` exists in `src/config/site.ts` loosely typed (`icon: string; tone: string`); narrow it here to the simple-icons slug and palette-token unions. `nowLearning` is typed `{ items: readonly string[]; text: string }`.
