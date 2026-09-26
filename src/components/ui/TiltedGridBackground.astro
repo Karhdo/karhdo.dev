@@ -1,0 +1,25 @@
+---
+/**
+ * Decorative skewed grid behind the top of the page (v1 `components/ui/TiltedGridBackground.tsx`).
+ * Lines use the `fg` token so they follow the theme; the mask fades the grid out downwards
+ * (a mask only reads alpha, so the gradient's colour is irrelevant).
+ */
+import { clsx } from 'clsx';
+import TiltedGrid from '~/assets/icons/tilted-grid.svg';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div
+  aria-hidden="true"
+  class={clsx(
+    'pointer-events-none absolute overflow-hidden mask-[linear-gradient(to_bottom,var(--fg),transparent)]',
+    className
+  )}
+>
+  <TiltedGrid class="absolute inset-x-0 inset-y-[-30%] h-[160%] w-full skew-y-[-18deg] fill-fg/2 stroke-fg/5" />
+</div>

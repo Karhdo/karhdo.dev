@@ -1,0 +1,12 @@
+---
+/**
+ * Umami analytics (v1 `components/analytics/umami.tsx`). The script is served through the
+ * `/stats/*` rewrite in vercel.json. Umami tracks ClientRouter's history pushes itself, so the
+ * tag must not re-run on swap (no `data-astro-rerun`). Emits nothing in dev or without an id.
+ */
+import { UMAMI_WEBSITE_ID } from 'astro:env/server';
+
+const websiteId = import.meta.env.PROD ? UMAMI_WEBSITE_ID : undefined;
+---
+
+{websiteId && <script is:inline defer src="/stats/script.js" data-website-id={websiteId} />}

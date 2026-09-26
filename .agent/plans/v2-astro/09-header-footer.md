@@ -165,3 +165,6 @@ v1's `Signature.tsx` SVG and the `BuiltWith` icon row are **not** carried over: 
 
 
 > **Note from task 03:** `SITE.location` (`"Ho Chi Minh, Viet Nam"`) and `SITE.timezone` already exist, and `src/config/site.ts` already exports `SiteConfig`, `SiteVersion`, `SnowfallMode` and `StackItem` (optional fields). This task only adds the `versions` value (and `FOOTER_COLUMNS` in navigation.ts), not the types.
+
+
+> **Note from task 07 review:** the base layout exposes `window.__theme.apply()` (call it after writing the theme to localStorage). Add `declare global { interface Window { __theme?: { apply(): void } } }` (e.g. in `src/env.d.ts`) so the toggle can call it from TS.

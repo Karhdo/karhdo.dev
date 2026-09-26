@@ -93,7 +93,7 @@
       "id": "v2-astro-base-layout",
       "endpoint": null,
       "spec": "07-base-layout.md",
-      "status": "in-progress",
+      "status": "done",
       "summary": "BaseLayout with SEO/OG/JSON-LD, data-theme no-flash script, theme-color #e1e2e7/#16161e, ClientRouter, Umami (UMAMI_WEBSITE_ID)",
       "dependencies": [
         "v2-astro-site-config-env",

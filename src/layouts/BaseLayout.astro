@@ -1,0 +1,39 @@
+---
+/**
+ * The document shell every page uses: SEO head, flash-free theme, view transitions, analytics,
+ * the tilted-grid background and a skip link. Header/footer come in through named slots (task 09).
+ */
+import '~/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import Analytics from '~/components/seo/Analytics.astro';
+import Seo, { type Props as SeoProps } from '~/components/seo/Seo.astro';
+import ThemeScript from '~/components/seo/ThemeScript.astro';
+import TiltedGridBackground from '~/components/ui/TiltedGridBackground.astro';
+
+export type Props = SeoProps;
+---
+
+<html lang="en" class="motion-safe:scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeScript />
+    <Seo {...Astro.props} />
+    <ClientRouter />
+    <Analytics />
+  </head>
+  <body class="relative flex min-h-screen flex-col bg-bg text-fg antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:border focus:border-line-strong focus:bg-surface-solid focus:px-4 focus:py-2 focus:font-medium focus:text-fg"
+    >
+      Skip to content
+    </a>
+    <TiltedGridBackground class="inset-x-0 top-0 z-[-1] h-[60vh]" />
+    <slot name="header" />
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none" transition:animate="fade">
+      <slot />
+    </main>
+    <slot name="footer" />
+  </body>
+</html>

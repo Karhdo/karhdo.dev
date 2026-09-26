@@ -1,0 +1,60 @@
+---
+/**
+ * Flash-free theme: runs synchronously in `<head>` before first paint and sets
+ * `<html data-theme="light|dark">` to the *resolved* theme from `localStorage.theme`
+ * (`light | dark | system`, default `system`) and `prefers-color-scheme`.
+ *
+ * With JS off the attribute is absent and the `prefers-color-scheme` fallback in theme.css applies.
+ * Re-applied on `astro:after-swap` (ClientRouter replaces `<html>` attributes) and when the OS
+ * scheme changes while the preference is `system`.
+ *
+ * When the user overrides the OS, a single un-mediated `theme-color` meta is inserted before the
+ * two mediated ones from Seo.astro (the first matching meta wins), so the browser UI follows.
+ *
+ * `window.__theme.apply()` lets the theme toggle (task 09) re-apply after writing localStorage.
+ */
+import { themeColor } from '~/styles/palette';
+---
+
+<script is:inline define:vars={{ themeColor }}>
+  const root = document.documentElement;
+  const media = matchMedia('(prefers-color-scheme: dark)');
+
+  const stored = () => {
+    try {
+      const value = localStorage.getItem('theme');
+      return value === 'light' || value === 'dark' ? value : 'system';
+    } catch {
+      return 'system';
+    }
+  };
+
+  const apply = () => {
+    const theme = stored();
+    const resolved = theme === 'dark' || (theme === 'system' && media.matches) ? 'dark' : 'light';
+    root.dataset.theme = resolved;
+
+    let meta = document.querySelector('meta[name="theme-color"][data-override]');
+    if (theme === 'system') {
+      meta?.remove();
+      return;
+    }
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.setAttribute('data-override', '');
+      document.head.insertBefore(meta, document.querySelector('meta[name="theme-color"]'));
+    }
+    meta.content = themeColor[resolved];
+  };
+
+  apply();
+
+  if (!window.__theme) {
+    window.__theme = { apply };
+    document.addEventListener('astro:after-swap', apply);
+    media.addEventListener('change', () => {
+      if (stored() === 'system') apply();
+    });
+  }
+</script>

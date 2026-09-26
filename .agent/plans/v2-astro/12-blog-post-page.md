@@ -60,3 +60,6 @@ Render `/blog/[slug]` for every published post at build time with the new `PostL
 
 - v1 `app/blog/[...slug]/page.tsx`, `layouts/PostLayout.tsx`, `components/blog/*`, `components/ui/ScrollTopAndComment.tsx`.
 - Reference `src/pages/blog/[...slug].astro` (hta218/leohuynh.dev).
+
+
+> **Note from task 07 review:** `Seo.astro` emits `article:author` as `SITE.author` only. Add an `authors?: string[]` prop (default `[SITE.author]`, one meta per author) and pass the post authors from the post page, as v1 did.
