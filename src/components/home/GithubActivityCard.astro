@@ -1,16 +1,8 @@
 ---
 /**
- * Bento "GitHub · @Karhdo" card (mockup `.c-github`, task 20): a 46-week contribution heatmap and
- * three stats (contributions in the window, day streak, public repos) from `GET /api/github/activity`.
- *
- * Vanilla, not a React island: one fetch and a render, so the homepage ships no React for it. The
- * fetch starts when the card nears the viewport (like `client:visible`). Everything has a fixed size
- * from the first paint (heat box 7 × 11 px rows + 3 px gaps plus a reserved thin-scrollbar strip;
- * stat numbers with a fixed line height), so filling it causes no layout shift. The heatmap's
- * accessible name summarises it and the cells are decorative. With motion allowed the cells ripple
- * in column by column (`cellIn`, delay `--c × 14 ms`) and the numbers count up once; at rest (and
- * with reduced motion) everything is at its final state. On failure (no token, GitHub down) the card
- * shows a calm empty state with a link to the profile.
+ * Bento "GitHub · @Karhdo" card: contribution heatmap and stats from `GET /api/github/activity`.
+ * Vanilla (no React); the fetch starts near the viewport. The heatmap scales to the card, so filling
+ * it causes no layout shift. With motion allowed, a snake eats the contributions and loops.
  * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
  */
 import Card from '~/components/ui/Card.astro';
@@ -50,7 +42,13 @@ const stats = [
   </CardEyebrow>
   <div class="heat-wrap" data-heat-wrap>
     <CardSkeleton height={95} radius="6px" class="heat-skeleton" />
-    <div class="heat" data-heat role="img" aria-label={`Contribution heatmap for the last ${ACTIVITY_WEEKS} weeks`} hidden>
+    <div class="heat-frame" data-heat-frame style={`--weeks: ${ACTIVITY_WEEKS}`} hidden>
+      <div class="heat-months" data-heat-months aria-hidden="true"></div>
+      <div class="heat-days" aria-hidden="true">
+        <span style="grid-row: 2">Mon</span><span style="grid-row: 4">Wed</span><span style="grid-row: 6">Fri</span>
+      </div>
+      <div class="heat" data-heat role="img" aria-label={`Contribution heatmap for the last ${ACTIVITY_WEEKS} weeks`}>
+      </div>
     </div>
     <p class="heat-empty" data-heat-empty hidden>
       Activity is unavailable right now.
@@ -68,6 +66,11 @@ const stats = [
         </div>
       ))
     }
+    <div class="gh-legend" aria-hidden="true">
+      <span>Less</span>
+      {[0, 1, 2, 3, 4].map((level) => <i data-l={level} />)}
+      <span>More</span>
+    </div>
   </div>
 </Card>
 
@@ -81,46 +84,109 @@ const stats = [
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  /* Fixed height: 95 px heatmap + an 8 px strip reserved for a thin horizontal scrollbar, so the box
-     is the same size with or without the heatmap, on overlay and classic scrollbars alike. */
+  /* Size container: cells scale to the card, not the data (no layout shift). */
   .heat-wrap {
-    height: 103px;
+    flex: 1;
+    min-height: 103px;
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--line-strong) transparent;
   }
-  .heat {
+  .heat-wrap :global(.heat-skeleton) {
+    height: 100% !important;
+  }
+  .heat-frame {
+    --gap: 3px;
+    --label-w: 26px;
+    /* Largest square that fits all weeks across and 7 days down; min 9px (then it scrolls). */
+    --cell: max(
+      9px,
+      min(
+        calc((100cqw - var(--label-w) - 6px - (var(--weeks) - 1) * var(--gap)) / var(--weeks)),
+        calc((100cqh - 20px - 6 * var(--gap) - 8px) / 7)
+      )
+    );
     display: grid;
-    grid-template-rows: repeat(7, 11px);
-    grid-auto-flow: column;
-    grid-auto-columns: 11px;
-    gap: 3px;
+    grid-template-columns: var(--label-w) max-content;
+    grid-template-rows: 16px max-content;
+    column-gap: 6px;
+    row-gap: 4px;
     width: max-content;
   }
-  .heat[hidden],
+  .heat-frame[hidden],
   .heat-empty[hidden] {
     display: none;
   }
-  .heat :global(i) {
+  .heat-months {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    column-gap: var(--gap);
+  }
+  .heat-months :global(span),
+  .heat-days span {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 16px;
+    color: var(--fg-soft);
+    white-space: nowrap;
+  }
+  .heat-days {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    row-gap: var(--gap);
+    align-items: center;
+  }
+  .heat-days span {
+    line-height: 1;
+  }
+  .heat {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    grid-auto-flow: column;
+    grid-auto-columns: var(--cell);
+    gap: var(--gap);
+  }
+  .heat :global(i),
+  .gh-legend i {
     border-radius: 3px;
     background: var(--heat-0);
   }
-  .heat :global(i[data-l="1"]) {
+  .heat :global(i[data-l="1"]),
+  .gh-legend i[data-l="1"] {
     background: var(--heat-1);
   }
-  .heat :global(i[data-l="2"]) {
+  .heat :global(i[data-l="2"]),
+  .gh-legend i[data-l="2"] {
     background: var(--heat-2);
   }
-  .heat :global(i[data-l="3"]) {
+  .heat :global(i[data-l="3"]),
+  .gh-legend i[data-l="3"] {
     background: var(--heat-3);
   }
-  .heat :global(i[data-l="4"]) {
+  .heat :global(i[data-l="4"]),
+  .gh-legend i[data-l="4"] {
     background: var(--heat-4);
+  }
+  .heat :global(i[data-eaten]) {
+    background: var(--heat-0);
+  }
+  .heat :global(i[data-s]) {
+    background: color-mix(in srgb, var(--green) calc(100% - var(--k, 0) * 6%), var(--heat-0));
+  }
+  .heat :global(i[data-s="head"]) {
+    background: var(--green);
+    border-radius: 35%;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--green) 60%, transparent);
   }
   .heat-empty {
     margin: 0;
-    height: 95px;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -143,10 +209,11 @@ const stats = [
   }
   .gh-stats {
     display: flex;
+    align-items: flex-end;
     gap: 22px;
     flex-wrap: wrap;
   }
-  .gh-stats div {
+  .gh-stats > div:not(.gh-legend) {
     display: flex;
     flex-direction: column;
   }
@@ -168,7 +235,43 @@ const stats = [
     color: var(--fg-soft);
     font-family: var(--font-mono);
   }
+  .gh-legend {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    padding-bottom: 1px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-soft);
+  }
+  .gh-legend i {
+    width: 10px;
+    height: 10px;
+  }
+  .gh-legend span:first-child {
+    margin-right: 3px;
+  }
+  .gh-legend span:last-child {
+    margin-left: 3px;
+  }
+  @media (max-width: 480px) {
+    .gh-legend {
+      display: none;
+    }
+  }
   @media (prefers-reduced-motion: no-preference) {
+    .heat :global(i) {
+      transition: background-color 0.6s ease;
+    }
+    .heat :global(i[data-s]) {
+      transition: none;
+    }
+    .heat :global(i[data-eaten]) {
+      animation-name: eatPop;
+      animation-duration: 0.3s;
+      animation-delay: 0s;
+    }
     /* Longhands (see the task-12 note); cells are full size at rest. */
     .heat :global(i) {
       animation-name: cellIn;
@@ -178,13 +281,28 @@ const stats = [
       animation-delay: calc(var(--c) * 14ms);
     }
   }
+  @keyframes eatPop {
+    40% {
+      scale: 1.35;
+    }
+  }
 </style>
 
 <script>
   import type { GithubActivity } from '~/lib/github-activity';
   import { describeActivity } from '~/lib/github-activity';
   import { formatCount, observeCounts } from '~/lib/motion/count-up';
+  import { type Cell, planSnake } from '~/lib/snake';
   import { fetchJson } from '~/lib/utils/fetch-json';
+
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const STEP_MS = 85;
+  const START_DELAY_MS = 1600;
+  const REST_MS = 1800;
+  const START_LEN = 3;
+  const MAX_LEN = 6;
+
+  let stopSnake: (() => void) | undefined;
 
   /** One request per page session; view-transition revisits reuse it (the CDN caches it anyway). */
   let request: Promise<GithubActivity> | undefined;
@@ -196,19 +314,140 @@ const stats = [
     return request;
   };
 
-  function renderHeat(heat: HTMLElement, activity: GithubActivity) {
+  function renderHeat(frame: HTMLElement, heat: HTMLElement, months: HTMLElement, activity: GithubActivity) {
+    const grid: HTMLElement[][] = [];
     const fragment = document.createDocumentFragment();
+    const labels = document.createDocumentFragment();
+    let lastMonth = -1;
     activity.weeks.forEach((week, column) => {
+      const cells: HTMLElement[] = [];
       for (const day of week.days) {
         const cell = document.createElement('i');
         cell.style.setProperty('--c', String(column));
         cell.dataset.l = String(day.level);
         cell.title = `${day.count.toLocaleString('en-US')} contribution${day.count === 1 ? '' : 's'} on ${day.date}`;
         fragment.append(cell);
+        cells.push(cell);
+      }
+      grid.push(cells);
+      // Label each month's first week, skipping labels that would crowd the edges.
+      const firstDate = week.days[0]?.date ?? '';
+      const month = Number(firstDate.slice(5, 7)) - 1;
+      if (month !== lastMonth && month >= 0 && column <= activity.weeks.length - 3) {
+        if (lastMonth !== -1 || firstDate.slice(8, 10) <= '07') {
+          const label = Object.assign(document.createElement('span'), { textContent: MONTHS[month] ?? '' });
+          label.style.gridColumn = `${column + 1} / span 3`;
+          labels.append(label);
+        }
+        lastMonth = month;
       }
     });
+    frame.style.setProperty('--weeks', String(activity.weeks.length));
     heat.replaceChildren(fragment);
+    months.replaceChildren(labels);
     heat.setAttribute('aria-label', describeActivity(activity, activity.weeks.length));
+    return grid;
+  }
+
+  /** Pauses while hovered, off-screen or in a hidden tab; restarts once the board is clear. */
+  function runSnake(wrap: HTMLElement, heat: HTMLElement, grid: HTMLElement[][], activity: GithubActivity) {
+    stopSnake?.();
+    const levels = activity.weeks.map((week) => week.days.map((day) => day.level));
+    const start: Cell = { c: 0, r: 0 };
+    const path = [start, ...planSnake(levels, start)];
+    if (path.length < 2) return;
+    const at = ({ c, r }: Cell) => grid[c]?.[r];
+
+    let step = 0;
+    let length = START_LEN;
+    let drawn: HTMLElement[] = [];
+    const eaten: HTMLElement[] = [];
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let visible = false;
+    let hovered = false;
+    let stopped = false;
+
+    const clearSnake = () => {
+      for (const cell of drawn) {
+        delete cell.dataset.s;
+        cell.style.removeProperty('--k');
+      }
+      drawn = [];
+    };
+    const draw = () => {
+      clearSnake();
+      for (let k = 0; k < length && step - k >= 0; k++) {
+        const cell = at(path[step - k] as Cell);
+        if (!cell) continue;
+        cell.dataset.s = k === 0 ? 'head' : 'body';
+        cell.style.setProperty('--k', String(k));
+        drawn.push(cell);
+      }
+    };
+    const reset = () => {
+      clearSnake();
+      for (const cell of eaten.splice(0)) delete cell.dataset.eaten;
+      step = 0;
+      length = START_LEN;
+    };
+    const tick = () => {
+      timer = undefined;
+      if (stopped || !visible || hovered || document.hidden) return;
+      step += 1;
+      if (step >= path.length) {
+        clearSnake();
+        timer = setTimeout(() => {
+          reset();
+          schedule(START_DELAY_MS);
+        }, REST_MS);
+        return;
+      }
+      const head = at(path[step] as Cell);
+      if (head && head.dataset.l !== '0' && head.dataset.eaten === undefined) {
+        head.dataset.eaten = 'true';
+        eaten.push(head);
+        length = Math.min(MAX_LEN, length + 1);
+      }
+      draw();
+      schedule(STEP_MS);
+    };
+    const schedule = (ms: number) => {
+      if (timer === undefined && !stopped) timer = setTimeout(tick, ms);
+    };
+    const resume = () => schedule(STEP_MS);
+
+    const observer = new IntersectionObserver((entries) => {
+      visible = entries.some((entry) => entry.isIntersecting);
+      if (visible) resume();
+    });
+    observer.observe(wrap);
+    const onEnter = () => {
+      hovered = true;
+    };
+    const onLeave = () => {
+      hovered = false;
+      resume();
+    };
+    const onVisibility = () => {
+      if (!document.hidden) resume();
+    };
+    heat.addEventListener('pointerenter', onEnter);
+    heat.addEventListener('pointerleave', onLeave);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    stopSnake = () => {
+      stopped = true;
+      clearTimeout(timer);
+      observer.disconnect();
+      heat.removeEventListener('pointerenter', onEnter);
+      heat.removeEventListener('pointerleave', onLeave);
+      document.removeEventListener('visibilitychange', onVisibility);
+      stopSnake = undefined;
+    };
+    timer = setTimeout(() => {
+      timer = undefined;
+      resume();
+    }, START_DELAY_MS);
   }
 
   function renderStats(card: HTMLElement, activity: GithubActivity | null) {
@@ -231,10 +470,12 @@ const stats = [
 
   async function fill(card: HTMLElement) {
     const wrap = card.querySelector<HTMLElement>('[data-heat-wrap]');
+    const frame = card.querySelector<HTMLElement>('[data-heat-frame]');
     const heat = card.querySelector<HTMLElement>('[data-heat]');
+    const months = card.querySelector<HTMLElement>('[data-heat-months]');
     const empty = card.querySelector<HTMLElement>('[data-heat-empty]');
     const skeleton = card.querySelector<HTMLElement>('.heat-skeleton');
-    if (!wrap || !heat || !empty) return;
+    if (!wrap || !frame || !heat || !months || !empty) return;
     let activity: GithubActivity | null = null;
     try {
       activity = await load();
@@ -244,10 +485,13 @@ const stats = [
     if (!card.isConnected) return;
     skeleton?.remove();
     if (activity) {
-      renderHeat(heat, activity);
-      heat.hidden = false;
+      const grid = renderHeat(frame, heat, months, activity);
+      frame.hidden = false;
       // Most recent weeks first when the heatmap is wider than the card.
       wrap.scrollLeft = wrap.scrollWidth;
+      if (matchMedia('(prefers-reduced-motion: no-preference)').matches && typeof IntersectionObserver !== 'undefined') {
+        runSnake(wrap, heat, grid, activity);
+      }
     } else {
       empty.hidden = false;
     }
@@ -276,4 +520,5 @@ const stats = [
   }
 
   document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => stopSnake?.());
 </script>
