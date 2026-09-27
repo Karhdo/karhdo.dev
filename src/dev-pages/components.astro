@@ -7,8 +7,6 @@ import '~/styles/global.css';
 import BrandIcon, { BRAND_ICONS, type BrandIconName } from '~/components/ui/BrandIcon.astro';
 import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
-import Container from '~/components/ui/Container.astro';
-import GrowingUnderline from '~/components/ui/GrowingUnderline.astro';
 import Icon, { type IconName, ICONS as LUCIDE_ICONS } from '~/components/ui/Icon.astro';
 import Link from '~/components/ui/Link.astro';
 import PageTitle from '~/components/ui/PageTitle.astro';
@@ -57,7 +55,7 @@ const TONE: Record<(typeof STACK_SLUGS)[number], string> = {
     </script>
   </head>
   <body class="pb-24">
-    <Container as="main" class="flex flex-col gap-12 pt-8">
+    <main class="mx-auto flex w-full max-w-[1080px] flex-col gap-12 px-4 pt-8 sm:px-6">
       <header class="glass sticky top-3 z-10 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <h1 class="font-bold text-xl">UI primitives</h1>
         <div class="flex items-center gap-2 font-mono text-sm" role="group" aria-label="Theme">
@@ -110,11 +108,6 @@ const TONE: Record<(typeof STACK_SLUGS)[number], string> = {
           <li><Link href="https://github.com/Karhdo" class="text-blue" data-umami-event="dev-github">External github.com</Link> (new tab, data-umami-event)</li>
           <li><Link href="mailto:hello@example.com" class="text-blue">mailto:</Link> (new tab)</li>
         </ul>
-        <p class="text-lg">
-          <GrowingUnderline>Growing underline (hover)</GrowingUnderline> ·
-          <GrowingUnderline active>active</GrowingUnderline> ·
-          <GrowingUnderline as="a" duration={600} class="text-fg no-underline">as a, 600ms</GrowingUnderline>
-        </p>
         <PageTitle>PageTitle h1</PageTitle>
       </section>
 
@@ -192,7 +185,7 @@ const TONE: Record<(typeof STACK_SLUGS)[number], string> = {
           <Twemoji emoji="flag-vietnam" className="mx-2" /> · unknown: [<Twemoji emoji="not-an-emoji" />]
         </p>
       </section>
-    </Container>
+    </main>
 
     <script>
       for (const button of document.querySelectorAll<HTMLButtonElement>('[data-set-theme]')) {
