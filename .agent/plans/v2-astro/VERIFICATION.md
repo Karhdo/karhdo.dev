@@ -291,3 +291,8 @@ Follow `db/manual-migrations/README.md`, with `POSTGRES_URL_DIRECT` set explicit
 2. On the `v1` branch, update `siteUrl` in `data/siteMetadata.js` to `https://v1.karhdo.dev` (canonical, sitemap, feed), and optionally add a switcher back to karhdo.dev.
 3. Check that the footer version switcher's v1 link now resolves.
 
+## Launch (2026-09-27)
+
+- PR #58 merged into `main` (merge commit `5890715`); karhdo.dev serves v2. `ENABLE_EXPERIMENTAL_COREPACK` removed from all `karhdo-blog` environments first. `verify-urls.ts` against production: 58/58.
+- v1.karhdo.dev: a `v1`-branch domain on `karhdo-blog` hit Vercel Authentication (Standard Protection only exempts *production* custom domains), so v1 moved to its own project `karhdo-blog-v1` (unprotected, not Git-linked because the Vercel GitHub app can't see the repo for new links; deployed with `vercel deploy --prod` from `v1` at `dd98666`, `siteUrl` = https://v1.karhdo.dev). Env copied from `env/v1/.env.production.local` with the new Spotify values.
+

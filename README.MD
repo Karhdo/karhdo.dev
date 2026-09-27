@@ -170,7 +170,16 @@ Postgres on Neon. The app connects through the `-pooler` host (PgBouncer, transa
 
 ## Deployment (Vercel)
 
-Git pushes deploy through Vercel. Project settings:
+Two Vercel projects:
+
+| Site | Project | Source | Deploys |
+| --- | --- | --- | --- |
+| [karhdo.dev](https://karhdo.dev) (v2) | `karhdo-blog` | `main` (production), other branches (previews) | Git pushes |
+| [v1.karhdo.dev](https://v1.karhdo.dev) (v1) | `karhdo-blog-v1` | the `v1` branch, not Git-linked | by hand: from a `v1` checkout, `vercel link --project karhdo-blog-v1`, then `vercel deploy --prod` |
+
+v1 is a frozen archive with its own env (Next.js/pnpm, `ENABLE_EXPERIMENTAL_COREPACK=1`, which must never be set on `karhdo-blog`: Corepack rejects Bun). Both sites read and write the same `stats` table.
+
+`karhdo-blog` settings:
 
 - Framework preset **Astro**, install `bun install --frozen-lockfile`, build `bun run build` (also in [`vercel.json`](vercel.json)).
 - **Node.js 24.x** for Functions. Don't set `bunVersion` in `vercel.json`: that moves Functions onto the Bun runtime.
