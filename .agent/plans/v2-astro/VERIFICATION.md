@@ -234,6 +234,8 @@ Do these in order. Every command is read-only unless marked otherwise.
 5. Local only: your `.env` has `NEXT_PUBLIC_GISCUS_REPOSITORY_ID==…` (two `=`), so locally the value starts with `=`. Fix it to a single `=`. Also check that the Vercel value has no leading `=`.
 6. Redeploy the preview after any env change.
 
+> **Vercel env, 2026-09-27:** `TOKEN_BURN_SUMMARY_URL` added (all environments); the three `SPOTIFY_*` values updated to the new app; `ENABLE_EXPERIMENTAL_COREPACK` removed from Preview and Development (Corepack rejects `bun`, so every v2 build failed). **At the v2 cutover, also remove it from Production**, or the production build fails the same way.
+
 ### 3. Spotify token
 
 > **2026-09-27:** the token endpoint returns `invalid_client`, so the client ID/secret pair itself is rejected (secret rotated or app deleted), not just the refresh token. Update `SPOTIFY_CLIENT_SECRET` from the Spotify dashboard (or create a new app + refresh token), then Production + Preview.
