@@ -13,7 +13,7 @@ The files here are hand-written, additive-only SQL, reviewed in a PR and run by 
 
 `0001` reuses the existing `"StatsType"` enum (no enum change), adds no foreign key and does not touch `stats`,
 so writes to `stats` are never blocked. It is idempotent (`IF NOT EXISTS`) and runs in one transaction.
-There is no backfill: daily history starts on the day the migration runs.
+History was backfilled from Umami on 2026-09-27 with `scripts/backfill-stats-daily.ts` (1,587 rows, 2023-12-22 → 2026-09-26; Umami page views, so lower than the `stats` counter). Undo: `DELETE FROM stats_daily WHERE date < '2026-09-27';`
 
 ## Running a migration
 
