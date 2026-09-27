@@ -38,7 +38,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
           href={href}
           class="mobile-link"
           data-nav-link
-          data-umami-event={`mobile-nav-${href.slice(1)}`}
+          data-track={`mobile-nav-${href.slice(1)}`}
           aria-current={isActive(href) ? 'page' : undefined}
         >
           {title}

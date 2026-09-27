@@ -21,7 +21,7 @@ const chars = [...NAME].map((ch) => ({ ch, tld: false })).concat([...TLD].map((c
   href="/"
   aria-label="karhdo.dev, home"
   data-wm={placement}
-  data-umami-event={`${placement}-logo`}
+  data-track={`${placement}-logo`}
 >
   <span class="wm" aria-hidden="true">
     {chars.map(({ ch, tld }, i) => <span class:list={['ch', { tld }]} style={`--i:${i}`}>{ch}</span>)}

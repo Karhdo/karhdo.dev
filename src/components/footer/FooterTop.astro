@@ -28,7 +28,7 @@ const slug = (title: string) => title.toLowerCase().replace(/\s+/g, '-');
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-umami-event={`footer-${slug(title)}`}
+                data-track={`footer-${slug(title)}`}
               >
                 {title}
               </a>

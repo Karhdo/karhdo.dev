@@ -19,7 +19,7 @@ const card =
     (prev || next) && (
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         {prev ? (
-          <a href={postUrl(prev)} rel="prev" class={card} data-umami-event="post-nav-prev">
+          <a href={postUrl(prev)} rel="prev" class={card} data-track="post-nav-prev">
             <span class="font-mono text-[12.5px] text-fg-soft">← Previous post</span>
             <span class="font-medium text-fg leading-snug transition-colors group-hover:text-blue">{prev.data.title}</span>
           </a>
@@ -27,7 +27,7 @@ const card =
           <div class="hidden md:block" />
         )}
         {next && (
-          <a href={postUrl(next)} rel="next" class:list={[card, 'md:items-end md:text-right']} data-umami-event="post-nav-next">
+          <a href={postUrl(next)} rel="next" class:list={[card, 'md:items-end md:text-right']} data-track="post-nav-next">
             <span class="font-mono text-[12.5px] text-fg-soft">Next post →</span>
             <span class="font-medium text-fg leading-snug transition-colors group-hover:text-blue">{next.data.title}</span>
           </a>

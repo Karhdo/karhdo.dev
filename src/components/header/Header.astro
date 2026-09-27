@@ -27,7 +27,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
             class="nav-link"
             data-nav-link
             data-nav-pill
-            data-umami-event={`nav-${href.slice(1)}`}
+            data-track={`nav-${href.slice(1)}`}
             aria-current={isActive(href) ? 'page' : undefined}
             style={isActive(href) ? 'view-transition-name: nav-pill' : undefined}
           >
