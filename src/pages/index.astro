@@ -42,8 +42,11 @@ const siteRepo = SITE.siteRepo.replace('https://github.com/', '');
       aria-label="Introduction and live widgets"
     >
       <IntroCard class="md:col-span-2 lg:col-span-4 lg:row-span-2 rise" style="--i: 0" />
-      <SpotifyCard class="md:col-span-1 lg:col-span-2 rise" style="--i: 1" />
-      <TokenBurnCard class="md:col-span-1 lg:col-span-2 rise" style="--i: 2" />
+      {/* Right column: Now playing at its own height, Token burn takes the rest of the intro's height. */}
+      <div class="grid gap-3.5 md:col-span-2 md:grid-cols-2 lg:col-span-2 lg:row-span-2 lg:grid-cols-1 lg:grid-rows-[auto_1fr]">
+        <SpotifyCard class="rise" style="--i: 1" />
+        <TokenBurnCard class="rise" style="--i: 2" />
+      </div>
       {latest && <LatestPostCard post={latest} class="md:col-span-2 lg:col-span-4 rise" style="--i: 3" />}
       <DailyStackCard class="md:col-span-2 lg:col-span-2 rise" style="--i: 4" />
       <GithubActivityCard class="md:col-span-2 lg:col-span-4 rise" style="--i: 5" />

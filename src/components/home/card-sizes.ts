@@ -4,8 +4,8 @@
  * task (19, 20, 30, 31) fills it without layout shift. Keep the value when filling a card.
  */
 export const CARD_MIN_HEIGHT = {
-  spotify: 170,
-  tokenBurn: 249,
+  spotify: 140,
+  tokenBurn: 240,
   github: 238,
-  blogStats: 308,
+  blogStats: 281,
 } as const;

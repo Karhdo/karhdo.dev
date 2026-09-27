@@ -44,11 +44,8 @@ const { class: className, style } = Astro.props;
       <div class="flex flex-1 flex-col gap-2">
         <CardSkeleton height={14} width="70%" />
         <CardSkeleton height={12} width="50%" />
+        <CardSkeleton height={4} radius="4px" />
       </div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <CardSkeleton height={4} radius="4px" />
-      <CardSkeleton height={11} width="100%" class="opacity-50" />
     </div>
   </div>
 
@@ -76,16 +73,16 @@ const { class: className, style } = Astro.props;
         {/* A `<span>` until there is a song URL; the script swaps in an `<a>` (never an `<a>` without `href`). */}
         <span class="truncate font-semibold text-fg leading-[1.25] no-underline" data-sp-title></span>
         <p class="m-0 truncate text-fg-soft text-sm" data-sp-sub></p>
+        <div class="mt-1.5" data-sp-progress>
+          <div class="h-1 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
+            <span class="sp-bar block h-full rounded-[4px] bg-spotify" data-sp-bar></span>
+          </div>
+          <p class="m-0 mt-0.5 flex justify-between font-mono text-[11px] text-fg-soft tabular-nums">
+            <span><span class="sr-only">Elapsed </span><span data-sp-pos>0:00</span></span>
+            <span><span class="sr-only">of </span><span data-sp-dur>0:00</span></span>
+          </p>
+        </div>
       </div>
-    </div>
-    <div data-sp-progress>
-      <div class="h-1 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
-        <span class="sp-bar block h-full rounded-[4px] bg-spotify" data-sp-bar></span>
-      </div>
-      <p class="m-0 mt-1 flex justify-between font-mono text-[11px] text-fg-soft tabular-nums">
-        <span><span class="sr-only">Elapsed </span><span data-sp-pos>0:00</span></span>
-        <span><span class="sr-only">of </span><span data-sp-dur>0:00</span></span>
-      </p>
     </div>
   </div>
 </Card>

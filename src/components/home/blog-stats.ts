@@ -1,10 +1,10 @@
 /**
  * Blog stats card script (task 30, bundled; no React). Fetches `GET /api/stats/summary` once when the
  * card nears the viewport and replaces the server-rendered skeleton with the same fixed-height rows
- * (views head 34, chart 70, bar 6, legend 20, most read 48), so no state shifts the layout.
+ * (views head 34, chart 56, bar 6, legend 20, most read 48), so no state shifts the layout.
  *
  * The chart is drawn at its measured pixel width (and updated in place on resize) instead of a
- * stretched `viewBox="0 0 300 70"` + `preserveAspectRatio="none"`: Chrome applies the dashes of a
+ * stretched `viewBox="0 0 300 56"` + `preserveAspectRatio="none"`: Chrome applies the dashes of a
  * `non-scaling-stroke` line in screen space, so a user-space `--len` stopped the draw-in short, and a
  * stretched circle turns into an ellipse. Unscaled, `--len` is exact and the dot stays round.
  */
@@ -20,7 +20,7 @@ import {
   unavailableSummary,
 } from '~/lib/stats/summary';
 
-const CHART_HEIGHT = 70;
+const CHART_HEIGHT = 56;
 const CACHE_MS = 5 * 60_000;
 
 const BAR_COLOR = { loves: 'var(--red)', applauses: 'var(--orange)', ideas: 'var(--cyan)', bullseye: 'var(--green)' };

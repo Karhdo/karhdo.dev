@@ -29,7 +29,7 @@ const rows = [
 const label = `Technologies I use: ${stack.map((tool) => tool.name).join(', ')}`;
 ---
 
-<Card class={cn('c-stack flex flex-col gap-3.5', className)} style={style} data-tilt>
+<Card class={cn('c-stack flex flex-col gap-3', className)} style={style} data-tilt>
   <CardEyebrow>Daily stack<Fragment slot="end">{stack.length} tools</Fragment></CardEyebrow>
   <div class="marquee" role="group" aria-label={label}>
     {
