@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "source": "claude-code",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "lastActivity": "2026-09-27",
+  "machines": ["macbook"],
+  "allTime": { "tokens": 1600, "cost": 16.5 },
+  "byModel": {},
+  "daily": [
+    { "date": "2026-08-31", "tokens": 500, "cost": 5, "byModel": { "claude-opus-5": { "tokens": 500, "cost": 5 } } },
+    {
+      "date": "2026-09-01",
+      "tokens": 300,
+      "cost": 3,
+      "byModel": {
+        "claude-opus-5-5": { "tokens": 200, "cost": 2 },
+        "claude-haiku-4-5-20251001": { "tokens": 100, "cost": 1 }
+      }
+    },
+    {
+      "date": "2026-09-20",
+      "tokens": 200,
+      "cost": 2.25,
+      "byModel": { "claude-sonnet-5": { "tokens": 150, "cost": 2 }, "claude-fable-5-1": { "tokens": 50, "cost": 0.25 } }
+    },
+    {
+      "date": "2026-09-27",
+      "tokens": 600,
+      "cost": 6.254,
+      "byModel": { "claude-opus-5-5": { "tokens": 600, "cost": 6.254 } }
+    }
+  ]
+}

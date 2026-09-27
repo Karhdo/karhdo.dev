@@ -230,7 +230,7 @@ Do these in order. Every command is read-only unless marked otherwise.
 1. Settings → General: Framework **Astro**, Install `bun install --frozen-lockfile`, Build `bun run build` (both also in `vercel.json`), **Node.js 24.x**. No `bunVersion`.
 2. "Automatically expose System Environment Variables": **on** (`VERCEL_GIT_COMMIT_SHA`, `VERCEL_GIT_COMMIT_REF`, `VERCEL_URL`, `VERCEL_BRANCH_URL`).
 3. Env vars: confirm these exist for **Production and Preview** (names unchanged from v1): `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. `UMAMI_SHARE_URL` is unused and can be deleted later.
-4. Add **`ANTHROPIC_ADMIN_API_KEY`** (`sk-ant-admin…`, ideally from a dedicated Anthropic org): **Production only**, never Preview or Development, marked **Sensitive**.
+4. Add **`TOKEN_BURN_SUMMARY_URL`** (`https://api.github.com/repos/Karhdo/token-burn/contents/public/summary.json`) for Production and Preview; `GITHUB_API_TOKEN` must be able to read that private repo. *(Replaces the removed `ANTHROPIC_ADMIN_API_KEY`.)*
 5. Local only: your `.env` has `NEXT_PUBLIC_GISCUS_REPOSITORY_ID==…` (two `=`), so locally the value starts with `=`. Fix it to a single `=`. Also check that the Vercel value has no leading `=`.
 6. Redeploy the preview after any env change.
 
@@ -258,7 +258,7 @@ Follow `db/manual-migrations/README.md`, with `POSTGRES_URL_DIRECT` set explicit
 2. **Headers:** `curl -sI $P/ $P/blog/exploring-module-in-nestjs $P/api/spotify $P/static/resume.pdf`: all 7 headers on each (CSP, Referrer-Policy, X-Frame-Options, X-Content-Type-Options, X-DNS-Prefetch-Control, HSTS, Permissions-Policy). `curl -sI $P/sitemap.xml` → 308 to `/sitemap-index.xml`; `curl -sI $P/blog/page/1` → 308 to `/blog`; `curl -s $P/stats/script.js | head -c 100` is JavaScript.
 3. **Giscus CORS:** `curl -sI -H "Origin: https://giscus.app" $P/static/giscus/tokyonight-day.css`: exactly **one** `access-control-allow-origin`, `content-type: text/css`.
 4. **CDN cache:** run `curl -sI $P/api/spotify` twice within 30 s: the second has `x-vercel-cache: HIT` and `age` > 0, and the browser `cache-control` is `public, max-age=0, must-revalidate` with no `s-maxage`. Do the same for `/api/github?repo=Karhdo/karhdo.dev`, `/api/github/activity`, `/api/stats/summary`, `/api/token-burn` and `/projects`.
-5. **Token burn on preview:** `curl -s $P/api/token-burn` → 200 `{"available":false,…}` (the key is Production-only).
+5. **Token burn on preview:** `curl -s $P/api/token-burn` → 200 `{"available":true,…}` with today's Claude Code tokens.
 6. **CSP + console:** open DevTools → Console and browse `/` → `/blog` (a ClientRouter navigation) → a post (scroll to Giscus, click a reaction) → `/tags` → `/projects` → `/career` → `/about`, open ⌘K and search, toggle the theme: **0 CSP violations** (Giscus, Umami, Pagefind WASM, Spotify art).
 7. **Giscus:** the comments iframe loads with the Tokyonight theme and follows the theme toggle.
 8. **Stats:** viewing a post increments `views` (`GET /api/stats?...` before/after), and today's UTC `stats_daily` row increments: `SELECT * FROM stats_daily WHERE date = (now() at time zone 'utc')::date;`.
@@ -278,7 +278,7 @@ Follow `db/manual-migrations/README.md`, with `POSTGRES_URL_DIRECT` set explicit
 
 1. Merge PR `v2 → main` (Git deploy, so the platform merges `vercel.json`; **never** `astro build` + `vercel deploy --prebuilt` without `vercel build`).
 2. `bun scripts/verify-urls.ts https://karhdo.dev`.
-3. `curl -s https://karhdo.dev/api/token-burn` → `"available": true`; numbers match the Anthropic Console Usage/Cost pages for the same UTC days.
+3. `curl -s https://karhdo.dev/api/token-burn` → `"available": true`; numbers match `public/summary.json` in `Karhdo/token-burn` for the same ICT days.
 4. Repeat the 7-header curl and the `stats` count query (only increases).
 5. Footer shows `main`, the right sha and stars.
 6. Submit `https://karhdo.dev/sitemap-index.xml` in Google Search Console (the old `/sitemap.xml` redirects).

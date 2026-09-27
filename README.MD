@@ -33,7 +33,7 @@ v2 is a rebuild of the v1 Next.js site, which lives on the [`v1`](https://github
 
 ## Features
 
-- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (Anthropic API usage), Daily stack marquee, selected projects, popular tags.
+- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (personal Claude Code usage), Daily stack marquee, selected projects, popular tags.
 - `/about`: a `whoami` terminal card (live local time and uptime) above the author story.
 - `/career`: stats, a year ruler, the career as a `git log --graph` with role chapters and per-role stack diffs.
 - Site-wide snowfall (`react-snowfall`, persists across page navigations, off under reduced motion) over a frost-tinted tilted grid.
@@ -100,7 +100,7 @@ Then put the same `POSTGRES_URL` in `.env`. SSL is turned off automatically for 
     ├── components/           # by feature: home, blog, header, footer, search, seo, ui, mdx, islands …
     ├── content/              # blog/*.mdx, authors/*.mdx (content.config.ts defines the collections)
     ├── config/               # site.ts, navigation, projects, experiences, popular tags
-    ├── lib/                  # pure, tested logic + services (db, stats, spotify, github, anthropic usage, og, seo)
+    ├── lib/                  # pure, tested logic + services (db, stats, spotify, github, token burn, og, seo)
     ├── plugins/              # remark/rehype and Expressive Code plugins
     ├── styles/               # theme.css (the only colour tokens), global, prose, animations, callouts
     ├── integrations/         # dev-pages.ts: injects /dev/* under `astro dev` only
@@ -119,7 +119,7 @@ All variables are declared in the `astro:env` schema (`astro.config.mjs`) and ar
 | `SPOTIFY_CLIENT_SECRET`            | server secret | Production, Preview          | Now playing                                                          |
 | `SPOTIFY_REFRESH_TOKEN`            | server secret | Production, Preview          | Now playing ([regenerate](#regenerating-the-spotify-refresh-token))  |
 | `BUTTONDOWN_API_KEY`               | server secret | Production, Preview          | Newsletter signup. Read at build too: adding it later needs a redeploy |
-| `ANTHROPIC_ADMIN_API_KEY`          | server secret | **Production only**          | Token burn card ([rotation](#rotating-the-anthropic-admin-key))     |
+| `TOKEN_BURN_SUMMARY_URL`           | server secret | Production, Preview          | Token burn card ([setup](#token-burn-claude-code-usage))              |
 | `NEXT_PUBLIC_GISCUS_REPO`          | server public | Production, Preview          | Giscus comments                                                      |
 | `NEXT_PUBLIC_GISCUS_REPOSITORY_ID` | server public | Production, Preview          | Giscus comments                                                      |
 | `NEXT_PUBLIC_GISCUS_CATEGORY`      | server public | Production, Preview          | Giscus comments                                                      |
@@ -128,21 +128,13 @@ All variables are declared in the `astro:env` schema (`astro.config.mjs`) and ar
 
 The `NEXT_PUBLIC_` prefix is kept only to avoid renaming Vercel variables. These values are read on the server and rendered into pages; no variable uses `context: 'client'`. `POSTGRES_URL_DIRECT` (the Neon direct host) is a local-only tooling variable for `bun run db:pull` and manual migrations; the app never reads it. Vercel's system variables (`VERCEL_GIT_COMMIT_SHA`, `VERCEL_GIT_COMMIT_REF`, `VERCEL_URL`, `VERCEL_BRANCH_URL`) must stay exposed.
 
-### Rotating the Anthropic Admin key
+### Token burn (Claude Code usage)
 
-The Token burn card reads the Anthropic [Usage & Cost Admin API](https://docs.anthropic.com/en/api/usage-cost-api) with an org **Admin** key (`sk-ant-admin…`).
+The card shows personal Claude Code usage, collected by the private repo [`Karhdo/token-burn`](https://github.com/Karhdo/token-burn): an hourly launchd job runs [ccusage](https://github.com/ryoppippi/ccusage) on the Mac and pushes `public/summary.json` (totals only, days in `Asia/Ho_Chi_Minh`). The site reads that file server-side with `GITHUB_API_TOKEN`, which needs read access to the repo.
 
-- Set `ANTHROPIC_ADMIN_API_KEY` in Vercel for **Production only**, marked Sensitive. Never add it to Preview or Development: an Admin key can manage the whole organization. Previews show the card's empty state; that's expected.
-- Prefer a **dedicated Anthropic organization** that holds only the usage this card should show, so a leaked key can't reach anything else.
-- The API reports **API-key usage only** (Claude Pro/Max subscription usage, including subscription Claude Code, isn't included). Days are **UTC**, cost excludes Priority Tier, and data lags about 5 minutes plus a 15-minute CDN cache.
-
-To rotate:
-
-1. Create a new Admin key in the Anthropic Console (Settings → Admin keys) of the same organization.
-2. Update `ANTHROPIC_ADMIN_API_KEY` in Vercel → Settings → Environment Variables, **Production** only.
-3. Redeploy production (env changes apply to new deployments only).
-4. Revoke the old key in the Console.
-5. Verify: `curl -s https://karhdo.dev/api/token-burn` returns `"available": true`.
+- `TOKEN_BURN_SUMMARY_URL=https://api.github.com/repos/Karhdo/token-burn/contents/public/summary.json`
+- Cost is an estimate at API prices (subscription usage isn't billed per token).
+- Verify: `curl -s https://karhdo.dev/api/token-burn` returns `"available": true`.
 
 ### Regenerating the Spotify refresh token
 

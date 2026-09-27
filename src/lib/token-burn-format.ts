@@ -1,5 +1,5 @@
 /**
- * Client-safe formatting for the Token burn card (task 31). Kept apart from `anthropic-usage.ts` so the
+ * Client-safe formatting for the Token burn card, kept apart from `token-burn.ts` so the
  * card's bundled script imports only these few functions, never the fetch/aggregation code.
  */
 

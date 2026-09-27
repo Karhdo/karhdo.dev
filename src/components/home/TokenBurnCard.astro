@@ -1,14 +1,8 @@
 ---
 /**
- * Bento "Token burn" card (mockup `.c-burn`, task 31). A plain module script (no React): once the card
- * scrolls into view it fetches `GET /api/token-burn` (Anthropic Usage & Cost Admin API, aggregated on the
- * server; the Admin key never reaches the browser) and fills tokens today + cost, 14 UTC day bars (today
- * highlighted), the month-to-date cache/input/output split and the month total.
- *
- * Loading, filled and empty (`available: false`) states share one fixed layout: every row has a fixed
- * height and the 14 bars and 3 split segments are always rendered, so nothing shifts. The flame flickers,
- * and the bars and split grow in, only with motion allowed and only once data is shown.
- * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
+ * Bento "Token burn" card: personal Claude Code usage (via `GET /api/token-burn`). Tokens today + cost,
+ * 14 daily bars (ICT), the month's model split, and month / all-time totals. Loading, filled and empty
+ * states share one fixed layout, so nothing shifts. The grid span, `.rise` and `--i` come from `index.astro`.
  */
 import { Flame } from '@lucide/astro';
 import Card from '~/components/ui/Card.astro';
@@ -25,15 +19,12 @@ interface Props {
 const { class: className, style } = Astro.props;
 
 const BARS = 14;
-const SPLIT = [
-  { key: 'cache', color: 'var(--blue)' },
-  { key: 'input', color: 'var(--purple)' },
-  { key: 'output', color: 'var(--orange)' },
-] as const;
+/** Model slots by rank: top 3 (named in the legend) + other (bar only). */
+const SLOTS = ['var(--orange)', 'var(--purple)', 'var(--blue)', 'var(--muted)'];
 ---
 
 <Card
-  class={cn('burn flex flex-col gap-3', className)}
+  class={cn('burn flex flex-col justify-between gap-3', className)}
   style={`min-height: ${CARD_MIN_HEIGHT.tokenBurn}px; ${style ?? ''}`}
   data-tilt
   data-token-burn
@@ -43,7 +34,7 @@ const SPLIT = [
   <CardEyebrow>
     <Flame class="flame loop-anim shrink-0" size={14} aria-hidden="true" />
     Token burn
-    <Fragment slot="end">API usage · UTC</Fragment>
+    <Fragment slot="end">Claude Code · ICT</Fragment>
   </CardEyebrow>
 
   <div class="burn-top">
@@ -55,29 +46,29 @@ const SPLIT = [
     <span class="burn-cost" data-burn-cost><CardSkeleton height={16} width="40px" class="inline-block align-middle" /></span>
   </div>
 
-  <div class="burn-bars" role="img" aria-label="Tokens per day over the last 14 days, UTC: loading" data-burn-bars>
+  <div class="burn-bars" role="img" aria-label="Claude Code tokens per day over the last 14 days: loading" data-burn-bars>
     {Array.from({ length: BARS }, (_, i) => <i class:list={[i === BARS - 1 && 'today']} style={`--i: ${i}`} />)}
   </div>
 
   <div class="burn-split" aria-hidden="true" data-burn-split>
-    {SPLIT.map(({ key, color }) => <span data-part={key} style={`--c: ${color}; --w: 0%`} />)}
+    {SLOTS.map((color, i) => <span data-slot={i} style={`--c: ${color}; --w: 0%`} />)}
   </div>
 
   <div class="burn-row">
     <p class="burn-legend" data-burn-legend>
       {
-        SPLIT.map(({ key, color }) => (
-          <span>
+        SLOTS.slice(0, 3).map((color, i) => (
+          <span data-slot={i} hidden={i > 0}>
             <i style={`--c: ${color}`} />
-            {key} <span data-burn-pct={key}>–</span>
+            <span data-name>{i === 0 ? 'models' : ''}</span> <span data-pct>–</span>
           </span>
         ))
       }
     </p>
-    <p class="burn-empty" data-burn-empty hidden>No API usage data</p>
+    <p class="burn-empty" data-burn-empty hidden>No Claude Code usage yet</p>
   </div>
 
-  <p class="burn-foot"><span data-burn-month>–</span> this month</p>
+  <p class="burn-foot"><span data-burn-month>–</span> this month · <span data-burn-alltime>–</span> all-time</p>
 </Card>
 
 <script>
@@ -132,11 +123,14 @@ const SPLIT = [
     font-variant-numeric: tabular-nums;
   }
 
+  /* 46 px, growing to at most 64 px in a taller card; any extra height goes between the rows. */
   .burn-bars {
     display: flex;
+    flex: 1 1 46px;
     align-items: flex-end;
     gap: 4px;
-    height: 46px;
+    min-height: 46px;
+    max-height: 64px;
   }
 
   /* `--h` = share of the busiest day (at least a 3 px stub) inside the fixed 46 px row; the `barUp`
@@ -186,7 +180,11 @@ const SPLIT = [
 
   .burn-legend {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .burn-legend > span[hidden] {
+    display: none;
   }
 
   .burn-legend > span {

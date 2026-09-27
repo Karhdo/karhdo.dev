@@ -1,26 +1,18 @@
 /**
- * `GET /api/token-burn` (task 31): Anthropic Usage & Cost Admin API → Token burn card. On demand only
- * (never at build), CDN-cached; a missing key or any upstream failure is a 200 `{ available: false }`.
- * The Admin key stays on the server: only the aggregated numbers are returned.
+ * `GET /api/token-burn`: personal Claude Code usage from the private `Karhdo/token-burn` summary.
+ * On demand, CDN-cached; missing config or any upstream failure is a 200 `{ available: false }`.
  */
-
-import { ANTHROPIC_ADMIN_API_KEY } from 'astro:env/server';
+import { GITHUB_API_TOKEN, TOKEN_BURN_SUMMARY_URL } from 'astro:env/server';
 import type { APIRoute } from 'astro';
-import { tokenBurnResponse } from '~/lib/anthropic-usage';
+import { tokenBurnResponse } from '~/lib/token-burn';
 
 export const prerender = false;
 
-/**
- * Dev-only upstream override for local verification against a stub server (never in a build:
- * `import.meta.env.DEV` is statically `false` there, so the branch is dropped).
- */
-const devUpstream = import.meta.env.DEV ? process.env.TOKEN_BURN_DEV_UPSTREAM : undefined;
-
 export const GET: APIRoute = async () => {
   const { body, headers } = await tokenBurnResponse({
-    apiKey: ANTHROPIC_ADMIN_API_KEY,
+    url: TOKEN_BURN_SUMMARY_URL,
+    token: GITHUB_API_TOKEN,
     fetch: (input, init) => fetch(input, init),
-    baseUrl: devUpstream || undefined,
   });
   return Response.json(body, { headers });
 };

@@ -223,4 +223,4 @@ Made after all 31 tasks were done, at the owner's request. Where these conflict 
 - **`stats_daily` applied to production on 2026-09-27.** Validated on a throwaway Postgres 17 (no Neon CLI for a branch); `stats` unchanged (3 rows, 6,555 views).
 - **Vite dep-scan gotcha:** never write a literal script tag inside a comment in an `.astro` file; the scanner regex-matches it and fails to parse the rest as JS.
 - **Env:** `.env.example` rewritten (load order, where to get each value, v1-only names); `.gitignore` has `!.env.example` after the Vercel CLI's `.env*`.
-
+- **Token burn → personal Claude Code usage.** The Anthropic Admin API only counted API-key usage (always 0 here), so it was replaced, following leohuynh.dev: the private repo `Karhdo/token-burn` runs ccusage hourly (launchd) and pushes `public/summary.json`; `src/lib/token-burn.ts` reads it via the GitHub Contents API (`TOKEN_BURN_SUMMARY_URL` + `GITHUB_API_TOKEN`). The card now shows ICT days, the month's model split and an all-time total. `ANTHROPIC_ADMIN_API_KEY` and `src/lib/anthropic-usage*` are removed.

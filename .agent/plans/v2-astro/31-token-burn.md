@@ -1,5 +1,7 @@
 # 31 — Token burn card (Anthropic Usage & Cost Admin API)
 
+> **Superseded (post-plan, 2026-09-27):** Token burn now shows personal Claude Code usage from the private `Karhdo/token-burn` summary; the Anthropic Admin API code and `ANTHROPIC_ADMIN_API_KEY` were removed. See 00-overview → Post-plan changes.
+
 ## Endpoint
 
 - `GET /api/token-burn`

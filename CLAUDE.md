@@ -29,7 +29,7 @@ CI (`.github/workflows/ci.yml`) runs `bun install --frozen-lockfile`, `bunx biom
 
 ### Rendering
 
-- Static by default. Only `src/pages/api/*`, `src/pages/projects.astro` and `src/pages/newsletter.astro` (the no-JS newsletter result page) export `prerender = false` and run as Vercel Functions. Everything else (pages, feeds, robots, OG images) is prerendered, so the DB, Spotify, GitHub and Anthropic are never called at build (except the footer's build info, below).
+- Static by default. Only `src/pages/api/*`, `src/pages/projects.astro` and `src/pages/newsletter.astro` (the no-JS newsletter result page) export `prerender = false` and run as Vercel Functions. Everything else (pages, feeds, robots, OG images) is prerendered, so the DB, Spotify, GitHub and the token-burn summary are never fetched at build (except the footer's build info, below).
 - `trailingSlash: 'never'`; the adapter emits `blog/<slug>/index.html`, served at `/blog/<slug>`.
 - `<ClientRouter />` view transitions. Every inline/bundled `<script>` re-initialises on `astro:page-load`.
 - Path alias `~/*` → `src/*` (no `baseUrl` in `tsconfig.json`: TypeScript 6 rejects it).
@@ -54,7 +54,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 ### Configuration and env
 
 - Site data in `src/config/` (`site.ts`: metadata, `snowfall`, `versions`, `stack`; `navigation.ts`, `projects.ts`, `experiences.ts` (also drives /career via `src/lib/career.ts`), `popular-tags.ts`).
-- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `ANTHROPIC_ADMIN_API_KEY`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
+- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `TOKEN_BURN_SUMMARY_URL`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
 - `bun test` can't resolve `astro:*` virtual modules, so logic lives in pure modules (e.g. `src/lib/spotify/client.ts`) and thin `src/lib/services/*.ts` wrappers bind them to `astro:env`.
 
 ### Database (Drizzle on Neon)
@@ -74,7 +74,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 | GET    | `/api/spotify`                | Now playing with progress                                                                       |
 | GET    | `/api/github?repo=owner/name` | Repo data + last commit (v1 parity)                                                             |
 | GET    | `/api/github/activity`        | 46-week contributions, streak, public repos                                                     |
-| GET    | `/api/token-burn`             | Anthropic usage (today, 14 UTC days, month, cost, token split); `{available:false}` on failure |
+| GET    | `/api/token-burn`             | Claude Code usage (today, 14 ICT days, month, all-time, model split); `{available:false}` on failure |
 | POST   | `/api/newsletter`             | Buttondown subscribe (double opt-in)                                                            |
 
 Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/[...slug].png`, `/og/default.png`, `/static/giscus/[theme].css`, sitemap (`@astrojs/sitemap`; `/sitemap.xml` redirects to `/sitemap-index.xml`).
@@ -88,7 +88,7 @@ Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/
 
 ### Token burn
 
-`src/lib/anthropic-usage.ts` (+ `-format.ts`) calls the Anthropic Usage & Cost Admin API with `ANTHROPIC_ADMIN_API_KEY`. Limitations: it covers **API-key usage in the org only** (not Pro/Max subscription usage), buckets are **UTC** days, cost excludes Priority Tier, data lags ~5 min plus a 15-min CDN cache. The key is set in Vercel **Production only** (previews show the empty state), ideally from a dedicated org. Rotation: new key in the Console → update the Production env → redeploy → revoke the old key → verify `/api/token-burn` returns `available: true` (README has the full steps).
+Personal Claude Code usage, not the Anthropic API. The private repo `Karhdo/token-burn` runs ccusage hourly on the owner's Mac (launchd) and pushes `public/summary.json` (daily tokens, cost and per-model totals in `Asia/Ho_Chi_Minh` days). `src/lib/token-burn.ts` fetches it server-side through the GitHub Contents API (`TOKEN_BURN_SUMMARY_URL` + `GITHUB_API_TOKEN`) and builds today, 14 days, month, all-time and the month's model split. Cost is an API-price estimate.
 
 ### Styling and theming
 

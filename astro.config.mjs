@@ -91,7 +91,7 @@ export default defineConfig({
       SPOTIFY_CLIENT_SECRET: secret(),
       SPOTIFY_REFRESH_TOKEN: secret(),
       BUTTONDOWN_API_KEY: secret(),
-      ANTHROPIC_ADMIN_API_KEY: secret(),
+      TOKEN_BURN_SUMMARY_URL: envField.string({ context: 'server', access: 'secret', optional: true, url: true }),
       // Public values, read only on the server (v1 names kept, no renames)
       NEXT_PUBLIC_GISCUS_REPO: serverPublic(),
       NEXT_PUBLIC_GISCUS_REPOSITORY_ID: serverPublic(),

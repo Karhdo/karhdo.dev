@@ -1,11 +1,10 @@
 /**
- * Token burn card script (task 31, bundled; no React). Fetches `GET /api/token-burn` once when the card
- * scrolls into view and fills the server-rendered markup in place (fixed layout, so no layout shift).
- * The response is kept in a module variable for 5 minutes, so view-transition navigations back to the
- * homepage render straight away. Only the pure formatters are imported, never the server fetch code.
+ * Token burn card script (bundled; no React). Fetches `GET /api/token-burn` once when the card scrolls
+ * into view and fills the fixed server-rendered layout in place. Cached in memory for 5 minutes.
  */
-import { barHeights, countParts, formatTokens, formatUsd } from '~/lib/anthropic-usage-format';
+
 import { countUp } from '~/lib/motion/count-up';
+import { barHeights, countParts, formatTokens, formatUsd } from '~/lib/token-burn-format';
 
 type Payload =
   | {
@@ -13,12 +12,12 @@ type Payload =
       today: { date: string; tokens: number; costUsd: number };
       days: { date: string; tokens: number }[];
       month: { tokens: number; costUsd: number };
-      split: { cache: number; input: number; output: number };
+      allTime: { tokens: number; costUsd: number };
+      models: { model: string; share: number }[];
     }
   | { available: false };
 
 const CACHE_MS = 5 * 60_000;
-const SPLIT_KEYS = ['cache', 'input', 'output'] as const;
 
 let cached: { at: number; data: Payload } | undefined;
 let inflight: Promise<Payload> | undefined;
@@ -31,7 +30,9 @@ function load(): Promise<Payload> {
       if (!res.ok) throw new Error(String(res.status));
       const body = (await res.json()) as Payload;
       const data: Payload =
-        body?.available === true && Array.isArray(body.days) && body.split ? body : { available: false };
+        body?.available === true && Array.isArray(body.days) && Array.isArray(body.models)
+          ? body
+          : { available: false };
       cached = { at: Date.now(), data }; // only a real answer is cached; a network blip retries next visit
       return data;
     })
@@ -60,13 +61,15 @@ function render(card: HTMLElement, data: Payload): void {
   const today = $('[data-burn-today]');
   const cost = $('[data-burn-cost]');
   const month = $('[data-burn-month]');
+  const allTime = $('[data-burn-alltime]');
 
   if (!data.available) {
     if (today) today.textContent = '–';
     if (cost) cost.textContent = '';
     if (month) month.textContent = '–';
+    if (allTime) allTime.textContent = '–';
     for (const bar of barEls) bar.removeAttribute('title');
-    bars?.setAttribute('aria-label', 'No API usage data for the last 14 days');
+    bars?.setAttribute('aria-label', 'No Claude Code usage data for the last 14 days');
     if (legend) legend.hidden = true;
     if (empty) empty.hidden = false;
     card.dataset.state = 'empty';
@@ -78,25 +81,31 @@ function render(card: HTMLElement, data: Payload): void {
   barEls.forEach((bar, i) => {
     const day = data.days[i];
     bar.style.setProperty('--h', ((heights[i] ?? 0) / 100).toFixed(3));
-    if (day) bar.title = `${day.date} UTC: ${day.tokens.toLocaleString('en-US')} tokens`;
+    if (day) bar.title = `${day.date}: ${day.tokens.toLocaleString('en-US')} tokens`;
   });
   bars?.setAttribute(
     'aria-label',
-    `Tokens per day over the last 14 days, UTC; today ${formatTokens(data.today.tokens)}`
+    `Claude Code tokens per day over the last 14 days; today ${formatTokens(data.today.tokens)}`
   );
 
-  for (const key of SPLIT_KEYS) {
-    const pct = data.split[key];
-    card.querySelector<HTMLElement>(`[data-burn-split] [data-part="${key}"]`)?.style.setProperty('--w', `${pct}%`);
-    const label = card.querySelector<HTMLElement>(`[data-burn-pct="${key}"]`);
-    if (label) label.textContent = `${pct}%`;
-  }
-  if (legend) legend.hidden = false;
+  // Model split (month to date): fixed slots, unused ones collapse to 0 width and hide.
+  card.querySelectorAll<HTMLElement>('[data-burn-split] [data-slot]').forEach((seg, i) => {
+    seg.style.setProperty('--w', `${data.models[i]?.share ?? 0}%`);
+  });
+  card.querySelectorAll<HTMLElement>('[data-burn-legend] [data-slot]').forEach((item, i) => {
+    const model = data.models[i];
+    item.hidden = !model;
+    const name = item.querySelector<HTMLElement>('[data-name]');
+    const pct = item.querySelector<HTMLElement>('[data-pct]');
+    if (name) name.textContent = model?.model ?? '';
+    if (pct) pct.textContent = model ? `${model.share}%` : '';
+  });
+  if (legend) legend.hidden = data.models.length === 0;
   if (empty) empty.hidden = true;
 
   if (cost) cost.textContent = formatUsd(data.today.costUsd);
   if (cost)
-    cost.title = `Cost today (UTC): ${formatUsd(data.today.costUsd)}; this month: ${formatUsd(data.month.costUsd)}`;
+    cost.title = `Estimated at API prices. Today: ${formatUsd(data.today.costUsd)}; this month: ${formatUsd(data.month.costUsd)}; all-time: ${formatUsd(data.allTime.costUsd)}`;
   // A zero month is real data but nothing is burning: keep the cost pill, skip the flicker and grow-in.
   if (data.month.tokens === 0) card.dataset.quiet = 'true';
   else delete card.dataset.quiet;
@@ -104,6 +113,7 @@ function render(card: HTMLElement, data: Payload): void {
   card.removeAttribute('aria-busy');
   setTokens(today, data.today.tokens);
   setTokens(month, data.month.tokens);
+  setTokens(allTime, data.allTime.tokens);
 }
 
 export function mountTokenBurn(): void {
