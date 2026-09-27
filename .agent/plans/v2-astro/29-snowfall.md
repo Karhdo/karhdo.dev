@@ -1,5 +1,7 @@
 # 29 — Dependency-free homepage snowfall
 
+> **Superseded (post-plan, 2026-09-27):** snowfall is now the site-wide `react-snowfall` island (`src/components/islands/Snowfall.tsx`); the canvas below was removed. See 00-overview → Post-plan changes.
+
 ## Endpoint
 
 None.

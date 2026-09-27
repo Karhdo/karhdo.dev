@@ -8,7 +8,7 @@ The files here are hand-written, additive-only SQL, reviewed in a PR and run by 
 
 | File                                 | Purpose                                                            | Applied on (production) |
 | ------------------------------------ | ------------------------------------------------------------------ | ----------------------- |
-| `0001_create_stats_daily.sql`        | Creates `stats_daily` (daily views per post) and its date index    | _not yet_               |
+| `0001_create_stats_daily.sql`        | Creates `stats_daily` (daily views per post) and its date index    | 2026-09-27              |
 | `0001_create_stats_daily.down.sql`   | Rollback only: drops `stats_daily`                                 | —                       |
 
 `0001` reuses the existing `"StatsType"` enum (no enum change), adds no foreign key and does not touch `stats`,

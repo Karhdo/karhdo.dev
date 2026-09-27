@@ -1,5 +1,7 @@
 # 07 — Base layout: SEO head, flash-free theme, view transitions, Umami
 
+> **Post-plan (2026-09-27):** the tilted grid is now the inline frost grid, and `BaseLayout` also mounts the persistent snowfall island.
+
 ## Endpoint
 
 None.

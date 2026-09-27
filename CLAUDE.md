@@ -36,9 +36,10 @@ CI (`.github/workflows/ci.yml`) runs `bun install --frozen-lockfile`, `bunx biom
 
 ### Islands policy
 
-Interactivity is vanilla `<script>` modules by default: header, theme toggle, mobile nav, statusline, version switcher, TOC scrollspy, reading progress, image zoom, typed bios, views and reactions, Spotify, GitHub activity, Blog stats, Token burn, newsletter form and snowfall. React 19 is used only for:
+Interactivity is vanilla `<script>` modules by default: header, theme toggle, mobile nav, statusline, version switcher, TOC scrollspy, reading progress, image zoom, typed bios, views and reactions, Spotify, GitHub activity, Blog stats, Token burn and newsletter form. React 19 is used only for:
 
 - `src/components/islands/Comments.tsx` (Giscus, `client:visible`);
+- `src/components/islands/Snowfall.tsx` (`react-snowfall`, as in v1; `client:idle`, mounted once in BaseLayout with `transition:persist` so it survives navigations, gated by `SITE.snowfall`; renders nothing under reduced motion; colour from the `--snow-c` token);
 - the ⌘K palette: not an island. `search/CommandPaletteLoader.astro` dynamic-imports `mount-palette.tsx` + `CommandPalette.tsx` (cmdk) and `/pagefind/pagefind.js` on first open, so pages ship no React until then.
 
 ### Content
@@ -52,7 +53,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 
 ### Configuration and env
 
-- Site data in `src/config/` (`site.ts`: metadata, `snowfall`, `versions`, `stack`; `navigation.ts`, `projects.ts`, `experiences.ts`, `popular-tags.ts`).
+- Site data in `src/config/` (`site.ts`: metadata, `snowfall`, `versions`, `stack`; `navigation.ts`, `projects.ts`, `experiences.ts` (also drives /career via `src/lib/career.ts`), `popular-tags.ts`).
 - Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `ANTHROPIC_ADMIN_API_KEY`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
 - `bun test` can't resolve `astro:*` virtual modules, so logic lives in pure modules (e.g. `src/lib/spotify/client.ts`) and thin `src/lib/services/*.ts` wrappers bind them to `astro:env`.
 
@@ -111,6 +112,7 @@ Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/
 - **No `layout:` in MDX frontmatter.**
 
 - **View transitions and glass:** never give a `.glass` ancestor a permanent `view-transition-name` (`transition:name` / `transition:animate` / `transition:persist`); it becomes a backdrop root and kills the blur. `page` is named only while `html[data-astro-transition]` is set.
+- **No literal tags in `.astro` comments** (e.g. a script tag in a CSS comment): Vite's dependency scan regex-matches them and fails to parse the rest as JS.
 - **Scripts stay external:** `vite.build.assetsInlineLimit` keeps `.js` out of the HTML. Inline module scripts make the ClientRouter inject a `data:` script (blocked by the CSP) and re-run on every swap.
 
 ## Conventions

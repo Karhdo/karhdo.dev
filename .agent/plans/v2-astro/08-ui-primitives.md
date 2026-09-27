@@ -1,5 +1,7 @@
 # 08 — UI primitives: glass cards, buttons, tags, links, icons, Twemoji
 
+> **Post-plan (2026-09-27):** `Container.astro` and `GrowingUnderline.astro` were removed as unused.
+
 ## Endpoint
 
 None.

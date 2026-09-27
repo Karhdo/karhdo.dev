@@ -42,7 +42,7 @@ Replace the Next.js 16 + Contentlayer + Prisma blog on branch `v2` with an Astro
 - **Umami** script is loaded from `/stats/script.js`, proxied by `vercel.json` rewrite to `https://analytics.karhdo.dev/:match*`.
 - **Twemoji CSS** (`css/twemoji.css`, 9,970 lines) points at `twitter.github.io/twemoji/...` remote SVGs. Only ~23 emoji names are used (`atom-symbol, bar-chart, briefcase, calendar, clinking-beer-mugs, dog, eye, eyes, face-with-monocle, flag-vietnam, hammer-and-wrench, hourglass-not-done, inbox-tray, man-technologist, memo, musical-keyboard, page-facing-up, party-popper, soccer-ball, tennis, video-game, viet-nam-vietnam-flag, waving-hand` + reactions `sparkling-heart, clapping-hands, bullseye, light-bulb`). Replace with a small name→codepoint map + local SVGs (reference repo pattern).
 - **Newsletter**: only the API route exists and `BlogNewsletterForm` is registered in MDX components, but no page renders a form (homepage form is commented out). v2 ships the endpoint plus a form in the post footer.
-- **Homepage extras**: `react-snowfall` and `typed.js` bios. Typed bios move into the bento intro card (vanilla script). `react-snowfall` is removed and replaced by a dependency-free single-layer canvas (`src/components/Snowfall.astro`, task 29): v1 count (119), wind and opacity, with slightly larger and slower flakes (radius .8–2.6, speed .25–1.2), toggled by `SITE.snowfall` (`true | false | 'december'`).
+- **Homepage extras**: `react-snowfall` and `typed.js` bios. Typed bios move into the bento intro card (vanilla script). `react-snowfall` is removed and replaced by a dependency-free single-layer canvas (`src/components/Snowfall.astro`, task 29): v1 count (119), wind and opacity, with slightly larger and slower flakes (radius .8–2.6, speed .25–1.2), toggled by `SITE.snowfall` (`true | false | 'december'`). *(Superseded: see Post-plan changes.)*
 
 ### Reference repo (hta218/leohuynh.dev, Astro 7 / Bun 1.3.14)
 
@@ -208,3 +208,19 @@ Kept: `public/static/**` (images, favicons, resume.pdf; `public/static/icons/*.s
 
 
 > **Rules added in task 26:** (1) Never give a `.glass` ancestor a permanent `view-transition-name` (`transition:name`, `transition:animate` or `transition:persist`): a named element becomes a backdrop root and kills the blur. `page` is named only under `html[data-astro-transition]`. (2) `vite.build.assetsInlineLimit` keeps `.js` external: inline module scripts made the ClientRouter inject a `data:` script (CSP error) and re-run on every swap. (3) The comments section reserves `min-h-[22rem]` when Giscus is configured, to avoid field CLS when the iframe grows.
+
+## Post-plan changes (2026-09-27)
+
+Made after all 31 tasks were done, at the owner's request. Where these conflict with the sections above, these win.
+
+- **Snowfall → `react-snowfall`, site-wide.** `src/components/islands/Snowfall.tsx` (same v1-derived settings), mounted once in `BaseLayout` with `client:idle` + `transition:persist`, so it keeps falling across navigations. Supersedes task 29's vanilla canvas (`src/components/snowfall/` removed) and the "homepage ships no React" goal: React now loads on idle on every page. While it snows the island sets `html[data-snow="on"]` (re-applied on `astro:after-swap`) and glass in `<main>` blurs 1.5px instead of 14px so flakes show through.
+- **Frost grid.** `TiltedGridBackground.astro` draws the v1 grid inline, tinted with `--snow-c`, with frosted cells, twinkling sparkles and a faint aurora; `src/assets/icons/tilted-grid.svg` removed.
+- **Popular tags.** Compact glass rows: tone icon tile, `#slug · N posts`, latest post on one line.
+- **/about.** A `whoami` terminal hero (`about/WhoamiCard.astro`: live local time, uptime since the first job) replaces the profile sidebar; the author MDX (v1 text) is compacted; the career timeline moved out.
+- **/career (new).** Stats, a year ruler, a `git log --graph` of the career with role chapters (v1 details text) and a per-role stack diff, and a CTA. Logic in `src/lib/career.ts`; data in `src/config/experiences.ts` (new `kind`, `tone`, `projects`, `stack`); details partials moved to `src/components/career/experiences/`. `about/{ProfileCard,CareerTimeline,TimelineItem}.astro` removed. Added to the header nav and footer.
+- **GitHub card.** The heatmap scales to fill the card (size container + container units, min 9px then scroll), with month / Mon-Wed-Fri labels and a legend; a snake (`src/lib/snake.ts`) eats the contributions and loops. It pauses on hover, off-screen and in hidden tabs; never under reduced motion.
+- **Removed unused primitives:** `ui/Container.astro`, `ui/GrowingUnderline.astro` (only the dev showcase used them).
+- **`stats_daily` applied to production on 2026-09-27.** Validated on a throwaway Postgres 17 (no Neon CLI for a branch); `stats` unchanged (3 rows, 6,555 views).
+- **Vite dep-scan gotcha:** never write a literal script tag inside a comment in an `.astro` file; the scanner regex-matches it and fails to parse the rest as JS.
+- **Env:** `.env.example` rewritten (load order, where to get each value, v1-only names); `.gitignore` has `!.env.example` after the Vercel CLI's `.env*`.
+

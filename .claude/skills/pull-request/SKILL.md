@@ -22,7 +22,7 @@ Create a draft pull request using `gh` CLI, following the project's pull_request
    - `git log origin/main..HEAD --oneline` to see commits that will be in the PR
    - `git diff origin/main...HEAD --stat` to see changed files summary
 
-2. Read the PR template from `.github/pull_request_template.md`
+2. Read the PR template from `.github/pull_request_template.md`. Make sure CI's checks pass locally first: `bunx biome ci .`, `bun run lint:palette`, `bunx astro check`, `bun test`, `bun run build`
 
 3. Check if the current branch tracks a remote:
    - If not, push with `-u` flag: `git push -u origin <branch-name>`

@@ -1,7 +1,7 @@
 {
   "taskGroup": "v2-astro",
   "description": "Rebuild karhdo.dev from Next.js 16 to Astro 7 (Bun, Tailwind v4, MDX content collections, Expressive Code, Biome, Drizzle on the existing Postgres stats table, React 19 islands) deployed on Vercel (Node runtime), with full v1 feature and URL parity and a refreshed Tokyonight bento UI.",
-  "updatedAt": "2026-09-26",
+  "updatedAt": "2026-09-27",
   "conventions": {
     "pages": "src/pages/",
     "layouts": "src/layouts/",
@@ -117,7 +117,7 @@
       "endpoint": null,
       "spec": "09-header-footer.md",
       "status": "done",
-      "summary": "Header (Blog \u00b7 Projects \u00b7 About, theme, \u2318K, mobile dialog); footer per mockup: link columns + Neovim statusline (build-time stars/sha/commit date, live HCMC time diff, Made in Vietnam) + keyboard-accessible version switcher (SITE.versions)",
+      "summary": "Header (Blog · Projects · About, theme, ⌘K, mobile dialog); footer per mockup: link columns + Neovim statusline (build-time stars/sha/commit date, live HCMC time diff, Made in Vietnam) + keyboard-accessible version switcher (SITE.versions)",
       "dependencies": [
         "v2-astro-base-layout",
         "v2-astro-ui-primitives"
@@ -284,7 +284,7 @@
       "endpoint": null,
       "spec": "23-search-command-palette.md",
       "status": "done",
-      "summary": "Pagefind index + \u2318K palette lazily imported by a vanilla loader (no React/cmdk until first open)",
+      "summary": "Pagefind index + ⌘K palette lazily imported by a vanilla loader (no React/cmdk until first open)",
       "dependencies": [
         "v2-astro-header-footer",
         "v2-astro-blog-post-page",
@@ -417,5 +417,6 @@
       ],
       "parallelGroup": "p5-integrations"
     }
-  ]
+  ],
+  "postPlan": "Post-plan changes after all tasks were done: see 00-overview.md → \"Post-plan changes (2026-09-27)\"."
 }

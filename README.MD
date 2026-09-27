@@ -33,7 +33,10 @@ v2 is a rebuild of the v1 Next.js site, which lives on the [`v1`](https://github
 
 ## Features
 
-- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress), GitHub activity heatmap, blog stats with a 30-day views chart, **Token burn** (Anthropic API usage), Daily stack marquee, selected projects, optional snowfall.
+- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (Anthropic API usage), Daily stack marquee, selected projects, popular tags.
+- `/about`: a `whoami` terminal card (live local time and uptime) above the author story.
+- `/career`: stats, a year ruler, the career as a `git log --graph` with role chapters and per-role stack diffs.
+- Site-wide snowfall (`react-snowfall`, persists across page navigations, off under reduced motion) over a frost-tinted tilted grid.
 - Blog with tag chips, pagination, per-tag pages and RSS feeds (`/feed.xml`, `/tags/{tag}/feed.xml`), sitemap and robots.
 - Post pages: sticky TOC with scrollspy, reading progress, code blocks with filename tabs, language badge, copy and line markers, callouts and GitHub alerts, image zoom, Twemoji, views and reactions, Giscus comments, newsletter signup (Buttondown).
 - Flash-free light/dark/system theme on a `data-theme` attribute, view transitions, reduced-motion aware animations.
@@ -46,7 +49,7 @@ Requirements: Bun 1.3.14 (`packageManager` in `package.json`) and Node ≥ 22.12
 
 ```bash
 bun install          # also installs the lefthook pre-commit hook
-cp .env.example .env # every variable is optional
+cp .env.example .env.local # every variable is optional
 bun dev              # http://localhost:4321
 ```
 
@@ -143,7 +146,7 @@ To rotate:
 
 ### Regenerating the Spotify refresh token
 
-If the Now playing card stays empty, regenerate the refresh token (a revoked or expired token fails silently). With the app's client id and secret from the [Spotify developer dashboard](https://developer.spotify.com/dashboard):
+If the Now playing card stays empty, check the token endpoint's error: `invalid_client` means the client id/secret pair is wrong (secret rotated or app deleted: copy the current secret from the dashboard), `invalid_grant` means the refresh token is revoked or expired: regenerate it as below. With the app's client id and secret from the [Spotify developer dashboard](https://developer.spotify.com/dashboard):
 
 1. In the app settings, add the redirect URI `http://127.0.0.1:8888/callback` (Spotify only accepts loopback IPs, not `localhost`).
 2. Open this URL in a browser while signed in to the Spotify account to show, and approve:
@@ -170,7 +173,7 @@ If the Now playing card stays empty, regenerate the refresh token (a revoked or 
 Postgres on Neon. The app connects through the `-pooler` host (PgBouncer, transaction mode, so `prepare: false`). Drizzle **maps** the existing v1 `stats` table and `StatsType` enum in `src/lib/db/schema.ts`; it never creates or changes them.
 
 - **Never run `drizzle-kit push`, `migrate` or `generate`.** There are no such scripts. `bun run db:pull` introspects into a git-ignored folder, to diff against the hand-written schema. Set `POSTGRES_URL_DIRECT` (the direct, non-pooler host) explicitly first.
-- The one schema addition, `stats_daily` (daily views for the 30-day chart), is a reviewed, idempotent, additive-only SQL file run by hand with `psql`: first on a Neon branch, then on production. Follow [`db/manual-migrations/README.md`](db/manual-migrations/README.md) and record the date there. Deploy order doesn't matter: the daily write is best-effort and tolerates a missing table.
+- The one schema addition, `stats_daily` (daily views for the 30-day chart), is a reviewed, idempotent, additive-only SQL file run by hand with `psql`: first on a Neon branch, then on production. Applied to production on 2026-09-27 (see [`db/manual-migrations/README.md`](db/manual-migrations/README.md)). Deploy order doesn't matter: the daily write is best-effort and tolerates a missing table.
 
 ## Deployment (Vercel)
 

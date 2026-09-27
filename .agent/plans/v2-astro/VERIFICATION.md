@@ -236,9 +236,13 @@ Do these in order. Every command is read-only unless marked otherwise.
 
 ### 3. Spotify token
 
+> **2026-09-27:** the token endpoint returns `invalid_client`, so the client ID/secret pair itself is rejected (secret rotated or app deleted), not just the refresh token. Update `SPOTIFY_CLIENT_SECRET` from the Spotify dashboard (or create a new app + refresh token), then Production + Preview.
+
 If `curl -s https://<preview>/api/spotify` stays `{"isPlaying":false}` while something is playing, regenerate `SPOTIFY_REFRESH_TOKEN` (README → "Regenerating the Spotify refresh token"), update Production + Preview, redeploy.
 
 ### 4. `stats_daily` migration (Neon branch, then production)
+
+> **Done 2026-09-27:** applied to production (validated on a throwaway Postgres 17 instead of a Neon branch); `stats` unchanged. Skip steps 1-3.
 
 Follow `db/manual-migrations/README.md`, with `POSTGRES_URL_DIRECT` set explicitly (direct host, not `-pooler`):
 
@@ -255,13 +259,13 @@ Follow `db/manual-migrations/README.md`, with `POSTGRES_URL_DIRECT` set explicit
 3. **Giscus CORS:** `curl -sI -H "Origin: https://giscus.app" $P/static/giscus/tokyonight-day.css`: exactly **one** `access-control-allow-origin`, `content-type: text/css`.
 4. **CDN cache:** run `curl -sI $P/api/spotify` twice within 30 s: the second has `x-vercel-cache: HIT` and `age` > 0, and the browser `cache-control` is `public, max-age=0, must-revalidate` with no `s-maxage`. Do the same for `/api/github?repo=Karhdo/karhdo.dev`, `/api/github/activity`, `/api/stats/summary`, `/api/token-burn` and `/projects`.
 5. **Token burn on preview:** `curl -s $P/api/token-burn` → 200 `{"available":false,…}` (the key is Production-only).
-6. **CSP + console:** open DevTools → Console and browse `/` → `/blog` (a ClientRouter navigation) → a post (scroll to Giscus, click a reaction) → `/tags` → `/projects` → `/about`, open ⌘K and search, toggle the theme: **0 CSP violations** (Giscus, Umami, Pagefind WASM, Spotify art).
+6. **CSP + console:** open DevTools → Console and browse `/` → `/blog` (a ClientRouter navigation) → a post (scroll to Giscus, click a reaction) → `/tags` → `/projects` → `/career` → `/about`, open ⌘K and search, toggle the theme: **0 CSP violations** (Giscus, Umami, Pagefind WASM, Spotify art).
 7. **Giscus:** the comments iframe loads with the Tokyonight theme and follows the theme toggle.
 8. **Stats:** viewing a post increments `views` (`GET /api/stats?...` before/after), and today's UTC `stats_daily` row increments: `SELECT * FROM stats_daily WHERE date = (now() at time zone 'utc')::date;`.
 9. **Newsletter:** subscribe with a `+test` address (e.g. `you+v2test@…`). Expect the success message and the Buttondown confirmation email (double opt-in). Then **delete that subscriber** in Buttondown. Also try the no-JS path (JS disabled → `/newsletter?status=…`).
 10. **Umami:** navigate 3 pages (including view-transition navigations) and check that the pageviews show in the Umami dashboard.
 11. **Footer:** `★ N` equals `stargazers_count` at deploy time, `#sha` equals the preview commit, and the version switcher works with the keyboard.
-12. **Lighthouse on the preview** (mobile, 3 runs, median) for `/`, `/blog`, `/blog/exploring-module-in-nestjs`, `/projects`, `/about`, with live cards (Spotify, GitHub, Blog stats) loaded. Targets: Perf ≥ 95 (≥ 90 `/projects`), A11y/BP/SEO 100, LCP < 2 s, CLS < 0.05, TBT < 100 ms.
+12. **Lighthouse on the preview** (mobile, 3 runs, median) for `/`, `/blog`, `/blog/exploring-module-in-nestjs`, `/projects`, `/career`, `/about`, with live cards (Spotify, GitHub, Blog stats) loaded. Targets: Perf ≥ 95 (≥ 90 `/projects`), A11y/BP/SEO 100, LCP < 2 s, CLS < 0.05, TBT < 100 ms.
 13. **Theme / motion:** no flash on hard reload in both OS modes; with JS off and OS dark, dark tokens and dark code frames; reduced-motion walk-through.
 14. **Admin key leak:** `vercel build` locally or on the preview output, then `grep -r sk-ant-admin .vercel/output/static` must be empty.
 

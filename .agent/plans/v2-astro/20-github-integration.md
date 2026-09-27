@@ -1,5 +1,7 @@
 # 20 — GitHub integration: projects data, repo API, activity card
 
+> **Post-plan (2026-09-27):** the activity heatmap now fills its card (labels + legend) and has a contribution-eating snake. See 00-overview → Post-plan changes.
+
 ## Endpoint
 
 - `GET /api/github?repo={owner/name}`

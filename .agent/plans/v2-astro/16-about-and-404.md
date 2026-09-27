@@ -1,5 +1,7 @@
 # 16 — About page and 404 page
 
+> **Post-plan (2026-09-27):** /about now opens with the `whoami` hero and no longer has the career timeline, which moved to the new /career page. See 00-overview → Post-plan changes.
+
 ## Endpoint
 
 None.
