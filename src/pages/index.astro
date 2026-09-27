@@ -16,7 +16,6 @@ import SpotifyCard from '~/components/home/SpotifyCard.astro';
 import TokenBurnCard from '~/components/home/TokenBurnCard.astro';
 import ProjectCard from '~/components/projects/ProjectCard.astro';
 import ProjectGrid from '~/components/projects/ProjectGrid.astro';
-import Snowfall from '~/components/Snowfall.astro';
 import PopularTags from '~/components/tags/PopularTags.astro';
 import { PROJECTS } from '~/config/projects';
 import { SITE } from '~/config/site';
@@ -36,7 +35,6 @@ const siteRepo = SITE.siteRepo.replace('https://github.com/', '');
 ---
 
 <PageLayout>
-  <Snowfall />
   <div class="pt-7 pb-16">
     <!-- Each card: `.rise` (staggered load-in, `--i` × 50 ms, motion-safe) + `data-tilt` (task 26). -->
     <section

@@ -114,7 +114,7 @@ SOFTWARE.
 
 - Source: https://github.com/hta218/leohuynh.dev, Copyright (c) 2024 Leo Huynh, MIT License
   (https://github.com/hta218/leohuynh.dev/blob/main/LICENSE; same terms as the Heroicons text above).
-- `src/assets/icons/tilted-grid.svg` (the background pattern, also redrawn in the OG cards by `src/lib/og/tree.ts`)
+- the tilted-grid pattern (72 × 56 cells, -18deg skew), redrawn inline in `src/components/ui/TiltedGridBackground.astro` (v2 frost grid) and in the OG cards by `src/lib/og/tree.ts`
   comes from it, carried over from v1.
 - v2 also borrows code patterns from it: the Astro config layout, the content collection schema,
   `remark-code-titles`, the Twemoji component and emoji map, the Biome config, `vercel.json` and the postgres.js pool.

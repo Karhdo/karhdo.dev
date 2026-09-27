@@ -1,25 +1,147 @@
 ---
 /**
- * Decorative skewed grid behind the top of the page (v1 `components/ui/TiltedGridBackground.tsx`).
- * Lines use the `fg` token so they follow the theme; the mask fades the grid out downwards
- * (a mask only reads alpha, so the gradient's colour is irrelevant).
+ * Frost grid: v1's tilted grid tinted with `--snow-c`, plus frosted cells, twinkling sparkles and a
+ * faint aurora. Animations run only with motion allowed.
  */
 import { clsx } from 'clsx';
-import TiltedGrid from '~/assets/icons/tilted-grid.svg';
 
 interface Props {
   class?: string;
 }
 
 const { class: className } = Astro.props;
+
+const CELL_W = 72;
+const CELL_H = 56;
+/** [column, row] from the grid origin; `s` = shimmers. */
+const CELLS: { c: number; r: number; s?: boolean }[] = [
+  { c: 0, r: 1 },
+  { c: 1, r: 3, s: true },
+  { c: -2, r: 2 },
+  { c: -4, r: 4, s: true },
+  { c: 3, r: 1 },
+  { c: 5, r: 4 },
+  { c: -6, r: 1, s: true },
+  { c: 7, r: 2 },
+  { c: -1, r: 5 },
+  { c: 2, r: 6, s: true },
+  { c: -8, r: 3 },
+  { c: 9, r: 5 },
+];
+const SPARKLES: [number, number][] = [
+  [-3, 1],
+  [2, 2],
+  [6, 3],
+  [-5, 5],
+  [4, 5],
+  [-1, 3],
+  [8, 1],
+  [-7, 3],
+  [0, 6],
+  [-9, 5],
+];
+const STAR = 'M0-6 1.2-1.2 6 0 1.2 1.2 0 6-1.2 1.2-6 0-1.2-1.2Z';
 ---
 
 <div
   aria-hidden="true"
   class={clsx(
-    'pointer-events-none absolute overflow-hidden mask-[linear-gradient(to_bottom,var(--fg),transparent)]',
+    'frost-grid pointer-events-none absolute overflow-hidden mask-[linear-gradient(to_bottom,var(--fg),transparent)]',
     className
   )}
 >
-  <TiltedGrid class="absolute inset-x-0 inset-y-[-30%] h-[160%] w-full skew-y-[-18deg] fill-fg/2 stroke-fg/5" />
+  <div class="aurora loop-anim"></div>
+  <svg class="absolute inset-x-0 inset-y-[-30%] h-[160%] w-full skew-y-[-18deg]" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="frost-pt" width={CELL_W} height={CELL_H} patternUnits="userSpaceOnUse" x="50%" y="16">
+        <path d={`M.5 ${CELL_H}V.5H${CELL_W}`} fill="none" class="frost-line"></path>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#frost-pt)"></rect>
+    <svg x="50%" y="16" overflow="visible">
+      {
+        CELLS.map(({ c, r, s }, i) => (
+          <rect
+            class:list={['frost-cell', s && 'shimmer loop-anim']}
+            style={`--d: ${(i * 0.7) % 6}s`}
+            x={c * CELL_W}
+            y={r * CELL_H}
+            width={CELL_W + 1}
+            height={CELL_H + 1}
+          />
+        ))
+      }
+      {
+        SPARKLES.map(([c, r], i) => (
+          <g transform={`translate(${c * CELL_W + 0.5} ${r * CELL_H + 0.5})`}>
+            <path class="sparkle loop-anim" style={`--d: ${(i * 1.3) % 7}s`} d={STAR} />
+          </g>
+        ))
+      }
+    </svg>
+  </svg>
 </div>
+
+<style>
+  .frost-line {
+    stroke: color-mix(in srgb, var(--snow-c) 9%, transparent);
+  }
+  .frost-cell {
+    fill: color-mix(in srgb, var(--snow-c) 4%, transparent);
+    stroke: color-mix(in srgb, var(--snow-c) 12%, transparent);
+    stroke-width: 1;
+  }
+  .sparkle {
+    fill: var(--snow-c);
+    opacity: 0.45;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .aurora {
+    position: absolute;
+    inset: -10% 5% 35%;
+    background:
+      radial-gradient(closest-side at 30% 45%, color-mix(in srgb, var(--blue) 16%, transparent), transparent),
+      radial-gradient(closest-side at 70% 35%, color-mix(in srgb, var(--cyan) 12%, transparent), transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sparkle {
+      animation: frostTwinkle 5.5s ease-in-out infinite;
+      animation-delay: calc(var(--d) * -1);
+    }
+    .shimmer {
+      animation: frostShimmer 7s ease-in-out infinite;
+      animation-delay: calc(var(--d) * -1);
+    }
+    .aurora {
+      animation: auroraDrift 24s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes frostTwinkle {
+    0%,
+    100% {
+      opacity: 0.15;
+      scale: 0.6;
+    }
+    50% {
+      opacity: 0.8;
+      scale: 1.15;
+    }
+  }
+  @keyframes frostShimmer {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
+  }
+  @keyframes auroraDrift {
+    to {
+      translate: 6% 4%;
+    }
+  }
+</style>

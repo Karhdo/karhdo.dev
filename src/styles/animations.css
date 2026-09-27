@@ -28,6 +28,14 @@
   }
 }
 
+/* While it snows (`html[data-snow]`), glass in <main> blurs less so flakes stay visible. Unlayered on purpose. */
+:root[data-snow="on"] main .glass,
+:root[data-snow="on"] main .post-row:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  -webkit-backdrop-filter: blur(1.5px) saturate(120%);
+  backdrop-filter: blur(1.5px) saturate(120%);
+}
+
 /* ---------- Keyframes: v1 carry-overs ---------- */
 @keyframes wave {
   0%,

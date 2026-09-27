@@ -1,7 +1,7 @@
 ---
 /**
  * The document shell every page uses: SEO head, flash-free theme, view transitions, analytics,
- * the tilted-grid background and a skip link. Header/footer come in through named slots (task 09).
+ * the frost-grid background, the site-wide snowfall and a skip link. Header/footer come in through named slots (task 09).
  */
 import '~/styles/global.css';
 import { ClientRouter } from 'astro:transitions';
@@ -10,6 +10,7 @@ import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-nor
 import CountUp from '~/components/motion/CountUp.astro';
 import PauseOffscreen from '~/components/motion/PauseOffscreen.astro';
 import PointerFx from '~/components/motion/PointerFx.astro';
+import Snowfall from '~/components/Snowfall.astro';
 import CommandPaletteLoader from '~/components/search/CommandPaletteLoader.astro';
 import Analytics from '~/components/seo/Analytics.astro';
 import Seo, { type Props as SeoProps } from '~/components/seo/Seo.astro';
@@ -37,6 +38,7 @@ export type Props = SeoProps;
       Skip to content
     </a>
     <TiltedGridBackground class="inset-x-0 top-0 z-[-1] h-[60vh]" />
+    <Snowfall />
     <slot name="header" />
     <!-- `view-transition-name: page` (animations.css): the task-26 slide/fade replaces Astro's `fade`. -->
     <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
