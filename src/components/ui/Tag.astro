@@ -1,0 +1,27 @@
+---
+/** Post tag (mockup `.tag`): `#text` linking to `/tags/{slug}` (github-slugger, same as v1). */
+import { slug } from 'github-slugger';
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  text: string;
+  class?: string;
+}
+
+const { text, class: className } = Astro.props;
+---
+
+<a
+  href={`/tags/${slug(text)}`}
+  class={cn(
+    'tag-label font-mono text-xs no-underline underline-offset-4 hover:underline focus-visible:underline',
+    className
+  )}
+><span class="opacity-60" aria-hidden="true">#</span>{text.split(' ').join('-')}</a>
+
+<style>
+  /* Day --purple on --bg is 3.3:1; deepen toward --fg in Day only (≈4.9:1 on --bg, ≈5.5:1 on pills). Night keeps the raw token. */
+  .tag-label {
+    color: light-dark(color-mix(in srgb, var(--purple) 60%, var(--fg)), var(--purple));
+  }
+</style>

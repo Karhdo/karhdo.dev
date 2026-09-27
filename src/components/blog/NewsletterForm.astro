@@ -1,0 +1,269 @@
+---
+/**
+ * Newsletter sign-up form (task 22). Replaces the `NewsletterForm.tsx` island of the spec with a
+ * plain `<form>` + a small module script (same approach as task 18's reactions: no React hydrated).
+ *
+ * - Without JS it is a normal `POST /api/newsletter` form post; the endpoint answers `303` to the
+ *   `/newsletter` result page, which links back to `from` (this page's path).
+ * - With JS the submit is sent as JSON with `fetch` and the result is announced inline in a
+ *   `role="status"` (`aria-live="polite"`) line. States: idle → loading → success | error.
+ * - `hp_url` is a honeypot, hidden from people and assistive tech.
+ * - No CLS: the status line has a reserved 2-line slot (it shows the helper text while idle) and the
+ *   button stacks both labels so its width never changes.
+ */
+interface Props {
+  /** Return path for the no-JS result page. Defaults to the current page. */
+  from?: string;
+  /** Pre-filled value (the no-JS result page keeps nothing, but a caller may). */
+  value?: string;
+}
+
+const { from = Astro.url.pathname, value } = Astro.props;
+const id = `newsletter-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<form method="post" action="/api/newsletter" class="newsletter-form" data-newsletter-form data-state="idle">
+  <label for={`${id}-email`} class="mb-1.5 block font-medium text-fg text-sm">Email address</label>
+  <div class="flex flex-col gap-2.5 sm:flex-row">
+    <input
+      id={`${id}-email`}
+      name="email"
+      type="email"
+      required
+      maxlength={254}
+      autocomplete="email"
+      inputmode="email"
+      spellcheck="false"
+      placeholder="you@example.com"
+      value={value}
+      aria-describedby={`${id}-status`}
+      class="nl-input"
+    />
+    <button type="submit" class="nl-button" data-umami-event="newsletter-subscribe">
+      <span class="nl-label">Subscribe</span>
+      <span class="nl-label nl-busy" aria-hidden="true"><span class="nl-spinner"></span>Subscribing…</span>
+    </button>
+  </div>
+  {/* Honeypot: neutral name/label so browsers don't autofill it; bots that fill every field get caught. */}
+  <div class="nl-hp" aria-hidden="true">
+    <label>Leave this empty <input type="text" name="hp_url" tabindex="-1" autocomplete="off" /></label>
+  </div>
+  <input type="hidden" name="from" value={from} />
+  <p id={`${id}-status`} role="status" aria-live="polite" class="nl-status" data-status>
+    <span data-status-text>No spam, just new posts. Unsubscribe anytime.</span>
+  </p>
+</form>
+
+<style>
+  .nl-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--muted); /* ≥ 3:1 input boundary in both themes */
+    border-radius: 12px;
+    background: var(--surface-solid);
+    color: var(--fg);
+    font: inherit;
+    font-size: 15px;
+    transition: border-color 0.2s var(--ease-out);
+  }
+
+  .nl-input::placeholder {
+    color: var(--fg-soft);
+    opacity: 1;
+  }
+
+  .nl-input:hover {
+    border-color: var(--fg-soft);
+  }
+
+  .nl-input:focus-visible {
+    border-color: var(--blue);
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+
+  .nl-input[aria-invalid='true'] {
+    border-color: var(--red);
+  }
+
+  .nl-button {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--heat-4);
+    border-radius: 12px;
+    background: var(--heat-4); /* not --blue: --surface-solid on --heat-4 is AA in Day */
+    color: var(--surface-solid);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s var(--ease-out);
+  }
+
+  .nl-button:hover {
+    filter: brightness(1.07);
+  }
+
+  .nl-button:focus-visible {
+    border-radius: 12px;
+  }
+
+  /* Both labels share one grid cell: the button is always as wide as the longer one. */
+  .nl-label {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nl-busy,
+  [data-state='loading'] .nl-label:not(.nl-busy) {
+    visibility: hidden;
+  }
+
+  [data-state='loading'] .nl-busy {
+    visibility: visible;
+  }
+
+  [data-state='loading'] .nl-button {
+    cursor: progress;
+  }
+
+  .nl-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .nl-spinner {
+      animation: nl-spin 0.8s linear infinite;
+    }
+  }
+
+  @keyframes nl-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Reserved 2-line slot: no shift when the helper text is replaced by a (wrapping) status message. */
+  .nl-status {
+    min-height: calc(2 * 1.5 * 13.5px);
+    margin: 10px 0 0;
+    color: var(--fg-soft);
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  [data-state='success'] .nl-status,
+  [data-state='error'] .nl-status {
+    color: var(--fg);
+  }
+
+  /* Inside the text span, so showing it doesn't move the span (no layout shift). */
+  .nl-status :global(.nl-icon) {
+    margin-right: 6px;
+    font-weight: 700;
+  }
+
+  [data-state='success'] .nl-status :global(.nl-icon) {
+    color: var(--green);
+  }
+
+  [data-state='error'] .nl-status :global(.nl-icon) {
+    color: var(--red);
+  }
+
+  .nl-hp {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  type Answer = { status?: string; message?: string; error?: string };
+
+  const FALLBACK = 'Something went wrong. Please check your connection and try again.';
+  const INVALID = 'Please enter a valid email address.';
+
+  function bind(form: HTMLFormElement): void {
+    if (form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+
+    const input = form.querySelector<HTMLInputElement>('input[name="email"]');
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const text = form.querySelector<HTMLElement>('[data-status-text]');
+    if (!input || !button || !text) return;
+
+    const setState = (state: 'idle' | 'loading' | 'success' | 'error', message?: string) => {
+      form.dataset.state = state;
+      form.setAttribute('aria-busy', String(state === 'loading'));
+      button.setAttribute('aria-disabled', String(state === 'loading'));
+      input.readOnly = state === 'loading';
+      if (state === 'loading') {
+        text.textContent = 'Subscribing…';
+        return;
+      }
+      if (message === undefined) return;
+      const icon = document.createElement('span');
+      icon.className = 'nl-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = state === 'success' ? '✓' : '!';
+      text.replaceChildren(icon, message);
+    };
+
+    input.addEventListener('input', () => input.removeAttribute('aria-invalid'));
+
+    // Native validation runs before `submit`; this only replaces the bubble with inline text.
+    input.addEventListener('invalid', (event) => {
+      event.preventDefault();
+      input.setAttribute('aria-invalid', 'true');
+      setState('error', INVALID);
+      input.focus();
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (form.dataset.state === 'loading') return;
+      const data = new FormData(form);
+      setState('loading');
+      let ok = false;
+      let message = FALLBACK;
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email: data.get('email'), hp_url: data.get('hp_url') ?? '' }),
+        });
+        const answer = (await response.json().catch(() => ({}))) as Answer;
+        ok = response.ok;
+        // 403 (Origin) and unknown shapes fall back to the generic message.
+        if (response.status !== 403) message = answer.message ?? answer.error ?? message;
+        if (answer.status === 'invalid') input.setAttribute('aria-invalid', 'true');
+      } catch {
+        // network error: keep FALLBACK
+      }
+      setState(ok ? 'success' : 'error', message);
+      if (ok) form.reset();
+    });
+  }
+
+  function init(): void {
+    for (const form of document.querySelectorAll<HTMLFormElement>('form[data-newsletter-form]')) bind(form);
+  }
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>

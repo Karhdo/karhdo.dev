@@ -1,0 +1,62 @@
+---
+/** Previous / `Page X of Y` / Next (v1 `Pagination`). Page 1 is `base` (`/blog`), never `/page/1`. */
+import { paginationLinks } from '~/lib/blog-list';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  /** List root: `/blog`, or `/tags/{slug}` on tag pages. */
+  base?: string;
+  class?: string;
+}
+
+const { currentPage, totalPages, base = '/blog', class: className } = Astro.props;
+const { prev, next } = paginationLinks(currentPage, totalPages, base);
+---
+
+<nav class:list={['pager', className]} aria-label="Pagination">
+  {prev ? <a class="pager-link" href={prev} rel="prev">← Previous</a> : <span class="pager-link" aria-disabled="true">← Previous</span>}
+  <span class="pager-status">Page {currentPage} of {totalPages}</span>
+  {next ? <a class="pager-link" href={next} rel="next">Next →</a> : <span class="pager-link" aria-disabled="true">Next →</span>}
+</nav>
+
+<style>
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .pager-status {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .pager-link {
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--fg);
+    font-size: 14px;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+  a.pager-link:hover {
+    border-color: var(--line-strong);
+    background: var(--surface);
+  }
+  a.pager-link:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  .pager-link[aria-disabled='true'] {
+    color: var(--fg-soft);
+    opacity: 0.55;
+    cursor: default;
+  }
+</style>

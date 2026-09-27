@@ -1,0 +1,422 @@
+{
+  "taskGroup": "v2-astro",
+  "description": "Rebuild karhdo.dev from Next.js 16 to Astro 7 (Bun, Tailwind v4, MDX content collections, Expressive Code, Biome, Drizzle on the existing Postgres stats table, React 19 islands) deployed on Vercel (Node runtime), with full v1 feature and URL parity and a refreshed Tokyonight bento UI.",
+  "updatedAt": "2026-09-27",
+  "conventions": {
+    "pages": "src/pages/",
+    "layouts": "src/layouts/",
+    "components": "src/components/",
+    "islands": "src/components/islands/",
+    "content": "src/content/",
+    "contentConfig": "src/content.config.ts",
+    "lib": "src/lib/",
+    "db": "src/lib/db/",
+    "api": "src/pages/api/",
+    "styles": "src/styles/",
+    "endpoints": "/api/*",
+    "config": "src/config/",
+    "assets": "src/assets/",
+    "plugins": "src/plugins/",
+    "pathAlias": "~/* -> src/*",
+    "v1Source": "git show main:<path>",
+    "devPages": "src/dev-pages/ (injected only in astro dev)",
+    "tests": "*.test.ts next to pure modules, run with bun test",
+    "mockup": ".agent/plans/v2-astro/mockup/karhdo-v2.src.html",
+    "theme": "data-theme attribute on <html> (light|dark)"
+  },
+  "tasks": [
+    {
+      "id": "v2-astro-scaffold-astro",
+      "endpoint": null,
+      "spec": "01-scaffold-astro.md",
+      "status": "done",
+      "summary": "Scaffold Astro 7 + Bun + Vercel adapter (tsconfig paths without baseUrl); delete Next.js, Contentlayer, Prisma client, ESLint, Prettier, Husky, Docker(Next), react-snowfall; keep icons/miv.svg",
+      "dependencies": [],
+      "parallelGroup": "p1-scaffold"
+    },
+    {
+      "id": "v2-astro-tooling-biome",
+      "endpoint": null,
+      "spec": "02-tooling-biome.md",
+      "status": "done",
+      "summary": "Biome, lefthook pre-commit, bun test runner + testing convention, GitHub Actions CI, stricter tsconfig",
+      "dependencies": [
+        "v2-astro-scaffold-astro"
+      ],
+      "parallelGroup": "p1-config"
+    },
+    {
+      "id": "v2-astro-site-config-env",
+      "endpoint": null,
+      "spec": "03-site-config-env.md",
+      "status": "done",
+      "summary": "Typed src/config from data/*; astro:env schema keeping v1 env names (NEXT_PUBLIC_GISCUS_*, UMAMI_WEBSITE_ID as server/public); .env.example",
+      "dependencies": [
+        "v2-astro-scaffold-astro"
+      ],
+      "parallelGroup": "p1-config"
+    },
+    {
+      "id": "v2-astro-vercel-config",
+      "endpoint": null,
+      "spec": "04-vercel-config.md",
+      "status": "done",
+      "summary": "vercel.json: v1 security headers, /stats Umami rewrite, sitemap + /blog/page/1 redirects, Bun install/build",
+      "dependencies": [
+        "v2-astro-scaffold-astro"
+      ],
+      "parallelGroup": "p1-config"
+    },
+    {
+      "id": "v2-astro-db-drizzle",
+      "endpoint": null,
+      "spec": "05-db-drizzle.md",
+      "status": "done",
+      "summary": "Drizzle schema mapped exactly to existing stats/StatsType (Neon pooler, pull-only, strict) + the one additive stats_daily table via a reviewed manual SQL migration; delete prisma/",
+      "dependencies": [
+        "v2-astro-site-config-env"
+      ],
+      "parallelGroup": "p1-db"
+    },
+    {
+      "id": "v2-astro-design-tokens",
+      "endpoint": null,
+      "spec": "06-design-tokens.md",
+      "status": "done",
+      "summary": "Tokyonight-only tokens (Day/Night via data-theme + JS-off fallback; yellow, blue1, shine; spotify = green; no magenta) + palette.ts mirror + lint:palette grep, fonts, prose, glass, motion tokens/keyframes/.rise/.reveal, dev-only /dev pages",
+      "dependencies": [
+        "v2-astro-tooling-biome"
+      ],
+      "parallelGroup": "p2-tokens"
+    },
+    {
+      "id": "v2-astro-base-layout",
+      "endpoint": null,
+      "spec": "07-base-layout.md",
+      "status": "done",
+      "summary": "BaseLayout with SEO/OG/JSON-LD, data-theme no-flash script, theme-color #e1e2e7/#16161e, ClientRouter, Umami (UMAMI_WEBSITE_ID)",
+      "dependencies": [
+        "v2-astro-site-config-env",
+        "v2-astro-design-tokens"
+      ],
+      "parallelGroup": "p2-layout"
+    },
+    {
+      "id": "v2-astro-ui-primitives",
+      "endpoint": null,
+      "spec": "08-ui-primitives.md",
+      "status": "done",
+      "summary": "Glass Card, Button, Tag, Link, icons, brand SVGs, SimpleIcon (simple-icons, build-time SVG), local Twemoji 17.0.3",
+      "dependencies": [
+        "v2-astro-design-tokens"
+      ],
+      "parallelGroup": "p2-layout"
+    },
+    {
+      "id": "v2-astro-header-footer",
+      "endpoint": null,
+      "spec": "09-header-footer.md",
+      "status": "done",
+      "summary": "Header (Blog · Projects · About, theme, ⌘K, mobile dialog); footer per mockup: link columns + Neovim statusline (build-time stars/sha/commit date, live HCMC time diff, Made in Vietnam) + keyboard-accessible version switcher (SITE.versions)",
+      "dependencies": [
+        "v2-astro-base-layout",
+        "v2-astro-ui-primitives"
+      ],
+      "parallelGroup": "p2-chrome"
+    },
+    {
+      "id": "v2-astro-content-collections",
+      "endpoint": null,
+      "spec": "10-content-collections.md",
+      "status": "done",
+      "summary": "Move MDX to src/content, glob collections mirroring contentlayer, pure tag/reading-time helpers with tests vs v1 tag-data.json",
+      "dependencies": [
+        "v2-astro-site-config-env"
+      ],
+      "parallelGroup": "p3-content"
+    },
+    {
+      "id": "v2-astro-mdx-pipeline",
+      "endpoint": null,
+      "spec": "11-mdx-pipeline.md",
+      "status": "done",
+      "summary": "Explicit unified processor (rehypeHeadingIds before autolink), Expressive Code tokyo-night + vendored Tokyonight Day, title/lang badge/copy/markers, Callout + GitHub alerts, zoom, dev fixture",
+      "dependencies": [
+        "v2-astro-content-collections",
+        "v2-astro-ui-primitives"
+      ],
+      "parallelGroup": "p3-mdx"
+    },
+    {
+      "id": "v2-astro-blog-post-page",
+      "endpoint": null,
+      "spec": "12-blog-post-page.md",
+      "status": "done",
+      "summary": "/blog/[slug] per mockup: byline, TOC aside with tags + updated date, reactions slot at article end, reading progress, prev/next, JSON-LD",
+      "dependencies": [
+        "v2-astro-header-footer",
+        "v2-astro-mdx-pipeline"
+      ],
+      "parallelGroup": "p4-pages"
+    },
+    {
+      "id": "v2-astro-blog-list-pagination",
+      "endpoint": null,
+      "spec": "13-blog-list-pagination.md",
+      "status": "done",
+      "summary": "/blog (\"Writing\") with tag filter chips (links) and dated rows, /blog/page/[n] pagination",
+      "dependencies": [
+        "v2-astro-header-footer",
+        "v2-astro-content-collections"
+      ],
+      "parallelGroup": "p4-pages"
+    },
+    {
+      "id": "v2-astro-tags-pages",
+      "endpoint": null,
+      "spec": "14-tags-pages.md",
+      "status": "done",
+      "summary": "/tags and /tags/[tag] with github-slugger slugs, chip bar and popular tags",
+      "dependencies": [
+        "v2-astro-blog-list-pagination"
+      ],
+      "parallelGroup": "p4-pages-2"
+    },
+    {
+      "id": "v2-astro-homepage-bento",
+      "endpoint": null,
+      "spec": "15-homepage-bento.md",
+      "status": "done",
+      "summary": "Mockup bento: word-by-word hero, staggered cards, stub cards for p5 tasks, Daily stack simple-icons marquee + Now learning, count-up helper, Selected projects (featured + framed)",
+      "dependencies": [
+        "v2-astro-header-footer",
+        "v2-astro-content-collections",
+        "v2-astro-projects-page"
+      ],
+      "parallelGroup": "p4-pages"
+    },
+    {
+      "id": "v2-astro-about-and-404",
+      "endpoint": null,
+      "spec": "16-about-and-404.md",
+      "status": "done",
+      "summary": "/about from author MDX + career timeline, custom 404",
+      "dependencies": [
+        "v2-astro-header-footer",
+        "v2-astro-mdx-pipeline"
+      ],
+      "parallelGroup": "p4-pages"
+    },
+    {
+      "id": "v2-astro-projects-page",
+      "endpoint": null,
+      "spec": "17-projects-page.md",
+      "status": "done",
+      "summary": "Featured + browser-framed project cards (fact tiles, astro:assets AVIF/WebP screenshots, hover zoom/pan), on-demand /projects with CDN caching",
+      "dependencies": [
+        "v2-astro-header-footer"
+      ],
+      "parallelGroup": "p4-pages"
+    },
+    {
+      "id": "v2-astro-stats-views-reactions",
+      "endpoint": "GET|POST /api/stats",
+      "spec": "18-stats-views-reactions.md",
+      "status": "done",
+      "summary": "Views + reactions on atomic Drizzle upserts; best-effort stats_daily upsert per view; strict zod deltas, origin allowlist; reactions burst + \"+1\"; tests",
+      "dependencies": [
+        "v2-astro-db-drizzle",
+        "v2-astro-blog-post-page"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-spotify-now-playing",
+      "endpoint": "GET /api/spotify",
+      "spec": "19-spotify-now-playing.md",
+      "status": "done",
+      "summary": "Spotify endpoint with progressMs/durationMs; fills the SpotifyCard stub (visibility-aware island with progress bar)",
+      "dependencies": [
+        "v2-astro-site-config-env",
+        "v2-astro-homepage-bento"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-github-integration",
+      "endpoint": "GET /api/github, GET /api/github/activity",
+      "spec": "20-github-integration.md",
+      "status": "done",
+      "summary": "GitHub service: projects enrichment, /api/github parity endpoint, 46-week heatmap with contributions, day streak and public repos (fills GithubActivityCard stub)",
+      "dependencies": [
+        "v2-astro-site-config-env",
+        "v2-astro-homepage-bento",
+        "v2-astro-projects-page"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-giscus-comments",
+      "endpoint": null,
+      "spec": "21-giscus-comments.md",
+      "status": "done",
+      "summary": "Giscus island (NEXT_PUBLIC_GISCUS_* passed as props), live data-theme sync, lazy on visible",
+      "dependencies": [
+        "v2-astro-blog-post-page"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-newsletter-buttondown",
+      "endpoint": "POST /api/newsletter",
+      "spec": "22-newsletter-buttondown.md",
+      "status": "done",
+      "summary": "Buttondown subscribe endpoint (origin allowlist) + progressive-enhancement form island",
+      "dependencies": [
+        "v2-astro-site-config-env",
+        "v2-astro-blog-post-page",
+        "v2-astro-stats-views-reactions"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-search-command-palette",
+      "endpoint": null,
+      "spec": "23-search-command-palette.md",
+      "status": "done",
+      "summary": "Pagefind index + ⌘K palette lazily imported by a vanilla loader (no React/cmdk until first open)",
+      "dependencies": [
+        "v2-astro-header-footer",
+        "v2-astro-blog-post-page",
+        "v2-astro-blog-list-pagination"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-feeds-sitemap-robots",
+      "endpoint": null,
+      "spec": "24-feeds-sitemap-robots.md",
+      "status": "done",
+      "summary": "RSS /feed.xml + per-tag feeds, @astrojs/sitemap with lastmod, robots.txt",
+      "dependencies": [
+        "v2-astro-content-collections"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-og-images",
+      "endpoint": null,
+      "spec": "25-og-images.md",
+      "status": "done",
+      "summary": "Build-time per-post OG PNGs with Satori + resvg using mockup colours, wired into SEO",
+      "dependencies": [
+        "v2-astro-content-collections",
+        "v2-astro-base-layout",
+        "v2-astro-blog-post-page"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-motion-polish",
+      "endpoint": null,
+      "spec": "26-motion-polish.md",
+      "status": "done",
+      "summary": "Motion system orchestration: PointerFx (tilt + spotlight), PauseOffscreen, button sheen, page/nav-pill view transitions, reveals; reduced-motion, at-rest, off-screen and CLS audit",
+      "dependencies": [
+        "v2-astro-blog-post-page",
+        "v2-astro-blog-list-pagination",
+        "v2-astro-tags-pages",
+        "v2-astro-homepage-bento",
+        "v2-astro-about-and-404",
+        "v2-astro-projects-page",
+        "v2-astro-snowfall",
+        "v2-astro-token-burn",
+        "v2-astro-stats-views-reactions",
+        "v2-astro-github-integration",
+        "v2-astro-blog-stats-summary",
+        "v2-astro-spotify-now-playing"
+      ],
+      "parallelGroup": "p6-polish"
+    },
+    {
+      "id": "v2-astro-docs-and-hygiene",
+      "endpoint": null,
+      "spec": "27-docs-and-hygiene.md",
+      "status": "done",
+      "summary": "Rewrite CLAUDE.md/README (credits, licences), dependabot for bun, keep dev-only pages, remove orphan assets",
+      "dependencies": [
+        "v2-astro-snowfall",
+        "v2-astro-blog-stats-summary",
+        "v2-astro-token-burn",
+        "v2-astro-tooling-biome",
+        "v2-astro-db-drizzle",
+        "v2-astro-search-command-palette",
+        "v2-astro-og-images",
+        "v2-astro-feeds-sitemap-robots"
+      ],
+      "parallelGroup": "p6-polish"
+    },
+    {
+      "id": "v2-astro-final-verification",
+      "endpoint": null,
+      "spec": "28-final-verification.md",
+      "status": "done",
+      "summary": "Preview deploy (+ANTHROPIC_ADMIN_API_KEY, stats_daily migration), URL + feature parity incl. nav, statusline, version switcher, token burn, rich cards, motion; data integrity, headers, CI, Lighthouse",
+      "dependencies": [
+        "v2-astro-stats-views-reactions",
+        "v2-astro-spotify-now-playing",
+        "v2-astro-github-integration",
+        "v2-astro-giscus-comments",
+        "v2-astro-newsletter-buttondown",
+        "v2-astro-search-command-palette",
+        "v2-astro-feeds-sitemap-robots",
+        "v2-astro-og-images",
+        "v2-astro-motion-polish",
+        "v2-astro-docs-and-hygiene",
+        "v2-astro-snowfall",
+        "v2-astro-blog-stats-summary",
+        "v2-astro-token-burn",
+        "v2-astro-vercel-config"
+      ],
+      "parallelGroup": "p6-verify"
+    },
+    {
+      "id": "v2-astro-snowfall",
+      "endpoint": null,
+      "spec": "29-snowfall.md",
+      "status": "done",
+      "summary": "Fill Snowfall stub: vanilla single-layer canvas, 119 flakes with larger/slower flakes (r .8-2.6, speed .25-1.2, v1 wind/opacity), pure model.ts + tests, -z-1 with body-only background, --snow-c, reduced-motion change listener, SnowfallMode flag",
+      "dependencies": [
+        "v2-astro-homepage-bento",
+        "v2-astro-site-config-env"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-blog-stats-summary",
+      "endpoint": "GET /api/stats/summary",
+      "spec": "30-blog-stats-summary.md",
+      "status": "done",
+      "summary": "GET /api/stats/summary (totals, reaction split, 30-day series + delta from stats_daily, most-read); Blog stats card with area chart, delta pill, reaction bar",
+      "dependencies": [
+        "v2-astro-db-drizzle",
+        "v2-astro-homepage-bento",
+        "v2-astro-stats-views-reactions"
+      ],
+      "parallelGroup": "p5-integrations"
+    },
+    {
+      "id": "v2-astro-token-burn",
+      "endpoint": "GET /api/token-burn",
+      "spec": "31-token-burn.md",
+      "status": "done",
+      "summary": "GET /api/token-burn from the Anthropic Usage & Cost Admin API (14 UTC days, today, month, cost, split; s-maxage=900; available:false fallback) + vanilla Token burn card; fixture-driven tests",
+      "dependencies": [
+        "v2-astro-site-config-env",
+        "v2-astro-homepage-bento"
+      ],
+      "parallelGroup": "p5-integrations"
+    }
+  ],
+  "postPlan": "Post-plan changes after all tasks were done: see 00-overview.md → \"Post-plan changes (2026-09-27)\"."
+}

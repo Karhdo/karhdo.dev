@@ -1,0 +1,35 @@
+---
+/**
+ * `/blog/page/N` for N ≥ 2 (v1 `app/blog/page/[page]/page.tsx`). Page 1 is `/blog`; `/blog/page/1`
+ * is a 301 in vercel.json and is not generated. Out-of-range pages are simply not built (404).
+ */
+import type { GetStaticPaths, Page } from 'astro';
+import { SITE } from '~/config/site';
+import ListLayout from '~/layouts/ListLayout.astro';
+import { getPublishedPosts, type Post } from '~/lib/content';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPublishedPosts();
+  return paginate(posts, { pageSize: SITE.postsPerPage, props: { total: posts.length } }).filter(
+    // `[page]` (not `[...page]`) yields page 1 as `/blog/page/1`: skip it, `/blog` is page 1.
+    (path) => path.props.page.currentPage > 1
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<Post>;
+  total: number;
+}
+
+const { page, total } = Astro.props;
+---
+
+<ListLayout
+  seo={{ title: `Blog - Page ${page.currentPage}` }}
+  eyebrow={`Blog · ${total} posts`}
+  heading="Writing"
+  description="Notes on backend architecture, databases and TypeScript, written while building real products."
+  posts={page.data}
+  activeTag="all"
+  pagination={{ currentPage: page.currentPage, totalPages: page.lastPage }}
+/>

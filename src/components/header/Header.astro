@@ -1,0 +1,121 @@
+---
+/**
+ * Sticky glass site header (task 09, mockup `header.site` / `.nav`). Persisted across ClientRouter
+ * navigations, so the active link (`aria-current="page"` + the `nav-pill` view-transition name) is
+ * re-computed by script on `astro:after-swap`, inside the router's update callback, which lets the
+ * pill glide from the old link to the new one.
+ */
+import Wordmark from '~/components/brand/Wordmark.astro';
+import { HEADER_NAV_LINKS } from '~/config/navigation';
+import AnalyticsLink from './AnalyticsLink.astro';
+import MobileNav from './MobileNav.astro';
+import SearchTrigger from './SearchTrigger.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<header transition:persist transition:name="site-header" transition:animate="none" class="sticky top-0 z-50 mx-auto w-full max-w-5xl px-4 pt-3 sm:px-6 xl:max-w-6xl xl:px-0">
+  <div class="glass site-glass flex items-center justify-between gap-3 rounded-2xl! py-2.5 pr-3 pl-4">
+    <Wordmark placement="header" />
+    <nav aria-label="Main" class="hidden items-center gap-1 sm:flex">
+      {
+        HEADER_NAV_LINKS.map(({ href, title }) => (
+          <a
+            href={href}
+            class="nav-link"
+            data-nav-link
+            data-nav-pill
+            data-umami-event={`nav-${href.slice(1)}`}
+            aria-current={isActive(href) ? 'page' : undefined}
+            style={isActive(href) ? 'view-transition-name: nav-pill' : undefined}
+          >
+            {title}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="flex items-center gap-1.5">
+      <SearchTrigger />
+      <AnalyticsLink />
+      <ThemeToggle />
+      <MobileNav />
+    </div>
+  </div>
+</header>
+
+<style>
+  /* The header floats over any content (busy cards, the 404's blue button): a 90 % --surface-solid
+     base keeps --fg-soft nav text >= 4.5:1 whatever sits behind it (was --surface at 55 %). */
+  .site-glass {
+    background: color-mix(in srgb, var(--surface-solid) 90%, transparent);
+  }
+  .nav-link {
+    border-radius: 10px;
+    padding: 6px 12px;
+    color: var(--fg-soft);
+    font-size: 15px;
+    text-decoration: none;
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+  .nav-link:hover {
+    background: var(--line);
+    color: var(--fg);
+  }
+  .nav-link[aria-current='page'] {
+    background: var(--surface-solid);
+    color: var(--fg);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+</style>
+
+<style is:global>
+  @layer components {
+    /* Ghost icon button shared by the header tools (mockup `.btn-ghost`). */
+    .icon-btn {
+      display: inline-flex;
+      height: 36px;
+      min-width: 36px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--fg-soft);
+      font: inherit;
+      cursor: pointer;
+      transition:
+        border-color 0.2s,
+        color 0.2s;
+    }
+    .icon-btn:hover {
+      border-color: var(--line-strong);
+      color: var(--fg);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-group(nav-pill) {
+      animation-duration: 0.35s;
+      animation-timing-function: var(--ease-spring);
+    }
+  }
+</style>
+
+<script>
+  /** Moves `aria-current` (and the single `nav-pill` view-transition name) to the current page's links. */
+  function syncActiveLink(): void {
+    const path = location.pathname;
+    for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')) {
+      const href = link.getAttribute('href') ?? '';
+      const active = path === href || path.startsWith(`${href}/`);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+      if ('navPill' in link.dataset) link.style.viewTransitionName = active ? 'nav-pill' : '';
+    }
+  }
+
+  document.addEventListener('astro:after-swap', syncActiveLink);
+  document.addEventListener('astro:page-load', syncActiveLink);
+</script>

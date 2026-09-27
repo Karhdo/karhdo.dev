@@ -1,0 +1,65 @@
+---
+/**
+ * `/tags` (v1 `app/tags/page.tsx`): popular-tag cards, then every tag as a pill with its post
+ * count, sorted by count desc (ties by slug, same order as the blog filter chips).
+ */
+import PopularTags from '~/components/tags/PopularTags.astro';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import Tag from '~/components/ui/Tag.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { sortTagChips } from '~/lib/blog-list';
+import { getTagCounts } from '~/lib/content';
+
+const tags = sortTagChips(await getTagCounts());
+---
+
+<PageLayout title="Tags" description="Things I blog about">
+  <div class="flex flex-col gap-12 pt-10 pb-16 sm:pt-14">
+    <SectionHeader
+      class="reveal"
+      eyebrow={`Tags · ${tags.length} topics`}
+      title="Tags"
+      description="Things I blog about."
+    />
+
+    <PopularTags class="reveal" />
+
+    <section class="reveal flex flex-col gap-5" aria-labelledby="all-tags-heading">
+      <SectionHeader level={2} headingId="all-tags-heading" title="All tags" />
+      {
+        tags.length === 0 ? (
+          <p class="m-0 text-fg-soft">No tags found.</p>
+        ) : (
+          <ul class="m-0 flex list-none flex-wrap gap-2.5 p-0">
+            {tags.map((tag) => (
+              <li class="tag-pill">
+                <Tag text={tag.label} class="text-sm" />
+                <span class="font-mono text-fg-soft text-xs">
+                  {tag.count}
+                  <span class="sr-only"> {tag.count === 1 ? 'post' : 'posts'}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+  </div>
+</PageLayout>
+
+<style>
+  .tag-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--surface);
+    transition: border-color 0.2s;
+  }
+  .tag-pill:hover,
+  .tag-pill:focus-within {
+    border-color: var(--line-strong);
+  }
+</style>

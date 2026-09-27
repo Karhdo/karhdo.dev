@@ -1,0 +1,163 @@
+---
+/**
+ * Typed bios (v1 `TypedBios.tsx` without typed.js): a vanilla typewriter that cycles the `#bios`
+ * items (their innerHTML, so `<b>` and Twemoji `<img>` survive). 40 ms per character typed, 10 ms
+ * per character deleted, 1 s pause. It stops while the tab is hidden, shows one random bio statically
+ * under reduced motion, and re-inits on `astro:page-load` (timers cleared on `astro:before-swap`).
+ * Without JS the first bio is server-rendered. The line reserves two lines on narrow screens and one
+ * from `sm` up, so typing never shifts the layout.
+ */
+import Twemoji from '~/components/ui/Twemoji.astro';
+---
+
+<div class="typed-bios text-[15px] text-fg-soft leading-relaxed">
+  <ul id="bios" hidden>
+    <li>I'm aliased as <b class="font-medium text-fg">Karhdo</b> at work.</li>
+    <li>I live in <b class="font-medium text-fg">Ho Chi Minh, Viet Nam</b>.</li>
+    <li>I was born in the beautiful <b class="font-medium text-fg">Quang Ngai</b> city.</li>
+    <li>My first programming language I learned was <b class="font-medium text-fg">C++</b>.</li>
+    <li>I love web development.</li>
+    <li>I'm focusing on building <b class="font-medium text-fg">Dealops Project - SaasS platform</b>.</li>
+    <li>I work mostly with <b class="font-medium text-fg">Javascript/Typescript</b> technologies.</li>
+    <li>I'm a dog-person <Twemoji emoji="dog" size="base" />.</li>
+    <li>
+      I'm a sporty-guy. I love <Twemoji emoji="tennis" size="base" />, <Twemoji emoji="soccer-ball" size="base" />.
+    </li>
+    <li>I love listening <Twemoji emoji="musical-keyboard" size="base" /> and rap music.</li>
+    <li>I love playing video game <Twemoji emoji="video-game" size="base" />, LoL is my favorite one.</li>
+  </ul>
+  <p class="m-0">
+    <span data-typed>I'm aliased as <b class="font-medium text-fg">Karhdo</b> at work.</span><span
+      class="typed-caret loop-anim"
+      aria-hidden="true"></span>
+  </p>
+</div>
+
+<style>
+  .typed-bios p {
+    min-height: 2lh;
+  }
+  @media (min-width: 640px) {
+    .typed-bios p {
+      min-height: 1lh;
+    }
+  }
+  .typed-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 2px;
+    vertical-align: -0.15em;
+    background: var(--blue);
+    border-radius: 1px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .typed-caret {
+      animation: caretBlink 1s steps(1) infinite;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .typed-caret {
+      display: none;
+    }
+  }
+  @keyframes caretBlink {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const TYPE_MS = 40;
+  const BACK_MS = 10;
+  const PAUSE_MS = 1000;
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let onVisibility: (() => void) | undefined;
+  let io: IntersectionObserver | undefined;
+  /** Typing pauses while the bios are off-screen (task 26: no loop runs off-screen). */
+  let inView = true;
+
+  /** Splits HTML into typeable tokens: each tag is atomic, each text character is one token. */
+  function tokenize(html: string): string[] {
+    const tokens: string[] = [];
+    for (const part of html.trim().replace(/\s+/g, ' ').split(/(<[^>]+>)/)) {
+      if (!part) continue;
+      if (part.startsWith('<')) tokens.push(part);
+      else tokens.push(...Array.from(part));
+    }
+    return tokens;
+  }
+
+  function stop() {
+    clearTimeout(timer);
+    timer = undefined;
+    if (onVisibility) document.removeEventListener('visibilitychange', onVisibility);
+    onVisibility = undefined;
+    io?.disconnect();
+    io = undefined;
+    inView = true;
+  }
+
+  function start() {
+    stop();
+    const list = document.getElementById('bios');
+    const target = document.querySelector<HTMLElement>('[data-typed]');
+    if (!list || !target) return;
+    const bios = Array.from(list.querySelectorAll('li'), (li) => tokenize(li.innerHTML));
+    const bio = (i: number): string[] => bios[i] ?? [];
+    if (bios.length === 0) return;
+
+    if (!matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+      target.innerHTML = bio(Math.floor(Math.random() * bios.length)).join('');
+      return;
+    }
+
+    // Start by deleting the server-rendered first bio, then cycle from the second.
+    let index = 0;
+    let length = bio(0).length;
+    let deleting = true;
+
+    const tick = () => {
+      timer = undefined;
+      if (document.hidden || !inView) return; // resumed by the visibilitychange / intersection callbacks
+      const tokens = bio(index);
+      let delay = deleting ? BACK_MS : TYPE_MS;
+      if (deleting) {
+        length -= 1;
+        if (length <= 0) {
+          deleting = false;
+          index = (index + 1) % bios.length;
+          length = 0;
+        }
+      } else {
+        length += 1;
+        if (length >= tokens.length) {
+          deleting = true;
+          delay = PAUSE_MS;
+        }
+      }
+      target.innerHTML = bio(index).slice(0, length).join('');
+      timer = setTimeout(tick, delay);
+    };
+
+    const resume = () => {
+      if (!document.hidden && inView && timer === undefined) timer = setTimeout(tick, PAUSE_MS);
+    };
+    onVisibility = resume;
+    document.addEventListener('visibilitychange', onVisibility);
+    io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry?.isIntersecting ?? true;
+        resume();
+      },
+      { rootMargin: '100px' }
+    );
+    io.observe(target);
+    timer = setTimeout(tick, PAUSE_MS);
+  }
+
+  document.addEventListener('astro:page-load', start);
+  document.addEventListener('astro:before-swap', stop);
+</script>

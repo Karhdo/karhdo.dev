@@ -1,0 +1,35 @@
+---
+/**
+ * /dev/layout — exercises BaseLayout/PageLayout (task 07): article SEO tags, a tag feed link,
+ * and a link back to `/` to check ClientRouter navigation keeps the theme.
+ */
+import PageLayout from '~/layouts/PageLayout.astro';
+import { buildBlogPostingJsonLd } from '~/lib/seo';
+
+const post = {
+  id: 'layout-fixture',
+  data: {
+    title: 'Layout fixture',
+    date: new Date('2024-01-02'),
+    lastmod: new Date('2024-02-03'),
+    summary: 'A fake post for checking the article head.',
+    images: undefined,
+  },
+};
+---
+
+<PageLayout
+  title={post.data.title}
+  description={post.data.summary}
+  type="article"
+  publishedTime={post.data.date}
+  modifiedTime={post.data.lastmod}
+  tags={['astro', 'seo']}
+  rssFeed="/tags/astro/feed.xml"
+  jsonLd={buildBlogPostingJsonLd(post, { data: { name: 'Do Trong Khanh' } })}
+>
+  <section class="space-y-4 py-16">
+    <h1 class="font-bold text-3xl">Layout fixture</h1>
+    <a id="home-link" class="text-blue underline" href="/">Back home</a>
+  </section>
+</PageLayout>

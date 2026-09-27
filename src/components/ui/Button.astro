@@ -1,0 +1,49 @@
+---
+/**
+ * Button (mockup `.btn` / `.btn.primary` / `.btn-ghost`). Renders `<a>` when `href` is given,
+ * otherwise `<button type="button">`. `primary` carries `.btn-primary`, the task-26 hover sheen.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { cn } from '~/lib/utils/cn';
+
+type Variant = 'primary' | 'ghost' | 'outline';
+type Size = 'sm' | 'md';
+
+type Props = Omit<HTMLAttributes<'button'>, 'class'> & {
+  href?: string;
+  variant?: Variant;
+  size?: Size;
+  class?: string;
+  target?: string;
+  rel?: string;
+};
+
+const BASE =
+  'inline-flex cursor-pointer items-center justify-center gap-2 border font-medium no-underline transition-[border-color,color,filter] duration-200 disabled:cursor-not-allowed disabled:opacity-60';
+
+const VARIANTS: Record<Variant, string> = {
+  primary: 'btn-primary border-heat-4 bg-heat-4 text-surface-solid hover:brightness-107', // heat-4 = deeper Day blue (4.88:1), same as --blue in Night
+  outline: 'border-line-strong bg-transparent text-fg hover:brightness-107',
+  ghost: 'border-line bg-transparent text-fg-soft hover:border-line-strong hover:text-fg',
+};
+
+const SIZES: Record<Size, string> = {
+  sm: 'rounded-[10px] px-2.5 py-1.5 text-sm',
+  md: 'rounded-xl px-4 py-2.5 text-[15px]',
+};
+
+const { href, variant = 'outline', size = 'md', class: className, type = 'button', ...rest } = Astro.props;
+const classes = cn(BASE, VARIANTS[variant], SIZES[size], className);
+---
+
+{
+  href ? (
+    <a href={href} class={classes} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} {...rest}>
+      <slot />
+    </button>
+  )
+}

@@ -12,21 +12,16 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
-public/sitemap.xml
-.vercel
+# astro / vercel build output
+dist/
+.astro/
+.vercel/
 
-# production
-/build
-*.xml
+# drizzle-kit pull output (introspection only, never committed)
+.drizzle-introspect/
 
-# rss feed
-/public/feed.xml
-
-# search
-/public/search.json
+# pagefind index (generated at build)
+public/pagefind/
 
 # misc
 .DS_Store
@@ -39,16 +34,13 @@ yarn-error.log*
 
 # local env files
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Contentlayer
-.contentlayer
+.env*.local
 
 # TypeScript
 tsconfig.tsbuildinfo
+.vercel
+.env*
+!.env.example
 
-# Prisma
-/prisma/generated/
+# Archived env files (v1)
+/env/

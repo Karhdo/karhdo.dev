@@ -1,0 +1,12 @@
+---
+/**
+ * Newsletter sign-up after the post navigation (task 22): the glass `NewsletterCard`. The wrapper
+ * keeps the task-12 hook (`data-post-newsletter`); the card carries the margin, so nothing is added
+ * when it is omitted.
+ */
+import NewsletterCard from './NewsletterCard.astro';
+---
+
+<div data-pagefind-ignore data-post-newsletter>
+  <NewsletterCard class="mt-12" />
+</div>

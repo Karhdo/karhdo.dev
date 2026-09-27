@@ -1,0 +1,53 @@
+---
+/**
+ * `/blog/{id}` for every published post (v1 `app/blog/[...slug]/page.tsx`); the glob loader's id
+ * is the v1 slug, so URLs are unchanged.
+ */
+import { render } from 'astro:content';
+import { mdxComponents } from '~/components/mdx';
+import { SITE } from '~/config/site';
+import PostLayout from '~/layouts/PostLayout.astro';
+import { getAuthor, getPostNeighbours, getPublishedPosts, getReadingTime, type Post, postUrl } from '~/lib/content';
+import { buildBlogPostingJsonLd, postImage } from '~/lib/seo';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const neighbours = await getPostNeighbours(post.id);
+const readingMinutes = Math.max(1, Math.ceil(getReadingTime(post.body ?? '').minutes));
+const authorEntries = (await Promise.all(post.data.authors.map((id) => getAuthor(id)))).filter(
+  (author) => author !== undefined
+);
+const authorProfiles =
+  authorEntries.length > 0
+    ? authorEntries.map((author) => ({ name: author.data.name, avatar: author.data.avatar }))
+    : [{ name: SITE.author }];
+---
+
+<PostLayout
+  post={post}
+  headings={headings}
+  readingMinutes={readingMinutes}
+  authorProfiles={authorProfiles}
+  neighbours={neighbours}
+  title={post.data.title}
+  description={post.data.summary}
+  type="article"
+  publishedTime={post.data.date}
+  modifiedTime={post.data.lastmod ?? post.data.date}
+  tags={post.data.tags}
+  authors={authorProfiles.map((author) => author.name)}
+  image={postImage(post.data.images, post.id)}
+  canonical={post.data.canonicalUrl ?? postUrl(post)}
+  jsonLd={buildBlogPostingJsonLd(post, authorEntries)}
+>
+  <Content components={mdxComponents} />
+</PostLayout>

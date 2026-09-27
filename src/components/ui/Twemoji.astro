@@ -1,0 +1,35 @@
+---
+/**
+ * Twemoji as a local SVG (`public/static/twemoji/`). Unknown names render nothing and warn in dev.
+ * `className` is kept for MDX compatibility with v1 posts; `class` works too.
+ */
+import { emojiCodepoint, emojiLabel, emojiSrc, TWEMOJI_SIZE_CLASS, type TwemojiSize } from '~/lib/emoji';
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  emoji: string;
+  size?: TwemojiSize;
+  className?: string;
+  class?: string;
+}
+
+const { emoji, size = 'lg', className, class: klass } = Astro.props;
+const codepoint = emojiCodepoint(emoji);
+if (!codepoint && import.meta.env.DEV) {
+  console.warn(`[Twemoji] Unknown emoji "${emoji}": add it to EMOJI_CODEPOINTS in src/lib/emoji.ts.`);
+}
+---
+
+{
+  codepoint && (
+    <img
+      src={emojiSrc(codepoint)}
+      alt={emojiLabel(emoji)}
+      width="36"
+      height="36"
+      loading="lazy"
+      decoding="async"
+      class={cn('twemoji', `twemoji-${size}`, 'inline-block', TWEMOJI_SIZE_CLASS[size], className, klass)}
+    />
+  )
+}

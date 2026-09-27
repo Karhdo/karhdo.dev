@@ -1,0 +1,91 @@
+---
+/**
+ * The animated `karhdo.dev` text wordmark (mockup `.brand` / `.wm` / `.ch`). Text only: no avatar,
+ * dot or caret. The server HTML is the real name, so it is correct with no JS and under reduced
+ * motion. `placement="header"` also decodes once per session (see ./wordmark.ts); both placements
+ * play the letter wave on hover/focus. The 75 %-width green underline shows only on hover/focus.
+ */
+interface Props {
+  placement: 'header' | 'footer';
+  class?: string;
+}
+
+const { placement, class: className } = Astro.props;
+const NAME = 'karhdo';
+const TLD = '.dev';
+const chars = [...NAME].map((ch) => ({ ch, tld: false })).concat([...TLD].map((ch) => ({ ch, tld: true })));
+---
+
+<a
+  class:list={['brand', className]}
+  href="/"
+  aria-label="karhdo.dev, home"
+  data-wm={placement}
+  data-umami-event={`${placement}-logo`}
+>
+  <span class="wm" aria-hidden="true">
+    {chars.map(({ ch, tld }, i) => <span class:list={['ch', { tld }]} style={`--i:${i}`}>{ch}</span>)}
+  </span>
+</a>
+
+<style>
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .wm {
+    position: relative;
+    display: inline-flex;
+    white-space: pre;
+    padding-bottom: 5px;
+  }
+  .wm::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 75%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--green);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+  .brand:hover .wm::after,
+  .brand:focus-visible .wm::after {
+    transform: scaleX(1);
+  }
+  .ch {
+    display: inline-block;
+    min-width: 0.5ch;
+    transition: color 0.2s;
+  }
+  .ch.tld {
+    color: var(--blue);
+  }
+  .ch.scr {
+    color: var(--purple);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wm::after {
+      transition: transform 0.5s var(--ease-out);
+    }
+    .brand.wave .ch {
+      animation: chWave 0.55s var(--ease-spring) both;
+      animation-delay: calc(var(--i) * 32ms);
+    }
+  }
+</style>
+
+<script>
+  import { initWordmarks } from './wordmark';
+
+  document.addEventListener('astro:page-load', initWordmarks);
+</script>

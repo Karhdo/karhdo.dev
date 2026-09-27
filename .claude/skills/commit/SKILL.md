@@ -57,6 +57,20 @@ Create a well-structured git commit following the Conventional Commits specifica
    - Add exclamation mark after type/scope, e.g. `feat(api)!: remove deprecated endpoints`
    - Or add `BREAKING CHANGE:` in footer
 
+## Project checks (karhdo.dev v2)
+
+Before committing changes under `src/`, run and fix:
+
+```bash
+bunx biome check --write <changed files>   # lint + format (lefthook also runs it on staged files)
+bun run lint:palette                       # Tokyonight tokens only, no colour literals
+bun test                                   # unit tests
+bunx astro check                           # types
+```
+
+Common scopes: `home`, `about`, `career`, `blog`, `tags`, `projects`, `motion`, `snowfall`, `footer`,
+`header`, `search`, `seo`, `stats`, `db`, `deps`, `config`, `docs`, `plan`.
+
 ## Process
 
 1. Run `git status` to see all changes (never use `-uall` flag)
@@ -98,7 +112,8 @@ If `$ARGUMENTS` is provided:
 ## Important
 
 - NEVER use `git add -A` or `git add .` - always add specific files
-- NEVER commit sensitive files (.env, credentials, secrets)
+- NEVER commit sensitive files (.env, .env.local, .env.production.local, .env.backup, credentials, secrets); `.env.example` is the only env file in git
+- Keep each commit path-limited to one logical change (`git commit -- <paths>`), so unrelated staged files never ride along
 - NEVER amend previous commits unless explicitly requested
 - ALWAYS create a NEW commit, not amend existing ones
 - Use HEREDOC format for multi-line commit messages:

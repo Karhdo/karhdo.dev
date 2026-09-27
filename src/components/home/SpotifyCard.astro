@@ -1,0 +1,403 @@
+---
+/**
+ * Bento "Now playing" card (mockup `.c-spotify`, task 19). A plain module script (no React island,
+ * like the task-18 stats): the card fetches `GET /api/spotify` once it scrolls into view, then every
+ * 30 s while it is on screen and the tab is visible. The progress bar and `m:ss` times are interpolated
+ * every second from `progressMs` (corrected for the CDN cache age) while playing, on screen and with
+ * motion allowed; under reduced motion they only change on each poll. The equaliser bars animate only
+ * while playing and with motion allowed. Skeleton, playing, paused and offline states share one fixed
+ * layout inside the reserved `CARD_MIN_HEIGHT.spotify`, so nothing shifts. `transition:persist` keeps
+ * the last state across view-transition navigations back to the homepage.
+ * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
+ */
+import Card from '~/components/ui/Card.astro';
+import SimpleIcon from '~/components/ui/SimpleIcon.astro';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+import CardSkeleton from './CardSkeleton.astro';
+import { CARD_MIN_HEIGHT } from './card-sizes';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+---
+
+<Card
+  class={cn('flex flex-col gap-3.5', className)}
+  style={`min-height: ${CARD_MIN_HEIGHT.spotify}px; ${style ?? ''}`}
+  data-tilt
+  data-spotify-card
+  aria-busy="true"
+  transition:persist="spotify"
+>
+  <CardEyebrow>
+    <span class="sp-bars loop-anim" data-sp-bars aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span data-sp-label>Now playing</span>
+  </CardEyebrow>
+
+  <div class="contents" data-sp-skeleton>
+    <div class="flex items-center gap-3">
+      <CardSkeleton height={56} width="56px" radius="10px" />
+      <div class="flex flex-1 flex-col gap-2">
+        <CardSkeleton height={14} width="70%" />
+        <CardSkeleton height={12} width="50%" />
+        <CardSkeleton height={4} radius="4px" />
+      </div>
+    </div>
+  </div>
+
+  <div class="contents" data-sp-body hidden>
+    <div class="flex min-w-0 items-center gap-3">
+      <div class="relative size-14 shrink-0 overflow-hidden rounded-[10px]" aria-hidden="true">
+        <span class="sp-cover absolute inset-0" data-sp-cover></span>
+        <span class="absolute inset-0 grid place-items-center bg-line text-spotify" data-sp-offline hidden>
+          <SimpleIcon slug="spotify" size={28} />
+        </span>
+        <img
+          class="absolute inset-0 size-full object-cover"
+          data-sp-img
+          width="56"
+          height="56"
+          sizes="56px"
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerpolicy="no-referrer"
+          hidden
+        />
+      </div>
+      <div class="flex min-w-0 flex-1 flex-col">
+        {/* A `<span>` until there is a song URL; the script swaps in an `<a>` (never an `<a>` without `href`). */}
+        <span class="truncate font-semibold text-fg leading-[1.25] no-underline" data-sp-title></span>
+        <p class="m-0 truncate text-fg-soft text-sm" data-sp-sub></p>
+        <div class="mt-1.5" data-sp-progress>
+          <div class="h-1 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
+            <span class="sp-bar block h-full rounded-[4px] bg-spotify" data-sp-bar></span>
+          </div>
+          <p class="m-0 mt-0.5 flex justify-between font-mono text-[11px] text-fg-soft tabular-nums">
+            <span><span class="sr-only">Elapsed </span><span data-sp-pos>0:00</span></span>
+            <span><span class="sr-only">of </span><span data-sp-dur>0:00</span></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Card>
+
+<style>
+  /* Mockup `.bars`: static at 40 % until playing; v1 `music-bar-1..4` keyframes (animations.css). */
+  .sp-bars {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+    height: 14px;
+  }
+  .sp-bars i {
+    width: 3px;
+    height: 40%;
+    border-radius: 2px;
+    background: var(--spotify);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sp-bars[data-on] i {
+      animation-duration: 0.8s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+    .sp-bars[data-on] i:nth-child(1) {
+      animation-name: music-bar-1;
+    }
+    .sp-bars[data-on] i:nth-child(2) {
+      animation-name: music-bar-2;
+    }
+    .sp-bars[data-on] i:nth-child(3) {
+      animation-name: music-bar-3;
+    }
+    .sp-bars[data-on] i:nth-child(4) {
+      animation-name: music-bar-4;
+    }
+    /* The 1 s ticks glide instead of stepping. */
+    .sp-bar {
+      transition: transform 1s linear;
+    }
+  }
+  /* Mockup `.cover`: the placeholder when there is no album art. */
+  .sp-cover {
+    background: conic-gradient(from 200deg, var(--orange), var(--red), var(--purple), var(--blue), var(--orange));
+  }
+  .sp-cover::after {
+    content: '';
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: var(--surface-solid);
+  }
+  .sp-bar {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+</style>
+
+<script>
+  import { formatTime, NOT_PLAYING, payloadAgeMs, positionAt } from '~/lib/spotify/now-playing';
+  import type { SpotifyNowPlayingData } from '~/types/spotify';
+
+  const POLL_MS = 30_000;
+  /** Attributes that belong only on the `<a>` form of the Spotify title. */
+  const LINK_ATTRS = ['href', 'title', 'target', 'rel', 'data-umami-event'];
+  const TICK_MS = 1000;
+
+  const motionQuery = matchMedia('(prefers-reduced-motion: no-preference)');
+  const motionAllowed = () => motionQuery.matches;
+
+  class NowPlayingCard {
+    readonly #root: HTMLElement;
+    readonly #el: {
+      bars: HTMLElement;
+      label: HTMLElement;
+      skeleton: HTMLElement;
+      body: HTMLElement;
+      cover: HTMLElement;
+      offline: HTMLElement;
+      img: HTMLImageElement;
+      title: HTMLElement;
+      sub: HTMLElement;
+      progress: HTMLElement;
+      bar: HTMLElement;
+      pos: HTMLElement;
+      dur: HTMLElement;
+    };
+    #data: SpotifyNowPlayingData | undefined;
+    /** `performance.now()` at the moment the payload's `progressMs` was true. */
+    #origin = 0;
+    #lastFetch = Number.NEGATIVE_INFINITY;
+    #inflight = false;
+    #inView = false;
+    #poll: ReturnType<typeof setTimeout> | undefined;
+    #tick: ReturnType<typeof setInterval> | undefined;
+    #io: IntersectionObserver | undefined;
+    readonly #onVisibility = () => this.#sync();
+    /** Reduced motion toggled mid-session: start/stop the 1 s ticks at once. */
+    readonly #onMotion = () => {
+      this.#syncTick();
+      this.#renderPosition(false);
+    };
+
+    constructor(root: HTMLElement) {
+      this.#root = root;
+      const q = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-sp-${name}]`) as T;
+      this.#el = {
+        bars: q('bars'),
+        label: q('label'),
+        skeleton: q('skeleton'),
+        body: q('body'),
+        cover: q('cover'),
+        offline: q('offline'),
+        img: q<HTMLImageElement>('img'),
+        title: q('title'),
+        sub: q('sub'),
+        progress: q('progress'),
+        bar: q('bar'),
+        pos: q('pos'),
+        dur: q('dur'),
+      };
+      this.#el.img.addEventListener('error', () => {
+        this.#el.img.hidden = true;
+        this.#el.cover.hidden = false;
+      });
+    }
+
+    resume() {
+      this.#io ??= new IntersectionObserver(([entry]) => {
+        this.#inView = entry?.isIntersecting ?? false;
+        this.#sync();
+      });
+      this.#io.observe(this.#root);
+      document.addEventListener('visibilitychange', this.#onVisibility);
+      motionQuery.addEventListener('change', this.#onMotion);
+    }
+
+    pause() {
+      this.#io?.disconnect();
+      this.#inView = false;
+      document.removeEventListener('visibilitychange', this.#onVisibility);
+      motionQuery.removeEventListener('change', this.#onMotion);
+      this.#sync();
+    }
+
+    /** Timers run only while the card is on screen and the tab is visible. */
+    #sync() {
+      const active = this.#inView && document.visibilityState === 'visible';
+      if (!active) {
+        clearTimeout(this.#poll);
+        this.#poll = undefined;
+        this.#stopTick();
+        return;
+      }
+      if (performance.now() - this.#lastFetch >= POLL_MS) void this.#fetch();
+      else if (this.#poll === undefined) this.#schedule(POLL_MS - (performance.now() - this.#lastFetch));
+      this.#syncTick();
+    }
+
+    #schedule(delay: number) {
+      clearTimeout(this.#poll);
+      this.#poll = setTimeout(() => {
+        this.#poll = undefined;
+        void this.#fetch();
+      }, delay);
+    }
+
+    async #fetch() {
+      if (this.#inflight) return;
+      this.#inflight = true;
+      this.#lastFetch = performance.now();
+      try {
+        // Always ask the network (the route also sends `max-age=0, must-revalidate`); the Vercel CDN
+        // copy still answers most polls.
+        const response = await fetch('/api/spotify', { cache: 'no-cache', signal: AbortSignal.timeout(8000) });
+        if (!response.ok) throw new Error(String(response.status));
+        const data = (await response.json()) as SpotifyNowPlayingData;
+        const age = payloadAgeMs(response.headers.get('age'), data.fetchedAt, Date.now());
+        this.#data = data;
+        this.#origin = performance.now() - age;
+      } catch {
+        this.#data ??= NOT_PLAYING; // keep the last good state on a transient error
+      } finally {
+        this.#inflight = false;
+      }
+      this.#render();
+      if (this.#inView && document.visibilityState === 'visible') this.#schedule(POLL_MS);
+      this.#syncTick();
+    }
+
+    #hasTrack(data: SpotifyNowPlayingData | undefined): data is SpotifyNowPlayingData & { title: string } {
+      return Boolean(data?.title);
+    }
+
+    #render() {
+      const data = this.#data;
+      const el = this.#el;
+      el.skeleton.hidden = true;
+      el.body.hidden = false;
+      this.#root.setAttribute('aria-busy', 'false');
+
+      if (!this.#hasTrack(data)) {
+        el.bars.removeAttribute('data-on');
+        el.label.textContent = 'Now playing';
+        el.img.hidden = true;
+        el.cover.hidden = true;
+        el.offline.hidden = false;
+        this.#setTitle('Not playing');
+        el.sub.textContent = 'Offline · Spotify';
+        el.progress.style.visibility = 'hidden';
+        return;
+      }
+
+      el.bars.toggleAttribute('data-on', data.isPlaying);
+      el.label.textContent = data.isPlaying ? 'Now playing' : 'Paused';
+      el.offline.hidden = true;
+      if (data.albumImageUrl) {
+        if (el.img.getAttribute('src') !== data.albumImageUrl) {
+          if (data.albumImageSrcset) el.img.srcset = data.albumImageSrcset;
+          else el.img.removeAttribute('srcset');
+          el.img.src = data.albumImageUrl;
+        }
+        el.img.hidden = false;
+        el.cover.hidden = true;
+      } else {
+        el.img.hidden = true;
+        el.cover.hidden = false;
+      }
+      const sub = [data.artist, data.album].filter(Boolean).join(' · ');
+      this.#setTitle(data.title, data.songUrl, sub ? `${data.title} — ${sub}` : data.title);
+      el.sub.textContent = sub || 'Spotify';
+      const hasTiming = data.durationMs !== undefined && data.durationMs > 0;
+      el.progress.style.visibility = hasTiming ? '' : 'hidden';
+      el.dur.textContent = formatTime(data.durationMs ?? 0);
+      this.#renderPosition(false);
+    }
+
+    /** The title is a link only when there is a song URL (Lighthouse `crawlable-anchors`). */
+    #setTitle(text: string, href?: string, tooltip?: string) {
+      let title = this.#el.title;
+      const tag = href ? 'A' : 'SPAN';
+      if (title.tagName !== tag) {
+        const next = document.createElement(tag.toLowerCase());
+        // Keep every attribute (class, data-sp-title, Astro's scoped-style data-astro-cid-*) except the link ones.
+        for (const { name, value } of title.attributes) {
+          if (!LINK_ATTRS.includes(name)) next.setAttribute(name, value);
+        }
+        if (href) {
+          next.dataset.umamiEvent = 'spotify-now-playing';
+          next.setAttribute('target', '_blank');
+          next.setAttribute('rel', 'noopener noreferrer');
+        }
+        title.replaceWith(next);
+        this.#el.title = next;
+        title = next;
+      }
+      if (href) title.setAttribute('href', href);
+      title.classList.toggle('hover:underline', Boolean(href));
+      if (tooltip) title.title = tooltip;
+      else title.removeAttribute('title');
+      title.textContent = text;
+    }
+
+    #renderPosition(animate: boolean) {
+      const data = this.#data;
+      if (!data?.durationMs) return;
+      // Called on each poll, and every second only while ticking (never under reduced motion).
+      const at = positionAt(data, performance.now() - this.#origin);
+      const bar = this.#el.bar;
+      // A new payload jumps (no glide); ticks glide under the motion-safe transition.
+      if (!animate) bar.style.transitionDuration = '0s';
+      bar.style.transform = `scaleX(${(at / data.durationMs).toFixed(4)})`;
+      if (!animate) {
+        void bar.offsetWidth;
+        bar.style.transitionDuration = '';
+      }
+      this.#el.pos.textContent = formatTime(at);
+      if (at >= data.durationMs) this.#stopTick();
+    }
+
+    #syncTick() {
+      const data = this.#data;
+      const run =
+        this.#inView &&
+        document.visibilityState === 'visible' &&
+        motionAllowed() &&
+        data?.isPlaying === true &&
+        Boolean(data.durationMs);
+      if (!run) return this.#stopTick();
+      this.#tick ??= setInterval(() => this.#renderPosition(true), TICK_MS);
+    }
+
+    #stopTick() {
+      clearInterval(this.#tick);
+      this.#tick = undefined;
+    }
+  }
+
+  const cards = new WeakMap<HTMLElement, NowPlayingCard>();
+
+  function init() {
+    for (const root of document.querySelectorAll<HTMLElement>('[data-spotify-card]')) {
+      let card = cards.get(root);
+      if (root.dataset.bound !== 'true' || !card) {
+        root.dataset.bound = 'true';
+        card = new NowPlayingCard(root);
+        cards.set(root, card);
+      }
+      card.resume();
+    }
+  }
+
+  // The card is `transition:persist`ed: stop its timers when leaving the page, resume on return.
+  document.addEventListener('astro:before-swap', () => {
+    for (const root of document.querySelectorAll<HTMLElement>('[data-spotify-card]')) cards.get(root)?.pause();
+  });
+  document.addEventListener('astro:page-load', init);
+</script>

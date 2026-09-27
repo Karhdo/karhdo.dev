@@ -1,0 +1,173 @@
+---
+/**
+ * Bento "Daily stack" card (mockup `.c-stack`): a two-row marquee of the 14 `SITE.stack` tools, each
+ * the exact simple-icons logo tinted with its Tokyonight token, built at build time with no JS.
+ *
+ * Each row's track holds the list plus an `aria-hidden` duplicate for a seamless loop, so screen
+ * readers read the list once. The rows move in opposite directions (38 s / 44 s), pause on hover and
+ * focus, and are `.loop-anim` (paused off-screen by task 26). Under reduced motion the duplicate is
+ * hidden and each row becomes a static, keyboard-scrollable strip.
+ */
+import Card from '~/components/ui/Card.astro';
+import SimpleIcon from '~/components/ui/SimpleIcon.astro';
+import { SITE } from '~/config/site';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const { stack, nowLearning } = SITE;
+const half = Math.ceil(stack.length / 2);
+const rows = [
+  { items: stack.slice(0, half), reverse: false },
+  { items: stack.slice(half), reverse: true },
+];
+const label = `Technologies I use: ${stack.map((tool) => tool.name).join(', ')}`;
+---
+
+<Card class={cn('c-stack flex flex-col gap-3', className)} style={style} data-tilt>
+  <CardEyebrow>Daily stack<Fragment slot="end">{stack.length} tools</Fragment></CardEyebrow>
+  <div class="marquee" role="group" aria-label={label}>
+    {
+      rows.map(({ items, reverse }, r) => (
+        <div
+          class:list={['mq-row', reverse && 'rev']}
+          role="group"
+          tabindex="0"
+          aria-label={`Technologies, row ${r + 1}`}
+        >
+          <div class="mq-track loop-anim">
+            {[false, true].map((duplicate) => (
+              <ul aria-hidden={duplicate ? 'true' : undefined}>
+                {items.map((tool) => (
+                  <li class="tt">
+                    <b style={`--b: var(--${tool.tone})`}>
+                      <SimpleIcon slug={tool.icon} size={14} />
+                    </b>
+                    {tool.name}
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+  <p class="learning">
+    <span class="pulse loop-anim" aria-hidden="true"></span>
+    <span>
+      Now learning {
+        nowLearning.items.map((item, i) => (
+          <Fragment>
+            {i > 0 && (i === nowLearning.items.length - 1 ? ' & ' : ', ')}
+            <b>{item}</b>
+          </Fragment>
+        ))
+      }
+      {` ${nowLearning.text}`}
+    </span>
+  </p>
+</Card>
+
+<style>
+  .marquee {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-inline: -20px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  }
+  .mq-row {
+    overflow: hidden;
+    border-radius: 12px;
+  }
+  .mq-track {
+    display: flex;
+    width: max-content;
+  }
+  .mq-track ul {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    /* Each copy ends with one gap, so both halves are equally wide and -50% loops seamlessly. */
+    padding: 0 8px 0 0;
+    list-style: none;
+  }
+  .tt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 6px;
+    border-radius: 11px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+    font-size: 13.5px;
+    color: var(--fg-soft);
+    white-space: nowrap;
+  }
+  .tt b {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    color: var(--b);
+    background: color-mix(in srgb, var(--b) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--b) 30%, transparent);
+  }
+  .learning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: auto 0 0;
+    font-size: 13.5px;
+    color: var(--fg-soft);
+  }
+  .learning b {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    flex: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mq-track {
+      animation: mq 38s linear infinite;
+    }
+    .mq-row.rev .mq-track {
+      animation-direction: reverse;
+      animation-duration: 44s;
+    }
+    .marquee:hover .mq-track,
+    .marquee:focus-within .mq-track {
+      animation-play-state: paused;
+    }
+    .pulse {
+      animation: pulse 2s ease-out infinite;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mq-track ul[aria-hidden='true'] {
+      display: none;
+    }
+    .mq-row {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .mq-row::-webkit-scrollbar {
+      display: none;
+    }
+  }
+</style>

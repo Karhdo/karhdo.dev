@@ -1,0 +1,123 @@
+---
+/**
+ * ⌘K palette loader (task 23), mounted once in BaseLayout. Vanilla only: no React on the page until
+ * the palette is first opened.
+ *
+ * Opens on ⌘K / Ctrl-K, `/` (unless typing in a field) and `open-command-palette` on `window` (header
+ * SearchTrigger, blog list, 404). The first open dynamic-imports `mount-palette.tsx` (React + cmdk,
+ * code-split by Vite) and mounts it into `#cmdk-root`, which is `transition:persist`ed so the same
+ * root survives ClientRouter navigations. Later opens only dispatch `cmdk:open` / `cmdk:toggle`.
+ *
+ * `#cmdk-data` carries the latest posts (empty-query list), pages and social links.
+ */
+import { HEADER_NAV_LINKS } from '~/config/navigation';
+import { SITE } from '~/config/site';
+import { getPublishedPosts, postUrl } from '~/lib/content';
+import { type PaletteData, serialisePaletteData } from './palette-data';
+
+const posts = (await getPublishedPosts()).slice(0, 5).map((post) => ({
+  url: postUrl(post),
+  title: post.data.title,
+  tags: post.data.tags,
+}));
+
+const data: PaletteData = {
+  posts,
+  pages: [
+    { title: 'Home', href: '/', hint: '/', keywords: ['index', 'start'] },
+    ...HEADER_NAV_LINKS.map((link) => ({ title: link.title, href: link.href, hint: link.href })),
+    { title: 'Tags', href: '/tags', hint: '/tags', keywords: ['topics', 'categories'] },
+    { title: 'RSS feed', href: '/feed.xml', hint: '/feed.xml', keywords: ['subscribe', 'atom'] },
+  ],
+  social: [
+    { title: 'GitHub', href: SITE.github, hint: `@${SITE.socialAccounts.github}`, keywords: ['code', 'source'] },
+    { title: 'LinkedIn', href: SITE.linkedin, hint: `@${SITE.socialAccounts.linkedin}` },
+    { title: 'Twitter', href: SITE.twitter, hint: 'X', keywords: ['x'] },
+  ],
+};
+---
+
+<div id="cmdk-root" transition:persist="command-palette" transition:name="command-palette" transition:animate="none"></div>
+<script type="application/json" id="cmdk-data" set:html={serialisePaletteData(data)} />
+
+<script>
+  import type { PaletteData } from './palette-data';
+
+  type Loaded = { mounted: boolean; loading?: Promise<void> };
+  const state: Loaded = { mounted: false };
+
+  function readData(): PaletteData {
+    try {
+      return JSON.parse(document.getElementById('cmdk-data')?.textContent ?? '') as PaletteData;
+    } catch {
+      return { posts: [], pages: [], social: [] };
+    }
+  }
+
+  /**
+   * Dev only: @vitejs/plugin-react's refresh preamble is injected on pages with a React island; pages
+   * without one would throw "can't detect preamble" when the palette's TSX loads. Stripped in builds.
+   */
+  async function installReactPreamble(): Promise<void> {
+    if (!import.meta.env.DEV) return;
+    const scope = window as unknown as Record<string, unknown>;
+    if (scope.__vite_plugin_react_preamble_installed__) return;
+    const refreshPath = '/@react-refresh';
+    const refresh = await import(/* @vite-ignore */ refreshPath);
+    refresh.default.injectIntoGlobalHook(window);
+    scope.$RefreshReg$ = () => {};
+    scope.$RefreshSig$ = () => (type: unknown) => type;
+    scope.__vite_plugin_react_preamble_installed__ = true;
+  }
+
+  /** First call: load React + cmdk and mount already open. Later calls: tell the mounted palette. */
+  function openPalette(eventName: 'cmdk:open' | 'cmdk:toggle' = 'cmdk:open'): void {
+    if (state.mounted) {
+      window.dispatchEvent(new CustomEvent(eventName));
+      return;
+    }
+    if (state.loading) return;
+    const root = document.getElementById('cmdk-root');
+    if (!root) return;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    state.loading = installReactPreamble()
+      .then(() => import('./mount-palette'))
+      .then(({ mountPalette }) => {
+        mountPalette(root, readData(), opener);
+        state.mounted = true;
+      })
+      .catch((error: unknown) => {
+        console.error('Command palette failed to load', error);
+      })
+      .finally(() => {
+        state.loading = undefined;
+      });
+  }
+
+  function isTyping(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false;
+    return target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
+  }
+
+  // Module scripts run once under <ClientRouter />; the window flag guards against a double include
+  // (not an <html> data attribute: the router replaces those on every swap).
+  const scope = window as Window & { __cmdkBound?: boolean };
+  if (scope.__cmdkBound !== true) {
+    scope.__cmdkBound = true;
+    document.addEventListener('keydown', (event) => {
+      if (event.isComposing) return;
+      // ⌘K / Ctrl-K first, even if something already handled the key (it must also close the palette).
+      if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        openPalette('cmdk:toggle');
+        return;
+      }
+      if (event.defaultPrevented) return;
+      if (event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey && !isTyping(event.target)) {
+        event.preventDefault();
+        openPalette();
+      }
+    });
+    window.addEventListener('open-command-palette', () => openPalette());
+  }
+</script>

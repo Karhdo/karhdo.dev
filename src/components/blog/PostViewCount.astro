@@ -1,0 +1,90 @@
+---
+/**
+ * Byline view count (task 18). Vanilla script, no hydration: one view is counted per post per browser
+ * session (`sessionStorage['viewed:blog/{slug}']`): the first visit POSTs `{ views: 1 }`, later ones GET.
+ * Shows `--- views` while loading or when stats are unavailable (v1 format), then `1,234 views`,
+ * counted up from 0 with the shared count-up easing when motion is allowed.
+ */
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<span data-pagefind-ignore data-post-views={slug} class="tabular-nums"
+  ><span data-views-value class="inline-block min-w-[5ch] text-right tabular-nums">---</span> views</span
+>
+
+<script>
+  import { COUNT_DURATION, countValue } from '~/lib/motion/count-up';
+  import { fetchJson } from '~/lib/utils/fetch-json';
+  import type { Stats } from '~/types/stats';
+
+  const format = (n: number) => n.toLocaleString('en-US');
+
+  function render(el: HTMLElement, views: number) {
+    if (views <= 0) return; // v1: `---` until there's a view
+    const reduce = !matchMedia('(prefers-reduced-motion: no-preference)').matches;
+    if (reduce) {
+      el.textContent = format(views);
+      return;
+    }
+    const start = performance.now();
+    const step = (now: number) => {
+      const elapsed = now - start;
+      el.textContent = format(countValue(views, elapsed));
+      if (elapsed < COUNT_DURATION) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  async function load(root: HTMLElement) {
+    const slug = root.dataset.postViews;
+    const value = root.querySelector<HTMLElement>('[data-views-value]');
+    if (!slug || !value) return;
+    const key = `viewed:blog/${slug}`;
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem(key) !== null;
+    } catch {
+      // storage blocked: count the view (at most once per page load)
+    }
+    // Mark the session BEFORE posting so a quick return (reload, back/forward) can't count twice;
+    // the mark is cleared again if the POST fails, so the view is retried.
+    if (!seen) {
+      try {
+        sessionStorage.setItem(key, '1');
+      } catch {
+        // ignore
+      }
+    }
+    try {
+      const stats = seen
+        ? await fetchJson<Stats>(`/api/stats?type=blog&slug=${encodeURIComponent(slug)}`)
+        : await fetchJson<Stats>('/api/stats', { method: 'POST', body: JSON.stringify({ type: 'blog', slug, views: 1 }) });
+      render(value, stats.views);
+    } catch {
+      if (!seen) {
+        try {
+          sessionStorage.removeItem(key);
+        } catch {
+          // ignore
+        }
+      }
+      // stats unavailable (no DB in dev, network error): keep `---`
+    }
+  }
+
+  function init() {
+    for (const root of document.querySelectorAll<HTMLElement>('[data-post-views]')) {
+      if (root.dataset.bound === 'true') continue;
+      root.dataset.bound = 'true';
+      const run = () => void load(root);
+      if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2000 });
+      else setTimeout(run, 200);
+    }
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>

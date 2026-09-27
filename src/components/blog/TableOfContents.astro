@@ -1,0 +1,156 @@
+---
+/**
+ * "On this page" (mockup `.toc`): h2/h3 links. `desktop` is the sticky-aside list; `mobile` is a
+ * collapsible `<details>` shown below `lg`. A shared scrollspy (rAF-throttled scroll/resize) marks the
+ * section in view with `aria-current="true"` in every TOC on the page. Anchor jumps inherit the
+ * root's `motion-safe:scroll-smooth`, so they only animate when motion is allowed.
+ */
+import type { MarkdownHeading } from 'astro';
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  headings: MarkdownHeading[];
+  variant?: 'desktop' | 'mobile';
+  class?: string;
+}
+
+const { headings, variant = 'desktop', class: className } = Astro.props;
+const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
+---
+
+{
+  items.length > 0 &&
+    (variant === 'desktop' ? (
+      <nav aria-label="On this page" data-toc class={className}>
+        <p class="m-0 mb-2.5 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">On this page</p>
+        <ol class="toc-list">
+          {items.map((heading) => (
+            <li>
+              <a href={`#${heading.slug}`} data-toc-link={heading.slug} data-depth={heading.depth}>
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    ) : (
+      <details data-toc class={cn('group glass rounded-xl! px-4 py-3', className)}>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 font-mono text-[12.5px] text-fg-soft uppercase tracking-[0.08em] marker:content-none [&::-webkit-details-marker]:hidden">
+          On this page
+          <span aria-hidden="true" class="transition-transform group-open:rotate-90">›</span>
+        </summary>
+        <nav aria-label="On this page" class="mt-3">
+          <ol class="toc-list">
+            {items.map((heading) => (
+              <li>
+                <a href={`#${heading.slug}`} data-toc-link={heading.slug} data-depth={heading.depth}>
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </details>
+    ))
+}
+
+<style>
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .toc-list a {
+    display: block;
+    margin-left: -1px;
+    padding: 5px 0 5px 14px;
+    border-left: 2px solid transparent;
+    color: var(--fg-soft);
+    font-size: 14px;
+    line-height: 1.4;
+    text-decoration: none;
+  }
+
+  .toc-list a[data-depth="3"] {
+    padding-left: 26px;
+  }
+
+  .toc-list a:hover,
+  .toc-list a:focus-visible {
+    color: var(--fg);
+  }
+
+  .toc-list a[aria-current="true"] {
+    color: var(--blue);
+    border-left-color: var(--blue);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .toc-list a {
+      transition:
+        color 0.2s var(--ease-out),
+        border-color 0.2s var(--ease-out);
+    }
+  }
+</style>
+
+<script>
+  /** Section in view = the last TOC heading whose top has reached this line (px from the top). */
+  const ACTIVE_LINE = 140;
+
+  let frame = 0;
+  let onScroll: (() => void) | undefined;
+
+  function stop() {
+    if (onScroll) {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    }
+    cancelAnimationFrame(frame);
+    frame = 0;
+    onScroll = undefined;
+  }
+
+  function initToc() {
+    stop();
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+    if (links.length === 0) return;
+    const slugs = [...new Set(links.map((link) => link.dataset.tocLink ?? ''))];
+    const headings = slugs
+      .map((slug) => document.getElementById(slug))
+      .filter((heading): heading is HTMLElement => heading !== null);
+    if (headings.length === 0) return;
+
+    let current: string | undefined;
+    const update = () => {
+      frame = 0;
+      let active = headings[0]?.id;
+      const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      if (atBottom) {
+        active = headings[headings.length - 1]?.id;
+      } else {
+        for (const heading of headings) {
+          if (heading.getBoundingClientRect().top <= ACTIVE_LINE) active = heading.id;
+        }
+      }
+      if (active === current) return;
+      current = active;
+      for (const link of links) {
+        if (link.dataset.tocLink === current) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      }
+    };
+
+    onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+
+  document.addEventListener('astro:page-load', initToc);
+  document.addEventListener('astro:before-swap', stop);
+</script>

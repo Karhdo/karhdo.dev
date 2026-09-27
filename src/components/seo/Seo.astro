@@ -1,0 +1,97 @@
+---
+/**
+ * `<head>` metadata: title, description, canonical, Open Graph, Twitter, robots, feeds, favicons,
+ * theme-color and JSON-LD. Ported from v1 `app/layout.tsx` `metadata`, `lib/seo.ts` and the blog
+ * post `generateMetadata`.
+ */
+import { SITE } from '~/config/site';
+import { absoluteUrl, buildWebsiteJsonLd, ogImagePath, pageTitle, serializeJsonLd } from '~/lib/seo';
+import { themeColor } from '~/styles/palette';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  /** `article:author` names (one meta each); v1 passed the post's author names. */
+  authors?: string[];
+  /** Path or absolute URL; defaults to the current path (posts pass `canonicalUrl ?? /blog/{id}`). */
+  canonical?: string;
+  noindex?: boolean;
+  jsonLd?: object;
+  rssFeed?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = ogImagePath('default'),
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  tags = [],
+  authors = [SITE.author],
+  canonical: canonicalPath,
+  noindex = false,
+  jsonLd = buildWebsiteJsonLd(),
+  rssFeed,
+} = Astro.props;
+
+const fullTitle = pageTitle(title);
+// v1: posts use the bare post title for og/twitter, other pages the templated title.
+const socialTitle = type === 'article' && title ? title : fullTitle;
+const canonical = absoluteUrl(canonicalPath ?? Astro.url.pathname);
+const imageUrl = absoluteUrl(image);
+// Generated `/og/*.png` cards are always 1200 × 630 (task 25); other images' sizes are unknown.
+const isOgCard = image.startsWith('/og/');
+const robots = noindex
+  ? 'noindex, follow'
+  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={robots} />
+
+<meta property="og:title" content={socialTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={SITE.title} />
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content={type} />
+<meta property="og:image" content={imageUrl} />
+{isOgCard && <meta property="og:image:width" content="1200" />}
+{isOgCard && <meta property="og:image:height" content="630" />}
+<meta property="og:image:alt" content={socialTitle} />
+{
+  type === 'article' && (
+    <>
+      {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+      {modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+      {authors.map((name) => <meta property="article:author" content={name} />)}
+      {tags.map((tag) => <meta property="article:tag" content={tag} />)}
+    </>
+  )
+}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={socialTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={socialTitle} />
+
+<link rel="alternate" type="application/rss+xml" title={SITE.title} href="/feed.xml" />
+{rssFeed && <link rel="alternate" type="application/rss+xml" title={fullTitle} href={rssFeed} />}
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/tennis-racquet.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/tennis-racquet.png" />
+<link rel="manifest" href="/static/favicons/site.webmanifest" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content={themeColor.light} />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content={themeColor.dark} />
+
+<script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLd)} />

@@ -1,0 +1,43 @@
+---
+/**
+ * Giscus comments (task 21): the `#comments` anchor (target of ScrollTopAndComment) with the
+ * Comments island, hydrated `client:visible` with a 400px margin, so neither React/Giscus JS nor the
+ * giscus.app iframe load until the section nears the viewport (replaces v1's lazy iframe; no
+ * "Load comments" button needed).
+ *
+ * The ids come from the v1-named `NEXT_PUBLIC_GISCUS_*` vars (server/public, optional). When any is
+ * missing no island is shipped: the section stays empty in production, with a quiet note in dev.
+ */
+import {
+  NEXT_PUBLIC_GISCUS_CATEGORY,
+  NEXT_PUBLIC_GISCUS_CATEGORY_ID,
+  NEXT_PUBLIC_GISCUS_REPO,
+  NEXT_PUBLIC_GISCUS_REPOSITORY_ID,
+} from 'astro:env/server';
+import Comments from '~/components/islands/Comments';
+
+const configured = Boolean(
+  NEXT_PUBLIC_GISCUS_REPO &&
+    NEXT_PUBLIC_GISCUS_REPOSITORY_ID &&
+    NEXT_PUBLIC_GISCUS_CATEGORY &&
+    NEXT_PUBLIC_GISCUS_CATEGORY_ID
+);
+---
+
+<!-- min-h reserves room for the Giscus iframe, which otherwise grows after load and shifts the footer (CLS). -->
+<section id="comments" data-pagefind-ignore aria-label={configured ? 'Comments' : undefined}
+  class:list={['scroll-mt-24', configured && 'mt-12 min-h-[22rem]']}>
+  {
+    configured ? (
+      <Comments
+        client:visible={{ rootMargin: '400px' }}
+        repo={NEXT_PUBLIC_GISCUS_REPO}
+        repoId={NEXT_PUBLIC_GISCUS_REPOSITORY_ID}
+        category={NEXT_PUBLIC_GISCUS_CATEGORY}
+        categoryId={NEXT_PUBLIC_GISCUS_CATEGORY_ID}
+      />
+    ) : (
+      import.meta.env.DEV && <p class="text-sm text-fg-soft">Comments are not configured.</p>
+    )
+  }
+</section>

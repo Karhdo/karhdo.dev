@@ -1,0 +1,19 @@
+---
+/** Page `<h1>` (mockup `.page-head h1`). */
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<h1
+  class={cn(
+    'm-0 text-balance font-bold text-[clamp(34px,5vw,52px)] text-fg leading-[1.05] tracking-[-0.035em]',
+    className
+  )}
+>
+  <slot />
+</h1>

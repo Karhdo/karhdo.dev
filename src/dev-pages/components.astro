@@ -1,0 +1,200 @@
+---
+/**
+ * /dev/components (bun dev only): every UI primitive, brand icon, simple-icon and Twemoji, with a
+ * theme switcher. `?theme=light|dark` presets data-theme (used for headless screenshots).
+ */
+import '~/styles/global.css';
+import BrandIcon, { BRAND_ICONS, type BrandIconName } from '~/components/ui/BrandIcon.astro';
+import Button from '~/components/ui/Button.astro';
+import Card from '~/components/ui/Card.astro';
+import Icon, { type IconName, ICONS as LUCIDE_ICONS } from '~/components/ui/Icon.astro';
+import Link from '~/components/ui/Link.astro';
+import PageTitle from '~/components/ui/PageTitle.astro';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import SimpleIcon from '~/components/ui/SimpleIcon.astro';
+import Tag from '~/components/ui/Tag.astro';
+import Twemoji from '~/components/ui/Twemoji.astro';
+import { EMOJI_CODEPOINTS, TWEMOJI_VERSION } from '~/lib/emoji';
+import { ICONS as SIMPLE_ICONS, type SimpleIconSlug, STACK_SLUGS } from '~/lib/simple-icons';
+
+const brandNames = Object.keys(BRAND_ICONS) as BrandIconName[];
+const lucideNames = Object.keys(LUCIDE_ICONS) as IconName[];
+const emojiNames = Object.keys(EMOJI_CODEPOINTS);
+const chipSlugs = (Object.keys(SIMPLE_ICONS) as SimpleIconSlug[]).filter(
+  (slug) => !(STACK_SLUGS as readonly string[]).includes(slug)
+);
+
+/** Sample tones only; task 15 owns the real `SITE.stack` tones. */
+const TONE: Record<(typeof STACK_SLUGS)[number], string> = {
+  typescript: 'text-blue',
+  nestjs: 'text-red',
+  react: 'text-cyan',
+  nodedotjs: 'text-green',
+  nextdotjs: 'text-fg',
+  astro: 'text-purple',
+  postgresql: 'text-blue1',
+  bun: 'text-yellow',
+  tailwindcss: 'text-teal',
+  drizzle: 'text-green',
+  rabbitmq: 'text-orange',
+  docker: 'text-blue',
+  vuedotjs: 'text-green',
+  redis: 'text-red',
+};
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>/dev/components</title>
+    <script is:inline>
+      const t = new URLSearchParams(location.search).get('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    </script>
+  </head>
+  <body class="pb-24">
+    <main class="mx-auto flex w-full max-w-[1080px] flex-col gap-12 px-4 pt-8 sm:px-6">
+      <header class="glass sticky top-3 z-10 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <h1 class="font-bold text-xl">UI primitives</h1>
+        <div class="flex items-center gap-2 font-mono text-sm" role="group" aria-label="Theme">
+          <Button size="sm" variant="ghost" data-set-theme="light">light</Button>
+          <Button size="sm" variant="ghost" data-set-theme="dark">dark</Button>
+          <Button size="sm" variant="ghost" data-set-theme="">unset (OS)</Button>
+        </div>
+      </header>
+
+      <SectionHeader
+        eyebrow="SectionHeader · eyebrow"
+        title="Writing"
+        description="Notes on backend architecture, databases and TypeScript, written while building real products."
+      />
+
+      <section class="flex flex-col gap-4">
+        <SectionHeader level={2} title="Cards" description="glass · solid · outline; links lift on hover (motion-safe)." />
+        <div class="grid gap-4 sm:grid-cols-3">
+          <Card><p class="font-mono text-muted text-xs uppercase">glass (div)</p><p class="mt-2 text-fg-soft">Default card.</p></Card>
+          <Card variant="solid" as="article"><p class="font-mono text-muted text-xs uppercase">solid (article)</p><p class="mt-2 text-fg-soft">Opaque surface.</p></Card>
+          <Card variant="outline" as="section"><p class="font-mono text-muted text-xs uppercase">outline (section)</p><p class="mt-2 text-fg-soft">Border only.</p></Card>
+          <Card href="#cards"><p class="font-mono text-muted text-xs uppercase">glass link</p><p class="mt-2 text-fg-soft">Hover me: lift + border.</p></Card>
+          <Card href="#cards" variant="solid"><p class="font-mono text-muted text-xs uppercase">solid link</p></Card>
+          <Card href="#cards" variant="outline" class="p-8"><p class="font-mono text-muted text-xs uppercase">outline link, class="p-8"</p></Card>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <SectionHeader level={2} title="Buttons" />
+        <div class="flex flex-wrap items-center gap-3">
+          <Button variant="primary">Primary md</Button>
+          <Button>Outline md</Button>
+          <Button variant="ghost">Ghost md</Button>
+          <Button variant="primary" size="sm">Primary sm</Button>
+          <Button size="sm">Outline sm</Button>
+          <Button variant="ghost" size="sm"><Icon name="Search" size={16} /> Search <kbd class="font-mono text-muted text-xs">⌘K</kbd></Button>
+          <Button href="/dev/tokens" variant="primary">Link (a) <Icon name="ChevronRight" size={16} /></Button>
+          <Button disabled>Disabled</Button>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <SectionHeader level={2} title="Tags, links, underline, title" />
+        <div class="flex flex-wrap gap-3">
+          <Tag text="nestjs" /><Tag text="database" /><Tag text="design patterns" /><Tag text="TypeScript" />
+        </div>
+        <ul class="flex flex-col gap-1 text-fg-soft">
+          <li><Link href="/blog" class="text-blue">Internal /blog</Link> (same tab)</li>
+          <li><Link href="#cards" class="text-blue">Anchor #cards</Link> (same tab)</li>
+          <li><Link href="https://github.com/Karhdo" class="text-blue" data-umami-event="dev-github">External github.com</Link> (new tab, data-umami-event)</li>
+          <li><Link href="mailto:hello@example.com" class="text-blue">mailto:</Link> (new tab)</li>
+        </ul>
+        <PageTitle>PageTitle h1</PageTitle>
+      </section>
+
+      <section class="flex flex-col gap-4" id="stack">
+        <SectionHeader level={2} title={`SimpleIcon · Daily stack (${STACK_SLUGS.length})`} description="Exact simple-icons paths, fill=currentColor, sample Tokyonight tones." />
+        <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+          {
+            STACK_SLUGS.map((slug) => (
+              <li class="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface p-3">
+                <SimpleIcon slug={slug} size={32} class={TONE[slug]} />
+                <span class="font-mono text-[11px] text-fg-soft">{SIMPLE_ICONS[slug].title}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <h3 class="font-semibold text-fg-soft">Project chip icons ({chipSlugs.length})</h3>
+        <div class="flex flex-wrap gap-2">
+          {
+            chipSlugs.map((slug) => (
+              <span class="inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1 font-mono text-fg-soft text-xs">
+                <SimpleIcon slug={slug} size={14} class="text-blue" />
+                {SIMPLE_ICONS[slug].title}
+              </span>
+            ))
+          }
+          <span class="inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1 font-mono text-fg-soft text-xs">
+            <SimpleIcon slug="react" size={14} title="React" class="text-cyan" /> with title
+          </span>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <SectionHeader level={2} title={`BrandIcon (${brandNames.length})`} />
+        <ul class="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-8">
+          {
+            brandNames.map((name) => (
+              <li class="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface p-3">
+                <BrandIcon type={name} class="size-10" />
+                <span class="font-mono text-[11px] text-fg-soft">{name}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <SectionHeader level={2} title={`Icon · Lucide (${lucideNames.length})`} />
+        <ul class="flex flex-wrap gap-3">
+          {
+            lucideNames.map((name) => (
+              <li class="flex w-24 flex-col items-center gap-1.5 rounded-xl border border-line p-2 text-fg-soft">
+                <Icon name={name} size={20} />
+                <span class="font-mono text-[10.5px]">{name}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="flex flex-col gap-4">
+        <SectionHeader level={2} title={`Twemoji (${emojiNames.length}, jdecked v${TWEMOJI_VERSION})`} />
+        <ul class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {
+            emojiNames.map((name) => (
+              <li class="flex items-center gap-2 rounded-lg border border-line px-2 py-1.5 font-mono text-fg-soft text-xs">
+                <Twemoji emoji={name} />
+                {name}
+              </li>
+            ))
+          }
+        </ul>
+        <p class="text-fg-soft text-lg">
+          Sizes: base <Twemoji emoji="waving-hand" size="base" /> · lg <Twemoji emoji="waving-hand" /> · 2x
+          <Twemoji emoji="waving-hand" size="2x" /> · 3x <Twemoji emoji="waving-hand" size="3x" /> · className
+          <Twemoji emoji="flag-vietnam" className="mx-2" /> · unknown: [<Twemoji emoji="not-an-emoji" />]
+        </p>
+      </section>
+    </main>
+
+    <script>
+      for (const button of document.querySelectorAll<HTMLButtonElement>('[data-set-theme]')) {
+        button.addEventListener('click', () => {
+          const theme = button.dataset.setTheme;
+          if (theme) document.documentElement.dataset.theme = theme;
+          else delete document.documentElement.dataset.theme;
+        });
+      }
+    </script>
+  </body>
+</html>

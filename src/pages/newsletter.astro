@@ -1,0 +1,44 @@
+---
+/**
+ * No-JS result page for the newsletter form (task 22). `POST /api/newsletter` from a plain form post
+ * answers `303 /newsletter?status=…&from=/blog/…`; this on-demand page shows the outcome, a link back
+ * to `from` (validated same-site path), and the form again when the sign-up did not go through.
+ * With JS the form never navigates here. Not indexed, and excluded from the sitemap in `astro.config.mjs`.
+ */
+import NewsletterForm from '~/components/blog/NewsletterForm.astro';
+import Button from '~/components/ui/Button.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { NEWSLETTER_MESSAGES, OK_STATUSES, parseStatus, safeReturnPath } from '~/lib/newsletter/handler';
+
+export const prerender = false;
+
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+const status = parseStatus(Astro.url.searchParams.get('status'));
+const from = safeReturnPath(Astro.url.searchParams.get('from'));
+const ok = status !== undefined && OK_STATUSES.has(status);
+const heading = ok ? 'Thanks for subscribing' : status ? "That didn't work" : 'Subscribe to the newsletter';
+const message = status ? NEWSLETTER_MESSAGES[status] : 'Get new posts on web development and tooling in your inbox.';
+const backLabel = from === '/' ? 'Back to homepage' : 'Back to the post';
+---
+
+<PageLayout title="Newsletter" description="Subscribe to the karhdo.dev newsletter." noindex>
+  <div class="mx-auto max-w-xl py-12 sm:py-20">
+    <section class="glass p-6 sm:p-8" aria-labelledby="newsletter-result">
+      <p class="m-0 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">newsletter</p>
+      <h1 id="newsletter-result" class="m-0 mt-2 font-bold text-2xl text-fg tracking-[-0.02em]">{heading}</h1>
+      {/* One live region per page: on error the retry form below brings its own `role="status"`. */}
+      <p class="m-0 mt-3 text-fg" role={ok ? 'status' : undefined}>{message}</p>
+      {
+        !ok && (
+          <div class="mt-6">
+            <NewsletterForm from={from} />
+          </div>
+        )
+      }
+      <div class="mt-6">
+        <Button href={from} variant={ok ? 'primary' : 'ghost'}>{backLabel}</Button>
+      </div>
+    </section>
+  </div>
+</PageLayout>

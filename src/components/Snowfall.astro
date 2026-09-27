@@ -1,0 +1,9 @@
+---
+/** Snowfall island, persisted across navigations. `SITE.snowfall: false` renders nothing. */
+import SnowfallIsland from '~/components/islands/Snowfall';
+import { SITE } from '~/config/site';
+
+const mode = SITE.snowfall;
+---
+
+{mode !== false && <SnowfallIsland client:idle transition:persist="snowfall" december={mode === 'december'} />}

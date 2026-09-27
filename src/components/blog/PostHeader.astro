@@ -1,0 +1,77 @@
+---
+/**
+ * Post header (mockup `.post-head`): "← All posts" crumb, title, tags and the byline
+ * (avatar · author · date · reading time · views). The `stats` slot holds the view count
+ * (PostViewCount, rendered by PostLayout). Only the title is indexed by Pagefind.
+ */
+import { Image } from 'astro:assets';
+import PageTitle from '~/components/ui/PageTitle.astro';
+import Tag from '~/components/ui/Tag.astro';
+import { localAsset } from '~/lib/local-assets';
+import { formatDate } from '~/lib/utils/format-date';
+
+interface Props {
+  id: string;
+  title: string;
+  date: Date;
+  tags: string[];
+  readingMinutes: number;
+  authors: { name: string; avatar?: string }[];
+}
+
+const { id, title, date, tags, readingMinutes, authors } = Astro.props;
+const avatar = authors.find((author) => author.avatar)?.avatar;
+const avatarAsset = localAsset(avatar);
+---
+
+<header class="mb-7">
+  <a
+    href="/blog"
+    data-pagefind-ignore
+    class="font-mono text-[13px] text-fg-soft no-underline transition-colors hover:text-blue focus-visible:text-blue"
+  >
+    <span aria-hidden="true">←</span> All posts
+  </a>
+  <PageTitle class="mt-3.5 mb-4 text-[clamp(32px,4.6vw,48px)] leading-[1.08] tracking-[-0.03em]">
+    <span class="vt-post-title block" data-pagefind-meta="title" transition:name={`post-title-${id}`}>{title}</span>
+  </PageTitle>
+  {
+    tags.length > 0 && (
+      <ul class="m-0 mb-4 flex list-none flex-wrap gap-x-3 gap-y-1 p-0" aria-label="Tags" data-pagefind-ignore>
+        {tags.map((tag) => (
+          <li>
+            <Tag text={tag} class="text-[13px]" />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  <div class="flex items-center gap-3" data-pagefind-ignore>
+    {
+      avatarAsset ? (
+        <Image
+          src={avatarAsset}
+          alt=""
+          width={32}
+          height={32}
+          densities={[1, 2]}
+          quality={75}
+          class="size-8 shrink-0 rounded-[10px] object-cover"
+        />
+      ) : (
+        avatar && (
+          <img src={avatar} alt="" width="32" height="32" class="size-8 shrink-0 rounded-[10px] object-cover" decoding="async" />
+        )
+      )
+    }
+    <p class="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5 text-[15px] text-fg-soft">
+      <span class="font-medium text-fg">{authors.map((author) => author.name).join(', ')}</span>
+      <span aria-hidden="true">·</span>
+      <time datetime={date.toISOString()} data-pagefind-meta="date[datetime]">{formatDate(date)}</time>
+      <span aria-hidden="true">·</span>
+      <span>{readingMinutes} min read</span>
+      <span aria-hidden="true">·</span>
+      <slot name="stats" />
+    </p>
+  </div>
+</header>

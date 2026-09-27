@@ -1,0 +1,24 @@
+---
+/**
+ * MDX `img`: lazy, rounded, centred and click-to-zoom (`data-zoomable`, see ImageZoom.astro).
+ * A markdown title (`![alt](src "Caption")`) becomes a caption. Markdown wraps images in `<p>`,
+ * so the captioned variant uses p-safe `<span>`s (display: block) instead of figure/figcaption.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = Omit<HTMLAttributes<'img'>, 'alt'> & { alt: string };
+
+const { alt, title, class: className, ...rest } = Astro.props;
+const classes = ['rounded-xl', 'mx-auto', className].filter(Boolean).join(' ');
+---
+
+{
+  title ? (
+    <span class="my-8 block">
+      <img {...rest} alt={alt} loading="lazy" decoding="async" data-zoomable class={classes} />
+      <span class="mt-3 block text-center text-muted text-sm">{title}</span>
+    </span>
+  ) : (
+    <img {...rest} alt={alt} loading="lazy" decoding="async" data-zoomable class={classes} />
+  )
+}

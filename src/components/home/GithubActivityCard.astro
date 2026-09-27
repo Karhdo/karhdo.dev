@@ -1,0 +1,524 @@
+---
+/**
+ * Bento "GitHub · @Karhdo" card: contribution heatmap and stats from `GET /api/github/activity`.
+ * Vanilla (no React); the fetch starts near the viewport. The heatmap scales to the card, so filling
+ * it causes no layout shift. With motion allowed, a snake eats the contributions and loops.
+ * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
+ */
+import Card from '~/components/ui/Card.astro';
+import Icon from '~/components/ui/Icon.astro';
+import { SITE } from '~/config/site';
+import { ACTIVITY_WEEKS } from '~/lib/github-activity';
+import { cn } from '~/lib/utils/cn';
+import CardEyebrow from './CardEyebrow.astro';
+import CardSkeleton from './CardSkeleton.astro';
+import { CARD_MIN_HEIGHT } from './card-sizes';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const login = SITE.socialAccounts.github;
+const profileUrl = `https://github.com/${login}`;
+const stats = [
+  { key: 'total', label: 'contributions' },
+  { key: 'streak', label: 'day streak' },
+  { key: 'publicRepos', label: 'public repos' },
+] as const;
+---
+
+<Card
+  class={cn('gh-card flex flex-col gap-3.5', className)}
+  style={`min-height: ${CARD_MIN_HEIGHT.github}px; ${style ?? ''}`}
+  data-tilt
+  data-gh-activity
+  aria-busy="true"
+>
+  <CardEyebrow>
+    <Icon name="Github" size={14} />
+    <a class="gh-link" href={profileUrl} target="_blank" rel="noopener noreferrer">GitHub · @{login}</a>
+  </CardEyebrow>
+  <div class="heat-wrap" data-heat-wrap>
+    <CardSkeleton height={95} radius="6px" class="heat-skeleton" />
+    <div class="heat-frame" data-heat-frame style={`--weeks: ${ACTIVITY_WEEKS}`} hidden>
+      <div class="heat-months" data-heat-months aria-hidden="true"></div>
+      <div class="heat-days" aria-hidden="true">
+        <span style="grid-row: 2">Mon</span><span style="grid-row: 4">Wed</span><span style="grid-row: 6">Fri</span>
+      </div>
+      <div class="heat" data-heat role="img" aria-label={`Contribution heatmap for the last ${ACTIVITY_WEEKS} weeks`}>
+      </div>
+    </div>
+    <p class="heat-empty" data-heat-empty hidden>
+      Activity is unavailable right now.
+      <a href={profileUrl} target="_blank" rel="noopener noreferrer">See it on GitHub →</a>
+    </p>
+  </div>
+  <div class="gh-stats">
+    {
+      stats.map(({ key, label }) => (
+        <div>
+          <b data-gh-stat={key}>
+            <CardSkeleton height={20} width="44px" radius="6px" class="stat-skeleton" />
+          </b>
+          <span>{label}</span>
+        </div>
+      ))
+    }
+    <div class="gh-legend" aria-hidden="true">
+      <span>Less</span>
+      {[0, 1, 2, 3, 4].map((level) => <i data-l={level} />)}
+      <span>More</span>
+    </div>
+  </div>
+</Card>
+
+<style>
+  .gh-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .gh-link:hover,
+  .gh-link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* Size container: cells scale to the card, not the data (no layout shift). */
+  .heat-wrap {
+    flex: 1;
+    min-height: 103px;
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .heat-wrap :global(.heat-skeleton) {
+    height: 100% !important;
+  }
+  .heat-frame {
+    --gap: 3px;
+    --label-w: 26px;
+    /* Largest square that fits all weeks across and 7 days down; min 9px (then it scrolls). */
+    --cell: max(
+      9px,
+      min(
+        calc((100cqw - var(--label-w) - 6px - (var(--weeks) - 1) * var(--gap)) / var(--weeks)),
+        calc((100cqh - 20px - 6 * var(--gap) - 8px) / 7)
+      )
+    );
+    display: grid;
+    grid-template-columns: var(--label-w) max-content;
+    grid-template-rows: 16px max-content;
+    column-gap: 6px;
+    row-gap: 4px;
+    width: max-content;
+  }
+  .heat-frame[hidden],
+  .heat-empty[hidden] {
+    display: none;
+  }
+  .heat-months {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    column-gap: var(--gap);
+  }
+  .heat-months :global(span),
+  .heat-days span {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 16px;
+    color: var(--fg-soft);
+    white-space: nowrap;
+  }
+  .heat-days {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    row-gap: var(--gap);
+    align-items: center;
+  }
+  .heat-days span {
+    line-height: 1;
+  }
+  .heat {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    grid-auto-flow: column;
+    grid-auto-columns: var(--cell);
+    gap: var(--gap);
+  }
+  .heat :global(i),
+  .gh-legend i {
+    border-radius: 3px;
+    background: var(--heat-0);
+  }
+  .heat :global(i[data-l="1"]),
+  .gh-legend i[data-l="1"] {
+    background: var(--heat-1);
+  }
+  .heat :global(i[data-l="2"]),
+  .gh-legend i[data-l="2"] {
+    background: var(--heat-2);
+  }
+  .heat :global(i[data-l="3"]),
+  .gh-legend i[data-l="3"] {
+    background: var(--heat-3);
+  }
+  .heat :global(i[data-l="4"]),
+  .gh-legend i[data-l="4"] {
+    background: var(--heat-4);
+  }
+  .heat :global(i[data-eaten]) {
+    background: var(--heat-0);
+  }
+  .heat :global(i[data-s]) {
+    background: color-mix(in srgb, var(--green) calc(100% - var(--k, 0) * 6%), var(--heat-0));
+  }
+  .heat :global(i[data-s="head"]) {
+    background: var(--green);
+    border-radius: 35%;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--green) 60%, transparent);
+  }
+  .heat-empty {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13.5px;
+    color: var(--fg-soft);
+    border-radius: 6px;
+    background: var(--heat-0);
+    padding: 0 14px;
+  }
+  /* --heat-4 nudged toward --fg: plain --heat-4 is ~4.6:1 on this tint in Day, too close to AA. */
+  .heat-empty a {
+    color: color-mix(in srgb, var(--heat-4) 80%, var(--fg));
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .heat-empty a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .gh-stats {
+    display: flex;
+    align-items: flex-end;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .gh-stats > div:not(.gh-legend) {
+    display: flex;
+    flex-direction: column;
+  }
+  /* Fixed line boxes: the skeleton, the number and "—" all take the same height. */
+  .gh-stats b {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  /* --fg-soft, not the mockup's --muted, which fails AA for 12 px text in Day. */
+  .gh-stats span {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+  }
+  .gh-legend {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    padding-bottom: 1px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-soft);
+  }
+  .gh-legend i {
+    width: 10px;
+    height: 10px;
+  }
+  .gh-legend span:first-child {
+    margin-right: 3px;
+  }
+  .gh-legend span:last-child {
+    margin-left: 3px;
+  }
+  @media (max-width: 480px) {
+    .gh-legend {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .heat :global(i) {
+      transition: background-color 0.6s ease;
+    }
+    .heat :global(i[data-s]) {
+      transition: none;
+    }
+    .heat :global(i[data-eaten]) {
+      animation-name: eatPop;
+      animation-duration: 0.3s;
+      animation-delay: 0s;
+    }
+    /* Longhands (see the task-12 note); cells are full size at rest. */
+    .heat :global(i) {
+      animation-name: cellIn;
+      animation-duration: 0.5s;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-delay: calc(var(--c) * 14ms);
+    }
+  }
+  @keyframes eatPop {
+    40% {
+      scale: 1.35;
+    }
+  }
+</style>
+
+<script>
+  import type { GithubActivity } from '~/lib/github-activity';
+  import { describeActivity } from '~/lib/github-activity';
+  import { formatCount, observeCounts } from '~/lib/motion/count-up';
+  import { type Cell, planSnake } from '~/lib/snake';
+  import { fetchJson } from '~/lib/utils/fetch-json';
+
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const STEP_MS = 85;
+  const START_DELAY_MS = 1600;
+  const REST_MS = 1800;
+  const START_LEN = 3;
+  const MAX_LEN = 6;
+
+  let stopSnake: (() => void) | undefined;
+
+  /** One request per page session; view-transition revisits reuse it (the CDN caches it anyway). */
+  let request: Promise<GithubActivity> | undefined;
+  const load = () => {
+    request ??= fetchJson<GithubActivity>('/api/github/activity').catch((error: unknown) => {
+      request = undefined; // retry on the next visit
+      throw error;
+    });
+    return request;
+  };
+
+  function renderHeat(frame: HTMLElement, heat: HTMLElement, months: HTMLElement, activity: GithubActivity) {
+    const grid: HTMLElement[][] = [];
+    const fragment = document.createDocumentFragment();
+    const labels = document.createDocumentFragment();
+    let lastMonth = -1;
+    activity.weeks.forEach((week, column) => {
+      const cells: HTMLElement[] = [];
+      for (const day of week.days) {
+        const cell = document.createElement('i');
+        cell.style.setProperty('--c', String(column));
+        cell.dataset.l = String(day.level);
+        cell.title = `${day.count.toLocaleString('en-US')} contribution${day.count === 1 ? '' : 's'} on ${day.date}`;
+        fragment.append(cell);
+        cells.push(cell);
+      }
+      grid.push(cells);
+      // Label each month's first week, skipping labels that would crowd the edges.
+      const firstDate = week.days[0]?.date ?? '';
+      const month = Number(firstDate.slice(5, 7)) - 1;
+      if (month !== lastMonth && month >= 0 && column <= activity.weeks.length - 3) {
+        if (lastMonth !== -1 || firstDate.slice(8, 10) <= '07') {
+          const label = Object.assign(document.createElement('span'), { textContent: MONTHS[month] ?? '' });
+          label.style.gridColumn = `${column + 1} / span 3`;
+          labels.append(label);
+        }
+        lastMonth = month;
+      }
+    });
+    frame.style.setProperty('--weeks', String(activity.weeks.length));
+    heat.replaceChildren(fragment);
+    months.replaceChildren(labels);
+    heat.setAttribute('aria-label', describeActivity(activity, activity.weeks.length));
+    return grid;
+  }
+
+  /** Pauses while hovered, off-screen or in a hidden tab; restarts once the board is clear. */
+  function runSnake(wrap: HTMLElement, heat: HTMLElement, grid: HTMLElement[][], activity: GithubActivity) {
+    stopSnake?.();
+    const levels = activity.weeks.map((week) => week.days.map((day) => day.level));
+    const start: Cell = { c: 0, r: 0 };
+    const path = [start, ...planSnake(levels, start)];
+    if (path.length < 2) return;
+    const at = ({ c, r }: Cell) => grid[c]?.[r];
+
+    let step = 0;
+    let length = START_LEN;
+    let drawn: HTMLElement[] = [];
+    const eaten: HTMLElement[] = [];
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let visible = false;
+    let hovered = false;
+    let stopped = false;
+
+    const clearSnake = () => {
+      for (const cell of drawn) {
+        delete cell.dataset.s;
+        cell.style.removeProperty('--k');
+      }
+      drawn = [];
+    };
+    const draw = () => {
+      clearSnake();
+      for (let k = 0; k < length && step - k >= 0; k++) {
+        const cell = at(path[step - k] as Cell);
+        if (!cell) continue;
+        cell.dataset.s = k === 0 ? 'head' : 'body';
+        cell.style.setProperty('--k', String(k));
+        drawn.push(cell);
+      }
+    };
+    const reset = () => {
+      clearSnake();
+      for (const cell of eaten.splice(0)) delete cell.dataset.eaten;
+      step = 0;
+      length = START_LEN;
+    };
+    const tick = () => {
+      timer = undefined;
+      if (stopped || !visible || hovered || document.hidden) return;
+      step += 1;
+      if (step >= path.length) {
+        clearSnake();
+        timer = setTimeout(() => {
+          reset();
+          schedule(START_DELAY_MS);
+        }, REST_MS);
+        return;
+      }
+      const head = at(path[step] as Cell);
+      if (head && head.dataset.l !== '0' && head.dataset.eaten === undefined) {
+        head.dataset.eaten = 'true';
+        eaten.push(head);
+        length = Math.min(MAX_LEN, length + 1);
+      }
+      draw();
+      schedule(STEP_MS);
+    };
+    const schedule = (ms: number) => {
+      if (timer === undefined && !stopped) timer = setTimeout(tick, ms);
+    };
+    const resume = () => schedule(STEP_MS);
+
+    const observer = new IntersectionObserver((entries) => {
+      visible = entries.some((entry) => entry.isIntersecting);
+      if (visible) resume();
+    });
+    observer.observe(wrap);
+    const onEnter = () => {
+      hovered = true;
+    };
+    const onLeave = () => {
+      hovered = false;
+      resume();
+    };
+    const onVisibility = () => {
+      if (!document.hidden) resume();
+    };
+    heat.addEventListener('pointerenter', onEnter);
+    heat.addEventListener('pointerleave', onLeave);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    stopSnake = () => {
+      stopped = true;
+      clearTimeout(timer);
+      observer.disconnect();
+      heat.removeEventListener('pointerenter', onEnter);
+      heat.removeEventListener('pointerleave', onLeave);
+      document.removeEventListener('visibilitychange', onVisibility);
+      stopSnake = undefined;
+    };
+    timer = setTimeout(() => {
+      timer = undefined;
+      resume();
+    }, START_DELAY_MS);
+  }
+
+  function renderStats(card: HTMLElement, activity: GithubActivity | null) {
+    for (const el of card.querySelectorAll<HTMLElement>('[data-gh-stat]')) {
+      const key = el.dataset.ghStat as 'total' | 'streak' | 'publicRepos';
+      if (!activity) {
+        const dash = Object.assign(document.createElement('span'), { textContent: '—' });
+        dash.setAttribute('aria-hidden', 'true');
+        el.replaceChildren(dash, Object.assign(document.createElement('span'), { className: 'sr-only', textContent: 'unavailable' }));
+        continue;
+      }
+      const value = activity[key];
+      // Count-up contract: data-count holds the raw number, the text is grouped (formatCount).
+      el.dataset.count = String(value);
+      el.textContent = formatCount(value);
+    }
+    // The shared one-shot observer counts each number up once it is in view (no-op under reduced motion).
+    if (activity) observeCounts(card);
+  }
+
+  async function fill(card: HTMLElement) {
+    const wrap = card.querySelector<HTMLElement>('[data-heat-wrap]');
+    const frame = card.querySelector<HTMLElement>('[data-heat-frame]');
+    const heat = card.querySelector<HTMLElement>('[data-heat]');
+    const months = card.querySelector<HTMLElement>('[data-heat-months]');
+    const empty = card.querySelector<HTMLElement>('[data-heat-empty]');
+    const skeleton = card.querySelector<HTMLElement>('.heat-skeleton');
+    if (!wrap || !frame || !heat || !months || !empty) return;
+    let activity: GithubActivity | null = null;
+    try {
+      activity = await load();
+    } catch {
+      activity = null;
+    }
+    if (!card.isConnected) return;
+    skeleton?.remove();
+    if (activity) {
+      const grid = renderHeat(frame, heat, months, activity);
+      frame.hidden = false;
+      // Most recent weeks first when the heatmap is wider than the card.
+      wrap.scrollLeft = wrap.scrollWidth;
+      if (matchMedia('(prefers-reduced-motion: no-preference)').matches && typeof IntersectionObserver !== 'undefined') {
+        runSnake(wrap, heat, grid, activity);
+      }
+    } else {
+      empty.hidden = false;
+    }
+    renderStats(card, activity);
+    card.setAttribute('aria-busy', 'false');
+  }
+
+  function init() {
+    for (const card of document.querySelectorAll<HTMLElement>('[data-gh-activity]')) {
+      if (card.dataset.bound === 'true') continue;
+      card.dataset.bound = 'true';
+      if (typeof IntersectionObserver === 'undefined') {
+        void fill(card);
+        continue;
+      }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          void fill(card);
+        },
+        { rootMargin: '200px' }
+      );
+      observer.observe(card);
+    }
+  }
+
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => stopSnake?.());
+</script>

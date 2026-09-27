@@ -1,0 +1,32 @@
+---
+/**
+ * Router for the dev-only preview pages (injected by src/integrations/dev-pages.ts under
+ * `astro dev` only). Later tasks add their page here: components (08), content (10), mdx (11).
+ */
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+
+const pages: Record<string, () => Promise<{ default: AstroComponentFactory }>> = {
+  tokens: () => import('./tokens.astro'),
+  components: () => import('./components.astro'),
+  content: () => import('./content.astro'),
+  layout: () => import('./layout.astro'),
+  mdx: () => import('./mdx.astro'),
+};
+
+const slug = Astro.params.page ?? '';
+const load = pages[slug];
+if (!load) {
+  return new Response(
+    `Unknown dev page "/dev/${slug}". Available: ${Object.keys(pages)
+      .map((p) => `/dev/${p}`)
+      .join(', ')}`,
+    {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    }
+  );
+}
+const { default: Page } = await load();
+---
+
+<Page />

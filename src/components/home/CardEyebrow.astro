@@ -1,0 +1,28 @@
+---
+/**
+ * Bento card eyebrow (mockup `.eyebrow`): mono, uppercase, tracked. Uses `--fg-soft` rather than the
+ * mockup's `--muted`, which fails AA for small text in Tokyonight Day. Anything in the `end` slot
+ * is pushed to the right edge.
+ */
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<p class={cn('m-0 flex items-center gap-2 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]', className)}>
+  <slot />
+  {
+    Astro.slots.has('end') && (
+      <Fragment>
+        <span class="sr-only">, </span>
+        <span class="ml-auto text-fg-soft normal-case tracking-normal">
+          <slot name="end" />
+        </span>
+      </Fragment>
+    )
+  }
+</p>

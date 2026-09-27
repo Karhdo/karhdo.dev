@@ -1,0 +1,121 @@
+---
+/** /career year ruler: one bar per role, overlapping roles on separate tracks. */
+import { EXPERIENCES } from '~/config/experiences';
+import { rulerBars } from '~/lib/career';
+
+const now = new Date();
+const { years, bars, tracks } = rulerBars(EXPERIENCES, now);
+const nowLeft = years.length
+  ? ((now.getTime() - new Date(years[0] ?? 0, 0, 1).getTime()) /
+      (new Date((years.at(-1) ?? 0) + 1, 0, 1).getTime() - new Date(years[0] ?? 0, 0, 1).getTime())) *
+    100
+  : 0;
+---
+
+<figure class="ruler glass m-0 px-4 pt-4 pb-3 sm:px-6" style={`--tracks: ${tracks}`}>
+  <figcaption class="sr-only">Career timeline by year</figcaption>
+  <div class="ruler-area relative">
+    {years.map((_, i) => <span class="ruler-grid" style={`left: ${(i / years.length) * 100}%`} aria-hidden="true" />)}
+    <span class="ruler-now" style={`left: ${nowLeft}%`} aria-hidden="true"><span>now</span></span>
+    {
+      bars.map(({ entry, track, left, width }, i) => (
+        <a
+          class="ruler-bar"
+          href={`#${entry.event.replace('career-', '')}`}
+          style={`--tone: var(--${entry.tone}); --i: ${i}; left: ${left}%; width: ${width}%; top: calc(${track} * (var(--bar-h) + 6px))`}
+          title={`${entry.org} · ${entry.start} – ${entry.end}`}
+        >
+          <span class="truncate">{entry.org}</span>
+        </a>
+      ))
+    }
+  </div>
+  <div class="ruler-years relative mt-2 h-4" aria-hidden="true">
+    {
+      years.map((year, i) => (
+        <span class="absolute font-mono text-[11.5px] text-fg-soft" style={`left: ${(i / years.length) * 100}%`}>
+          {year}
+        </span>
+      ))
+    }
+  </div>
+</figure>
+
+<style>
+  .ruler {
+    --bar-h: 28px;
+  }
+  .ruler-area {
+    height: calc(var(--tracks) * (var(--bar-h) + 6px) - 6px);
+  }
+  .ruler-grid {
+    position: absolute;
+    top: -6px;
+    bottom: -6px;
+    border-left: 1px dashed var(--line);
+  }
+  .ruler-now {
+    position: absolute;
+    top: -10px;
+    bottom: -6px;
+    z-index: 1;
+    border-left: 1px solid var(--green);
+  }
+  .ruler-now span {
+    position: absolute;
+    top: -6px;
+    left: 4px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: light-dark(color-mix(in srgb, var(--green) 60%, var(--fg)), var(--green));
+  }
+  .ruler-bar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    height: var(--bar-h);
+    min-width: 0;
+    padding: 0 8px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent);
+    border-left: 3px solid var(--tone);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--tone) 18%, transparent);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--fg);
+    text-decoration: none;
+    transform-origin: left center;
+  }
+  .ruler-bar:hover,
+  .ruler-bar:focus-visible {
+    background: color-mix(in srgb, var(--tone) 30%, transparent);
+  }
+  .ruler-bar:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  .ruler-years span {
+    translate: -50% 0;
+  }
+  .ruler-years span:first-child {
+    translate: 0 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ruler-bar {
+      animation-name: barGrow;
+      animation-duration: 0.7s;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: backwards;
+      animation-delay: calc(0.2s + var(--i, 0) * 90ms);
+      transition: background-color 0.2s;
+    }
+  }
+  @keyframes barGrow {
+    from {
+      scale: 0 1;
+      opacity: 0;
+    }
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+/**
+ * Dev-only preview (served at `/dev/mdx` by the dev-pages router): the MDX pipeline fixture
+ * (code blocks, callouts, alerts, anchors, Twemoji, images, tables). `?post=<id>` renders a real
+ * post instead, and lists the `headings` render() returns (the TOC data).
+ */
+import { getEntry, render } from 'astro:content';
+import { mdxComponents } from '~/components/mdx';
+import ImageZoom from '~/components/mdx/ImageZoom.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { Content as Fixture, getHeadings as getFixtureHeadings } from './fixtures/code-blocks.mdx';
+
+const postId = Astro.url.searchParams.get('post');
+const post = postId ? await getEntry('blog', postId) : undefined;
+const rendered = post ? await render(post) : undefined;
+const headings = rendered ? rendered.headings : getFixtureHeadings();
+const Content = rendered?.Content ?? Fixture;
+const title = post ? post.data.title : 'MDX fixture';
+---
+
+<PageLayout title={title} description="Dev-only MDX pipeline preview">
+  <div class="mx-auto max-w-3xl py-12">
+    <p class="mb-2 font-mono text-muted text-sm">
+      /dev/mdx{postId ? `?post=${postId}` : ''}
+      {postId && !post && <strong class="text-red"> — unknown post id</strong>}
+    </p>
+    <h1 class="mb-6 font-bold text-4xl text-fg">{title}</h1>
+    <details class="mb-8 font-mono text-muted text-sm">
+      <summary>headings from render() ({headings.length})</summary>
+      <ul id="toc-data">
+        {headings.map((h) => <li>h{h.depth} <a href={`#${h.slug}`}>{h.text}</a></li>)}
+      </ul>
+    </details>
+    <article class="prose">
+      <Content components={mdxComponents} />
+    </article>
+  </div>
+  <ImageZoom />
+</PageLayout>

@@ -1,0 +1,517 @@
+/*
+ * Glass surfaces and the motion-system foundation (keyframes + primitives).
+ * Orchestration/QA of motion lives in task 26; later tasks apply these by class.
+ *
+ * At-rest rule: no class leaves an element at opacity 0 or off-position outside a running
+ * animation. Keyframes animate FROM an offset TO none, so the page is complete with JS off,
+ * with reduced motion, and before any animation runs.
+ *
+ * Tilt-safe rule (M-A): keyframes that can run on a [data-tilt] card (riseIn, revealIn) animate
+ * the individual `translate` / `scale` / `rotate` / `opacity` properties, never `transform`.
+ */
+
+@layer components {
+  /* ---------- Glass ---------- */
+  .glass {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-radius: var(--r);
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background: var(--surface-solid);
+    }
+  }
+}
+
+/* While it snows (`html[data-snow]`), glass in <main> blurs less so flakes stay visible. Unlayered on purpose. */
+:root[data-snow="on"] main .glass,
+:root[data-snow="on"] main .post-row:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  -webkit-backdrop-filter: blur(1.5px) saturate(120%);
+  backdrop-filter: blur(1.5px) saturate(120%);
+}
+
+/* ---------- Keyframes: v1 carry-overs ---------- */
+@keyframes wave {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  10%,
+  30% {
+    transform: rotate(14deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  40% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes music-bar-1 {
+  0%,
+  100% {
+    height: 0%;
+  }
+  50% {
+    height: 70%;
+  }
+}
+
+@keyframes music-bar-2 {
+  0%,
+  100% {
+    height: 50%;
+  }
+  25% {
+    height: 0%;
+  }
+  75% {
+    height: 100%;
+  }
+}
+
+@keyframes music-bar-3 {
+  0%,
+  100% {
+    height: 70%;
+  }
+  15% {
+    height: 100%;
+  }
+  65% {
+    height: 0%;
+  }
+}
+
+@keyframes music-bar-4 {
+  0%,
+  100% {
+    height: 50%;
+  }
+  35.7% {
+    height: 0%;
+  }
+  85.7% {
+    height: 70%;
+  }
+}
+
+@keyframes scale-up {
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.18;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* ---------- Keyframes: new utilities ---------- */
+/* Mockup "Load-in": from a visible state, individual `translate` so it is tilt-safe. */
+@keyframes rise {
+  from {
+    translate: 0 10px;
+  }
+  to {
+    translate: none;
+  }
+}
+
+/* Skeleton shimmer: pair with a `--shine` gradient background (see .shimmer below). */
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@layer components {
+  .shimmer {
+    background-color: var(--line);
+    background-image: linear-gradient(100deg, transparent 30%, var(--shine) 50%, transparent 70%);
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+  }
+}
+
+/* ---------- Keyframes: mockup "Motion system" ---------- */
+@keyframes wordIn {
+  from {
+    transform: translateY(0.35em) rotate(2deg);
+    filter: blur(6px);
+  }
+  to {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes nameFlow {
+  0% {
+    background-position:
+      160% 50%,
+      0% 50%;
+  }
+  18% {
+    background-position:
+      -60% 50%,
+      35% 50%;
+  }
+  60% {
+    background-position:
+      -60% 50%,
+      100% 50%;
+  }
+  100% {
+    background-position:
+      -60% 50%,
+      0% 50%;
+  }
+}
+
+@keyframes dotPulse {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(-3px) scale(1.15);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    translate: 0 14px;
+    scale: 0.985;
+  }
+  to {
+    translate: none;
+    scale: none;
+  }
+}
+
+@keyframes revealIn {
+  from {
+    translate: 0 24px;
+    opacity: 0.35;
+  }
+  to {
+    translate: none;
+    opacity: 1;
+  }
+}
+
+@keyframes cellIn {
+  from {
+    transform: scale(0.2);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes barUp {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes splitIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes burst {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.5) rotate(-10deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes floatUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+}
+
+@keyframes pageOut {
+  to {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+}
+
+@keyframes pageIn {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeFill {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dotPop {
+  from {
+    transform: scale(0);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes mq {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Overrides Tailwind's animate-pulse (the live-dot ring); use animate-shimmer for skeletons. */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 60%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes flick {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  40% {
+    transform: scale(1.08, 1.14) rotate(-3deg);
+  }
+  70% {
+    transform: scale(0.96, 1.04) rotate(2deg);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.97) translateY(-6px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes chWave {
+  0% {
+    transform: none;
+  }
+  40% {
+    transform: translateY(-5px);
+    color: var(--cyan);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ---------- Primitives (motion-safe only) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Staggered load-in with a soft scale; set --i on each element. */
+  .rise {
+    /* backwards, not both: holds the start state during the stagger delay but releases translate/scale
+       afterwards, so hover lifts (Card motion-safe:hover:-translate-y) and tilt still apply. */
+    animation: riseIn 0.7s var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 50ms);
+  }
+
+  /* Scroll-driven reveal; progressive enhancement, no JS fallback. */
+  @supports (animation-timeline: view()) {
+    /* Longhands on purpose: the CSS minifier folds `animation` + `animation-timeline` into one
+       shorthand (`animation: linear both revealIn view()`) that Chrome rejects, dropping the rule. */
+    .reveal {
+      animation-name: revealIn;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+/* ---------- Blog stats card (task 30, blog-stats.ts) ---------- */
+/* Delays count from the data render (fetched when the card nears the viewport), not from page load. */
+@media (prefers-reduced-motion: no-preference) {
+  .blog-stats .area .line {
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: var(--len);
+    animation: draw 1.6s var(--ease-out) 0.1s forwards;
+  }
+
+  .blog-stats .area .fill {
+    animation: fadeFill 1s ease 0.5s both;
+  }
+
+  .blog-stats .area .dot {
+    animation: dotPop 0.5s var(--ease-spring) 1.5s both;
+  }
+
+  .blog-stats .react-bar span {
+    transform-origin: 0 50%;
+    animation: splitIn 1s var(--ease-out) 0.2s both;
+  }
+}
+
+/* ---------- Task 26: shared motion pieces ---------- */
+/*
+ * View-transition names only while a ClientRouter navigation runs. Astro sets
+ * `html[data-astro-transition]` just before `startViewTransition` and removes it when the transition
+ * finishes. A named element is a *backdrop root* in Chrome, so a permanent name on `main` (or on the
+ * persisted header) stops every `.glass` inside it from blurring the grid/snowfall behind it.
+ * `page` is the one `main` per document; its animation is motion-gated below. Named groups inside it
+ * (post titles, nav pill) morph separately.
+ */
+html[data-astro-transition] main#main {
+  view-transition-name: page;
+}
+/* Astro names `transition:persist` elements permanently (unlayered `[data-astro-transition-scope]`
+   rule); drop that name at rest, so it applies only during navigations. */
+html:not([data-astro-transition]) [data-astro-transition-persist][data-astro-transition-scope] {
+  view-transition-name: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Spotlight (PointerFx sets --mx/--my). `data-fx=on` = fine hover pointer + motion allowed. */
+  html[data-fx="on"] [data-card]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient(
+      360px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--blue) 14%, transparent),
+      transparent 60%
+    );
+  }
+  html[data-fx="on"] [data-card]:hover::before {
+    opacity: 1;
+  }
+
+  /* 3D tilt (PointerFx sets --rx/--ry + .tilting). `transform` only: .rise/.reveal animate the
+     individual translate/scale properties, and Card's hover lift is `translate`, so all compose.
+     The transition list keeps Card's own border/translate/shadow transitions. */
+  html[data-fx="on"] [data-tilt] {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition:
+      transform 0.35s var(--ease-out),
+      translate 0.25s var(--ease-out),
+      border-color 0.25s,
+      box-shadow 0.25s;
+  }
+  html[data-fx="on"] [data-tilt].tilting {
+    transition-duration: 0.08s, 0.25s, 0.25s, 0.25s;
+  }
+
+  /* Primary-button sheen: a --shine band sweeps across on hover / keyboard focus. */
+  .btn-primary {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, var(--shine) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+  .btn-primary:hover::after,
+  .btn-primary:focus-visible::after {
+    transform: translateX(120%);
+    transition: transform 0.7s var(--ease-out);
+  }
+
+  /* Page slide/fade on ClientRouter navigations (Astro's own CSS drops it under reduced motion). */
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: `page` is a view-transition name, not a type. */
+  ::view-transition-old(page) {
+    animation: 0.22s var(--ease-out) both pageOut;
+  }
+  /* biome-ignore lint/correctness/noUnknownTypeSelector: `page` is a view-transition name, not a type. */
+  ::view-transition-new(page) {
+    animation: 0.34s var(--ease-out) both pageIn;
+  }
+
+  /* List row title → post title morph. */
+  .vt-post-title {
+    view-transition-class: post-title;
+  }
+  ::view-transition-group(*.post-title) {
+    animation-duration: 0.25s;
+    animation-timing-function: var(--ease-out);
+  }
+}
+
+/*
+ * `.loop-anim` tags an infinite animation; PauseOffscreen sets `data-paused` on it while it is
+ * off-screen or the tab is hidden. Descendants too: the Spotify bars animate the child <i>s.
+ */
+/* biome-ignore-start lint/complexity/noImportantStyles: must beat each component's own `animation` shorthand. */
+.loop-anim[data-paused],
+.loop-anim[data-paused] * {
+  animation-play-state: paused !important;
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end of the pause rule. */
+
+/* ---------- Reduced-motion guard ---------- */
+/* biome-ignore-start lint/complexity/noImportantStyles: the global guard must beat every component animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end of the reduced-motion guard. */

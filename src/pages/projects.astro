@@ -1,0 +1,74 @@
+---
+/**
+ * /projects: work and side projects from `src/config/projects.ts`. Rendered on demand with CDN
+ * caching, so live GitHub repo data (task 20: stars, forks, languages, topics, and the repo
+ * description when a project has none, as v1 did) stays fresh without a rebuild. Repos are fetched
+ * in parallel; a `null` (no token, GitHub down) keeps the static card.
+ */
+import GithubRepoMeta from '~/components/projects/GithubRepoMeta.astro';
+import ProjectCard from '~/components/projects/ProjectCard.astro';
+import ProjectGrid from '~/components/projects/ProjectGrid.astro';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import { PROJECTS, type Project } from '~/config/projects';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { fetchRepoData } from '~/lib/services/github';
+import type { GithubRepository } from '~/types/github';
+
+export const prerender = false;
+
+// Browsers always revalidate; only Vercel's CDN caches (see the 00-overview cache-header rule).
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+Astro.response.headers.set('Vercel-CDN-Cache-Control', 'max-age=3600, stale-while-revalidate=86400');
+
+const description = 'My open-source side projects and stuff that I built with my colleagues at work';
+
+type Entry = { project: Project; repoData: GithubRepository | null };
+
+const entries: Entry[] = await Promise.all(
+  PROJECTS.map(async (project) => {
+    const repoData = project.repo ? await fetchRepoData({ repo: project.repo, includeLastCommit: false }) : null;
+    // v1 preferred the repo description (`repository?.description || description`); per the task-17 note it is now only a fallback.
+    const description = project.description || repoData?.description || undefined;
+    return { project: { ...project, description }, repoData };
+  })
+);
+
+// One pass (v1 logic).
+const workProjects: Entry[] = [];
+const sideProjects: Entry[] = [];
+for (const entry of entries) {
+  if (entry.project.type === 'work') workProjects.push(entry);
+  else sideProjects.push(entry);
+}
+
+const sections = [
+  { id: 'work', title: 'Work', projects: workProjects },
+  { id: 'side-projects', title: 'Side projects', projects: sideProjects },
+];
+---
+
+<PageLayout title="Projects" description={description}>
+  <div class="flex flex-col gap-12 pt-10 pb-16 sm:pt-14">
+    <SectionHeader title="Projects" description={description} />
+    {
+      sections.map(({ id, title, projects }) => (
+        <section aria-labelledby={id} class="flex flex-col gap-5">
+          <h2 id={id} class="m-0 font-semibold text-2xl text-fg tracking-[-0.02em]">
+            {title}
+          </h2>
+          <ProjectGrid>
+            {projects.map(({ project, repoData }) => (
+              <ProjectCard
+                project={project}
+                variant={project.featured ? 'featured' : 'framed'}
+                stars={repoData?.stargazerCount}
+              >
+                {repoData && <GithubRepoMeta slot="meta" repo={repoData} />}
+              </ProjectCard>
+            ))}
+          </ProjectGrid>
+        </section>
+      ))
+    }
+  </div>
+</PageLayout>

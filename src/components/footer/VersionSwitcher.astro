@@ -1,0 +1,256 @@
+---
+/**
+ * Statusline version switcher (task 09, mockup `#ver-btn` / `#ver-menu` / `.ver-item`), following
+ * the WAI-ARIA APG menu-button pattern. The current item is the one whose branch equals the build
+ * branch, else the `current: true` entry (then the button shows the build branch, e.g. a preview).
+ *
+ * Without JS the button stays `hidden` and a <noscript> segment links every other version.
+ * The menu is absolutely positioned against `.sl-wrap` (Statusline), outside the clipped statusline.
+ */
+import Icon from '~/components/ui/Icon.astro';
+import { SITE } from '~/config/site';
+import { BUILD_INFO } from '~/lib/build-info';
+
+const buildBranch = BUILD_INFO.branch;
+const matched = SITE.versions.find((v) => v.branch === buildBranch);
+const current = matched ?? SITE.versions.find((v) => 'current' in v && v.current);
+const items = SITE.versions.map((v) => ({
+  ...v,
+  host: new URL(v.url).host,
+  isCurrent: v === current,
+}));
+const others = items.filter((v) => !v.isCurrent);
+---
+
+<button
+  class="sl-branch"
+  type="button"
+  aria-haspopup="menu"
+  aria-expanded="false"
+  aria-controls="ver-menu"
+  title="Switch site version"
+  data-ver-button
+  hidden
+>
+  <Icon name="GitBranch" size={13} />
+  {buildBranch}
+  <span class="sr-only">(switch site version)</span>
+  <Icon name="ChevronUp" size={12} strokeWidth={2.5} class="chev" />
+</button>
+<noscript>
+  <span class="sl-noscript">
+    {
+      others.map((v) => (
+        <a href={v.url}>
+          {v.branch} ↗
+        </a>
+      ))
+    }
+  </span>
+</noscript>
+<div class="ver-menu" id="ver-menu" role="menu" aria-label="Site versions" data-ver-menu hidden>
+  <div class="vh" aria-hidden="true">Switch version</div>
+  {
+    items.map((v) => (
+      <a class="ver-item" role="menuitem" tabindex="-1" href={v.url} aria-current={v.isCurrent ? 'true' : undefined}>
+        {v.isCurrent ? <Icon name="Check" size={14} strokeWidth={2.5} class="check" /> : <span aria-hidden="true" />}
+        <span>
+          <span class="b">{v.branch}</span>
+          {v.isCurrent && ' · current'}
+        </span>
+        <span class="host">
+          {v.host}
+          {!v.isCurrent && ' ↗'}
+        </span>
+        <span class="stack">{v.stack}</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .sl-branch {
+    border: 0;
+    background: transparent;
+    color: var(--sl-green, var(--green)) !important;
+    font: inherit;
+    cursor: pointer;
+  }
+  .sl-branch:hover,
+  .sl-branch[aria-expanded='true'] {
+    background: color-mix(in srgb, var(--sl-green, var(--green)) 10%, transparent);
+  }
+  .sl-branch :global(.chev) {
+    color: var(--faint);
+    transition: transform 0.2s;
+  }
+  .sl-branch[aria-expanded='true'] :global(.chev) {
+    transform: rotate(180deg);
+  }
+  .sl-noscript {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 12px;
+    border-right: 1px solid var(--line);
+  }
+  .sl-noscript a {
+    color: var(--sl-green, var(--green));
+    text-decoration: none;
+  }
+  .ver-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    z-index: 40;
+    width: min(320px, 100%);
+    padding: 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: var(--surface-solid);
+    box-shadow: var(--shadow);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    white-space: normal;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ver-menu:not([hidden]) {
+      animation: pop 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+  }
+  .vh {
+    padding: 8px 10px 6px;
+    color: var(--fg-soft);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ver-item {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    align-items: center;
+    gap: 4px 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    color: var(--fg-soft);
+    text-decoration: none;
+  }
+  .ver-item:hover,
+  .ver-item:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--blue) 12%, transparent);
+    color: var(--fg);
+  }
+  .ver-item .b {
+    color: var(--sl-green, var(--green));
+    font-weight: 600;
+  }
+  .ver-item .stack {
+    grid-column: 2;
+    color: var(--fg-soft);
+    font-size: 11.5px;
+  }
+  .ver-item .host {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    color: var(--fg-soft);
+    font-size: 11px;
+  }
+  .ver-item :global(.check) {
+    grid-row: 1 / span 2;
+    color: var(--blue);
+  }
+</style>
+
+<script>
+  let controller: AbortController | undefined;
+
+  function initVersionSwitcher(): void {
+    controller?.abort();
+    const button = document.querySelector<HTMLButtonElement>('[data-ver-button]');
+    const menu = document.querySelector<HTMLElement>('[data-ver-menu]');
+    if (!button || !menu) return;
+    controller = new AbortController();
+    const { signal } = controller;
+    const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    const wrap = button.closest<HTMLElement>('.sl-wrap') ?? menu.parentElement ?? document.body;
+
+    button.hidden = false;
+
+    const setOpen = (open: boolean, focus: 'first' | 'last' | 'button' | 'none' = 'first') => {
+      menu.hidden = !open;
+      button.setAttribute('aria-expanded', String(open));
+      if (open) {
+        // Anchor under the button, clamped inside .sl-wrap (mockup vSet).
+        const bounds = wrap.getBoundingClientRect();
+        const b = button.getBoundingClientRect();
+        menu.style.left = `${Math.max(0, Math.min(b.left - bounds.left, bounds.width - menu.offsetWidth))}px`;
+        if (focus === 'first') items[0]?.focus();
+        else if (focus === 'last') items.at(-1)?.focus();
+      } else if (focus === 'button') {
+        button.focus();
+      }
+    };
+
+    button.addEventListener('click', () => setOpen(menu.hasAttribute('hidden')), { signal });
+    button.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          setOpen(true, event.key === 'ArrowDown' ? 'first' : 'last');
+        }
+      },
+      { signal }
+    );
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target as Node;
+        if (!menu.hidden && !menu.contains(target) && !button.contains(target)) setOpen(false, 'none');
+      },
+      { signal }
+    );
+    menu.addEventListener(
+      'keydown',
+      (event) => {
+        const index = items.indexOf(document.activeElement as HTMLElement);
+        const focusAt = (i: number) => items[(i + items.length) % items.length]?.focus();
+        switch (event.key) {
+          case 'Escape':
+            event.preventDefault();
+            setOpen(false, 'button');
+            break;
+          case 'ArrowDown':
+            event.preventDefault();
+            focusAt(index + 1);
+            break;
+          case 'ArrowUp':
+            event.preventDefault();
+            focusAt(index - 1);
+            break;
+          case 'Home':
+            event.preventDefault();
+            focusAt(0);
+            break;
+          case 'End':
+            event.preventDefault();
+            focusAt(items.length - 1);
+            break;
+          case 'Tab':
+            // Close and hand focus back to the button; the default Tab action then moves on from there.
+            setOpen(false, 'button');
+            break;
+        }
+      },
+      { signal }
+    );
+  }
+
+  document.addEventListener('astro:page-load', initVersionSwitcher);
+  document.addEventListener('astro:before-swap', () => {
+    controller?.abort();
+    controller = undefined;
+  });
+</script>

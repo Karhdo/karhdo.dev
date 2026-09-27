@@ -1,0 +1,281 @@
+---
+import Button from '~/components/ui/Button.astro';
+/**
+ * Project card (mockup `.proj`), shared by /projects and the homepage "Selected projects" (task 15).
+ * - `featured`: full grid row; text column (kind badge + org, title, description, 3 fact tiles,
+ *   chips, "Visit product" button) beside a browser-frame screenshot, which drops below at ≤ 900 px.
+ * - `framed`: browser-frame screenshot on top, then kind badge + org/tagline (+ ★ stars), title,
+ *   description, chips and a "Source code →" / "Visit →" link.
+ * The screenshot is not a link, so each card has one tab stop. `stars` renders only when a number.
+ * The optional `meta` slot is for task-20 repo facts (GithubRepoMeta) on /projects.
+ */
+import Card from '~/components/ui/Card.astro';
+import SimpleIcon from '~/components/ui/SimpleIcon.astro';
+import type { Project } from '~/config/projects';
+import { cn } from '~/lib/utils/cn';
+import BrowserFrame from './BrowserFrame.astro';
+import { techIcon } from './tech';
+
+interface Props {
+  project: Project;
+  variant?: 'featured' | 'framed';
+  stars?: number | null;
+  class?: string;
+}
+
+const { project, variant = 'framed', stars, class: className } = Astro.props;
+const featured = variant === 'featured';
+const { type, title, description, builtWith, image, imageAlt, frameLabel, url, repo, org, tagline, facts } = project;
+const kind = type === 'work' ? 'Work' : 'Side';
+const subtitle = org ?? tagline;
+const repoUrl = repo ? `https://github.com/${repo}` : undefined;
+const starsLabel =
+  typeof stars === 'number' ? new Intl.NumberFormat('en', { notation: 'compact' }).format(stars) : null;
+---
+
+<Card
+  as="article"
+  class={cn('proj reveal p-0', featured ? 'featured' : 'framed', className)}
+  data-tilt
+  data-project={type}
+>
+  {!featured && <BrowserFrame image={image} imageAlt={imageAlt} label={frameLabel} />}
+  <div class="proj-body">
+    <p class="eyebrow">
+      <span class:list={['kind', type === 'work' ? 'work' : 'side']}>{kind}</span>
+      {subtitle && <span>{subtitle}</span>}
+      {
+        starsLabel && (
+          <span class="stars">
+            <span aria-hidden="true">★ {starsLabel}</span>
+            <span class="sr-only">{stars} GitHub stars</span>
+          </span>
+        )
+      }
+    </p>
+    <h3>{title}</h3>
+    {description && <p class="desc">{description}</p>}
+    {
+      featured && facts && (
+        <ul class="facts">
+          {facts.map((fact) => (
+            <li>
+              <b>{fact.value}</b>
+              <span>{fact.label}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    <ul class="chips" aria-label="Built with">
+      {
+        builtWith.map((tech) => {
+          const icon = techIcon(tech);
+          return (
+            <li class="chip">
+              {icon && <SimpleIcon slug={icon.slug} size={13} class={cn('shrink-0', icon.tone)} />}
+              {tech}
+            </li>
+          );
+        })
+      }
+    </ul>
+    <slot name="meta" />
+    {
+      featured && url && (
+        <div class="proj-links">
+          <Button
+            href={url}
+            variant="primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Visit product
+            <svg
+              class="size-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M7 17 17 7M8 7h9v9" />
+            </svg>
+          </Button>
+        </div>
+      )
+    }
+    {
+      !featured && (repoUrl || url) && (
+        <div class="proj-links">
+          <a
+            class="link-arrow"
+            href={repoUrl ?? url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${repoUrl ? 'Source code' : 'Visit'}: ${title}`}
+          >
+            {repoUrl ? 'Source code →' : 'Visit →'}
+          </a>
+        </div>
+      )
+    }
+  </div>
+  {featured && <BrowserFrame image={image} imageAlt={imageAlt} label={frameLabel} featured />}
+</Card>
+
+<style>
+  .proj {
+    display: flex;
+    flex-direction: column;
+  }
+  .proj.featured {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: stretch;
+  }
+  .proj-body {
+    padding: 22px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .eyebrow {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-soft);
+  }
+  /* Tone text mixed toward --fg so the small badge passes AA on its tint in Day (~5:1) and Night (~6:1). */
+  .kind {
+    font-size: 10.5px;
+    padding: 1px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.06em;
+  }
+  .kind.work {
+    color: color-mix(in srgb, var(--orange) 55%, var(--fg));
+    background: color-mix(in srgb, var(--orange) 14%, transparent);
+  }
+  .kind.side {
+    color: color-mix(in srgb, var(--purple) 55%, var(--fg));
+    background: color-mix(in srgb, var(--purple) 14%, transparent);
+  }
+  .stars {
+    margin-left: auto;
+    text-transform: none;
+    letter-spacing: 0;
+    color: color-mix(in srgb, var(--orange) 55%, var(--fg));
+  }
+  h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--fg);
+  }
+  .featured h3 {
+    font-size: 30px;
+  }
+  .desc {
+    margin: 0;
+    color: var(--fg-soft);
+    font-size: 15px;
+  }
+  .facts {
+    list-style: none;
+    margin: 4px 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .facts li {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface-solid) 50%, transparent);
+  }
+  .facts b {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .facts span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-soft);
+  }
+  .chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--fg-soft);
+    background: color-mix(in srgb, var(--surface-solid) 60%, transparent);
+  }
+  .proj-links {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    padding-top: 4px;
+  }
+  /* --heat-4, not --blue: --blue is ~3.5:1 on the Day surface. */
+  .link-arrow {
+    color: var(--heat-4);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .link-arrow:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Tilt-safe: individual translate/scale, never transform. */
+    .chip {
+      transition:
+        translate 0.2s var(--ease-spring),
+        scale 0.2s var(--ease-spring),
+        border-color 0.2s;
+    }
+    .chip:hover {
+      translate: 0 -2px;
+      scale: 1.04;
+      border-color: var(--line-strong);
+    }
+  }
+  @media (max-width: 900px) {
+    .proj.featured {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .facts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

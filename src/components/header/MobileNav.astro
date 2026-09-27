@@ -1,0 +1,117 @@
+---
+/**
+ * Full-screen mobile menu on a modal `<dialog>` (focus trap, Esc and focus return come from the
+ * platform). Locks page scroll with `overflow: hidden` on `<html>` while open; closes on link click
+ * and on `astro:before-swap`. Replaces v1's Headless UI dialog + body-scroll-lock.
+ */
+import Icon from '~/components/ui/Icon.astro';
+import { HEADER_NAV_LINKS } from '~/config/navigation';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<button
+  type="button"
+  class="icon-btn sm:hidden"
+  aria-label="Open menu"
+  aria-haspopup="dialog"
+  aria-controls="mobile-nav"
+  aria-expanded="false"
+  data-mobile-nav-open
+  data-umami-event="mobile-nav-toggle"
+>
+  <Icon name="Menu" size={18} />
+</button>
+
+<dialog id="mobile-nav" class="mobile-nav" aria-label="Menu" data-mobile-nav>
+  <div class="flex items-center justify-between">
+    <span class="font-mono text-fg-soft text-xs uppercase tracking-[.08em]">Menu</span>
+    <button type="button" class="icon-btn" aria-label="Close menu" data-mobile-nav-close>
+      <Icon name="X" size={18} />
+    </button>
+  </div>
+  <nav aria-label="Mobile" class="mt-8 flex flex-col gap-2">
+    {
+      HEADER_NAV_LINKS.map(({ href, title }) => (
+        <a
+          href={href}
+          class="mobile-link"
+          data-nav-link
+          data-umami-event={`mobile-nav-${href.slice(1)}`}
+          aria-current={isActive(href) ? 'page' : undefined}
+        >
+          {title}
+        </a>
+      ))
+    }
+  </nav>
+</dialog>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 20px 20px 32px;
+    border: 0;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .mobile-nav::backdrop {
+    background: var(--bg);
+  }
+  .mobile-link {
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: var(--fg);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+  .mobile-link:hover {
+    color: var(--blue);
+  }
+  .mobile-link[aria-current='page'] {
+    background: var(--surface-solid);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-nav[open] {
+      animation: pop 0.2s var(--ease-out);
+    }
+  }
+</style>
+
+<script>
+  function initMobileNav(): void {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-mobile-nav]');
+    const opener = document.querySelector<HTMLButtonElement>('[data-mobile-nav-open]');
+    if (!dialog || !opener || dialog.dataset.bound) return;
+    dialog.dataset.bound = 'true';
+
+    const close = () => {
+      if (dialog.open) dialog.close();
+    };
+
+    opener.addEventListener('click', () => {
+      dialog.showModal();
+      document.documentElement.style.overflow = 'hidden';
+      opener.setAttribute('aria-expanded', 'true');
+    });
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.removeProperty('overflow');
+      opener.setAttribute('aria-expanded', 'false');
+    });
+    dialog.querySelector('[data-mobile-nav-close]')?.addEventListener('click', close);
+    for (const link of dialog.querySelectorAll('a')) link.addEventListener('click', close);
+    document.addEventListener('astro:before-swap', close);
+  }
+
+  document.addEventListener('astro:page-load', initMobileNav);
+</script>

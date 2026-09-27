@@ -1,0 +1,33 @@
+---
+/**
+ * A simple-icons (CC0) logo as inline SVG, rendered at build time with no client JS.
+ * `fill="currentColor"`: the caller tints it with a Tokyonight token (e.g. `class="text-blue"`).
+ * Decorative unless `title` is given.
+ */
+import { ICONS, type SimpleIconSlug } from '~/lib/simple-icons';
+
+interface Props {
+  slug: SimpleIconSlug;
+  size?: number;
+  title?: string;
+  class?: string;
+}
+
+const { slug, size = 16, title, class: className } = Astro.props;
+const icon = ICONS[slug];
+---
+
+<svg
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  width={size}
+  height={size}
+  role="img"
+  aria-hidden={title ? undefined : 'true'}
+  aria-label={title}
+  class={className}
+  data-icon={icon.slug}
+>
+  {title && <title>{title}</title>}
+  <path d={icon.path} />
+</svg>

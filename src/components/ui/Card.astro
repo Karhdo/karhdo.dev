@@ -1,0 +1,46 @@
+---
+/**
+ * Card surface. `glass` (default) uses the `.glass` component class (animations.css); `solid` and
+ * `outline` are opaque / borderless-fill variants. Links (`href` or `as="a"`) lift on hover under
+ * `motion-safe` (the `translate` property, so it composes with the task-26 tilt). `data-card` is the
+ * hook for the task-26 spotlight.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { cn } from '~/lib/utils/cn';
+
+type Tag = 'div' | 'article' | 'a' | 'section';
+type Variant = 'glass' | 'solid' | 'outline';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class'> & {
+  as?: Tag;
+  href?: string;
+  variant?: Variant;
+  class?: string;
+  target?: string;
+  rel?: string;
+};
+
+const VARIANTS: Record<Variant, string> = {
+  glass: 'glass',
+  solid: 'rounded-card border border-line bg-surface-solid shadow-card',
+  outline: 'rounded-card border border-line bg-transparent',
+};
+
+const { as, href, variant = 'glass', class: className, ...rest } = Astro.props;
+const Element: Tag = as ?? (href ? 'a' : 'div');
+const interactive = Element === 'a';
+---
+
+<Element
+  href={href}
+  data-card
+  class={cn(
+    'relative block overflow-hidden p-5 transition-[border-color,translate,box-shadow] duration-250 ease-(--ease-out) hover:border-line-strong',
+    VARIANTS[variant],
+    interactive && 'text-inherit no-underline hover:shadow-card motion-safe:hover:-translate-y-[2px]',
+    className
+  )}
+  {...rest}
+>
+  <slot />
+</Element>

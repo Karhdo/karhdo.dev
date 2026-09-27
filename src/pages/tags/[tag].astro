@@ -1,0 +1,34 @@
+---
+/**
+ * `/tags/{slug}` (v1 `app/tags/[tag]/page.tsx`): every post with that tag, no pagination (as v1).
+ * Slugs come from `github-slugger`, so `design-patterns` and `design patterns` share one page.
+ * The RSS feed lives next door at `/tags/{slug}/feed.xml` (task 24).
+ */
+import type { GetStaticPaths } from 'astro';
+import { SITE } from '~/config/site';
+import ListLayout from '~/layouts/ListLayout.astro';
+import { getPostsByTag, getTagCounts } from '~/lib/content';
+
+export const getStaticPaths = (async () => {
+  const tags = Object.keys(await getTagCounts());
+  return tags.map((tag) => ({ params: { tag } }));
+}) satisfies GetStaticPaths;
+
+const tag = Astro.params.tag as string;
+const posts = await getPostsByTag(tag);
+
+// v1: capitalise the first letter, spaces → dashes.
+const title = (tag[0]?.toUpperCase() ?? '') + tag.split(' ').join('-').slice(1);
+---
+
+<ListLayout
+  seo={{
+    title: tag,
+    description: `${SITE.title} ${tag} tagged content`,
+    rssFeed: `/tags/${tag}/feed.xml`,
+  }}
+  eyebrow={`Tag · ${posts.length} post${posts.length === 1 ? '' : 's'}`}
+  heading={title}
+  posts={posts}
+  activeTag={tag}
+/>

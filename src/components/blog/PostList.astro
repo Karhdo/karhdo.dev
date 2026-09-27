@@ -1,0 +1,27 @@
+---
+/** Ordered list of `PostRow`s (blog list, tag pages, homepage "Recent posts"). */
+import type { Post } from '~/lib/content';
+import PostRow from './PostRow.astro';
+
+interface Props {
+  posts: Post[];
+  headingLevel?: 2 | 3;
+  class?: string;
+}
+
+const { posts, headingLevel, class: className } = Astro.props;
+---
+
+{
+  posts.length > 0 ? (
+    <ol class:list={['m-0 flex list-none flex-col p-0', className]}>
+      {posts.map((post) => (
+        <li>
+          <PostRow post={post} headingLevel={headingLevel} />
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class:list={['border-line border-t py-6 text-fg-soft', className]}>No posts found.</p>
+  )
+}

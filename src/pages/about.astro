@@ -1,0 +1,75 @@
+---
+/** /about: the whoami hero, then the author MDX (v1 text) in a compact layout. */
+import { render } from 'astro:content';
+import WhoamiCard from '~/components/about/WhoamiCard.astro';
+import { mdxComponents } from '~/components/mdx';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { getAuthor } from '~/lib/content';
+
+const author = await getAuthor('default');
+if (!author) throw new Error('Missing author entry: src/content/authors/default.mdx');
+const { Content } = await render(author);
+
+const description = 'Further insights into who I am and the purpose of this blog.';
+---
+
+<PageLayout title="About" description={description}>
+  <div class="py-12 sm:py-16">
+    <SectionHeader eyebrow="~/about" title="About" description={description} />
+
+    <div class="rise mt-10" style="--i: 1">
+      <WhoamiCard author={author.data} />
+    </div>
+
+    <article class="about-prose prose mt-10 max-w-none">
+      <Content components={mdxComponents} />
+    </article>
+  </div>
+</PageLayout>
+
+<style>
+  .about-prose {
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .about-prose :global(h2) {
+    margin: 1.3em 0 0.45em;
+    line-height: 1.3;
+    font-size: 1.35rem;
+  }
+  .about-prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .about-prose :global(p) {
+    margin: 0.55em 0;
+  }
+  .about-prose :global(blockquote) {
+    margin: 0.8em 0;
+    padding: 0.55em 1em;
+  }
+  .about-prose :global(blockquote p) {
+    margin: 0;
+  }
+  .about-prose :global(ul) {
+    display: grid;
+    gap: 8px;
+    margin: 0.9em 0;
+    padding: 0;
+    list-style: none;
+  }
+  .about-prose :global(li) {
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+  @media (min-width: 768px) {
+    .about-prose :global(ul) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

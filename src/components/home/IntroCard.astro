@@ -1,0 +1,171 @@
+---
+/**
+ * Bento intro card (mockup `.c-intro`): avatar, greeting, the "I'm Trong Khanh, aka Karhdo." headline
+ * with the Ocean name gradient, the lead, typed bios and the CTA row.
+ *
+ * Headline: the words are split at build time into `.w` units inside an `aria-hidden` wrapper, and the
+ * real sentence is the `<h1>`'s `aria-label`, so screen readers read it once. Both names use the same
+ * blue → cyan → blue gradient as the header's `.dev` (tokens only), clipped to text with a blue glow;
+ * the full stop is `--blue`. With motion allowed the words lift in, a `--shine` band sweeps each name
+ * (`nameFlow`, 9 s, Karhdo offset .6 s) while the colours flow, and the dot bobs (`dotPulse`). Only
+ * `transform`, `filter` and `background-position` animate, so there is no layout shift.
+ */
+import { Image } from 'astro:assets';
+import { ArrowRight } from '@lucide/astro';
+import avatar from '~/assets/images/avatar.jpg';
+import Button from '~/components/ui/Button.astro';
+import Card from '~/components/ui/Card.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Twemoji from '~/components/ui/Twemoji.astro';
+import { SITE } from '~/config/site';
+import { cn } from '~/lib/utils/cn';
+import TypedBios from './TypedBios.astro';
+
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className, style } = Astro.props;
+
+const headline = "I'm Trong Khanh, aka Karhdo.";
+// Word units: [text, name gradient?, trailing text, line break after?]. "Trong Khanh" is one unit so
+// its gradient runs continuously across both words.
+const words = [
+  { text: "I'm" },
+  { name: 'Trong Khanh', after: ',', br: true },
+  { text: 'aka' },
+  { name: 'Karhdo', alt: true, dot: true },
+] as const satisfies readonly {
+  text?: string;
+  name?: string;
+  alt?: boolean;
+  after?: string;
+  dot?: boolean;
+  br?: boolean;
+}[];
+---
+
+<Card class={cn('intro flex flex-col justify-between gap-5.5 p-5.5 sm:p-7', className)} style={style} data-tilt>
+  <div class="flex items-center gap-4.5">
+    <Image
+      src={avatar}
+      alt="Portrait of Do Trong Khanh"
+      width={144}
+      height={144}
+      quality={75}
+      loading="eager"
+      fetchpriority="high"
+      class="size-18 flex-none rounded-[20px] border border-line-strong object-cover"
+    />
+    <div class="flex flex-col gap-0.5">
+      <p class="m-0 font-mono text-[15px] text-fg-soft">
+        Hello, folks! <span class="inline-block origin-[70%_70%] motion-safe:animate-wave loop-anim"
+          ><Twemoji emoji="waving-hand" size="base" /></span
+        >
+      </p>
+      <p class="m-0 text-fg-soft text-sm">
+        <b class="font-semibold text-fg">{SITE.fullName}</b> · Software Engineer at Spartan
+      </p>
+    </div>
+  </div>
+
+  <h1 aria-label={headline}>
+    <span aria-hidden="true"
+      >{
+        words.map((word, i) => (
+          <Fragment>
+            <span class="w" style={`--i: ${i}`}>
+              {'name' in word ? (
+                <Fragment>
+                  <span class:list={['grad loop-anim', 'alt' in word && 'alt']}>{word.name}</span>
+                  {'after' in word && word.after}
+                  {'dot' in word && <span class="dotp loop-anim">.</span>}
+                </Fragment>
+              ) : (
+                word.text
+              )}
+            </span>
+            {'br' in word ? <br /> : i < words.length - 1 && ' '}
+          </Fragment>
+        ))
+      }</span
+    >
+  </h1>
+
+  <p class="lead m-0 max-w-[56ch] font-light text-[18px] text-fg-soft">
+    Fullstack engineer with a passion for <b>JavaScript/TypeScript</b>. I write about <b>NestJS</b>, databases and
+    the problems that show up when applications grow, to practise my skills and share what I learn.
+  </p>
+
+  <TypedBios />
+
+  <div class="flex flex-wrap gap-2.5">
+    <Button href="/blog" variant="primary" data-umami-event="home-link-blog">
+      Read the blog
+      <ArrowRight size={18} aria-hidden="true" />
+    </Button>
+    <Button href={SITE.github} target="_blank" rel="noopener noreferrer" data-umami-event="home-link-github">
+      <Icon name="Github" size={16} />
+      GitHub
+    </Button>
+    <Button href={SITE.linkedin} target="_blank" rel="noopener noreferrer" data-umami-event="home-link-linkedin">
+      <Icon name="Linkedin" size={16} />
+      LinkedIn
+    </Button>
+  </div>
+</Card>
+
+<style>
+  .intro h1 {
+    margin: 0;
+    font-size: clamp(34px, 5.4vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    text-wrap: balance;
+    color: var(--fg);
+  }
+  .intro .lead b {
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  /* Ocean: the same gradient as the header's `.dev`; `.alt` differs only by its animation offset. */
+  .grad {
+    background-image: linear-gradient(100deg, var(--blue) 0%, var(--cyan) 50%, var(--blue) 100%);
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 22px color-mix(in srgb, var(--blue) 32%, transparent));
+  }
+  .dotp {
+    color: var(--blue);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .w {
+      display: inline-block;
+      animation: wordIn 0.7s var(--ease-out) both;
+      animation-delay: calc(0.12s + var(--i) * 0.07s);
+    }
+    .grad {
+      background-image:
+        linear-gradient(110deg, transparent 42%, var(--shine) 50%, transparent 58%),
+        linear-gradient(100deg, var(--blue) 0%, var(--cyan) 50%, var(--blue) 100%);
+      background-size:
+        250% 100%,
+        200% 100%;
+      animation: nameFlow 9s ease-in-out infinite;
+    }
+    .grad.alt {
+      animation-delay: 0.6s;
+    }
+    .dotp {
+      display: inline-block;
+      animation: dotPulse 2.4s ease-in-out infinite;
+    }
+  }
+</style>

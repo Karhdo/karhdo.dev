@@ -1,0 +1,10 @@
+---
+/** MDX `table`: wide tables scroll horizontally instead of overflowing the column (v1 TableWrapper). */
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'table'>;
+---
+
+<div class="w-full overflow-x-auto">
+  <table {...Astro.props}><slot /></table>
+</div>

@@ -1,0 +1,78 @@
+---
+/**
+ * Theme button cycling light → dark → system (task 09) through `switchTheme` (`~/lib/theme`, shared
+ * with the ⌘K palette): writes `localStorage.theme`, re-resolves `<html data-theme>` + `theme-color`
+ * through `window.__theme.apply()` (ThemeScript.astro), and dispatches `theme-change`
+ * ({ detail: { dark } }) for Giscus (task 21).
+ *
+ * With View Transitions and motion allowed, the new theme is revealed by a circle growing from the
+ * button. The reveal CSS is scoped to `html[data-theme-switching]`, so page transitions are untouched.
+ */
+import Icon from '~/components/ui/Icon.astro';
+---
+
+<button type="button" class="icon-btn" data-theme-toggle data-pref="system" aria-label="Switch to light theme">
+  <span class="theme-icon" data-for="light"><Icon name="Sun" size={18} /></span>
+  <span class="theme-icon" data-for="dark"><Icon name="Moon" size={18} /></span>
+  <span class="theme-icon" data-for="system"><Icon name="Monitor" size={18} /></span>
+</button>
+<script is:inline>
+  // Sync the icon with the stored preference before first paint (the header is persisted, so this
+  // runs once; later changes go through the bundled script below).
+  (() => {
+    const btn = document.currentScript?.previousElementSibling;
+    if (!btn) return;
+    let pref = 'system';
+    try {
+      const v = localStorage.getItem('theme');
+      if (v === 'light' || v === 'dark') pref = v;
+    } catch {}
+    const next = { light: 'dark', dark: 'system', system: 'light' }[pref];
+    btn.dataset.pref = pref;
+    btn.setAttribute('aria-label', `Switch to ${next} theme`);
+  })();
+</script>
+
+<style>
+  .theme-icon {
+    display: none;
+  }
+  [data-pref='light'] .theme-icon[data-for='light'],
+  [data-pref='dark'] .theme-icon[data-for='dark'],
+  [data-pref='system'] .theme-icon[data-for='system'] {
+    display: block;
+  }
+</style>
+
+<style is:global>
+  /* Circular reveal: only while the toggle drives a view transition, never for page navigations. */
+  html[data-theme-switching]::view-transition-old(root),
+  html[data-theme-switching]::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  /* Capture the whole page as one root snapshot, so named groups (main, nav-pill) don't cross-fade. */
+  html[data-theme-switching] * {
+    view-transition-name: none !important;
+  }
+</style>
+
+<script>
+  import { getTheme, NEXT_THEME, renderThemeToggle, switchTheme, type ThemePref } from '~/lib/theme';
+
+  function toggle(button: HTMLElement): void {
+    const current = (button.dataset.pref as ThemePref | undefined) ?? getTheme();
+    switchTheme(NEXT_THEME[current], button);
+  }
+
+  function initThemeToggle(): void {
+    for (const button of document.querySelectorAll<HTMLElement>('[data-theme-toggle]')) {
+      renderThemeToggle(button, getTheme());
+      if (button.dataset.bound) continue;
+      button.dataset.bound = 'true';
+      button.addEventListener('click', () => toggle(button));
+    }
+  }
+
+  document.addEventListener('astro:page-load', initThemeToggle);
+</script>

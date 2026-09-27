@@ -1,0 +1,27 @@
+---
+/**
+ * Fixed-size loading placeholder for the homepage live cards (tasks 19, 20, 30, 31). A calm shimmer
+ * block (the shimmer runs only with motion allowed, and pauses off-screen via `.loop-anim`). Size it
+ * to the final content so filling the card later causes no layout shift. Decorative: the card's
+ * eyebrow and `aria-busy` carry the meaning.
+ */
+import { cn } from '~/lib/utils/cn';
+
+interface Props {
+  /** Block height in px. */
+  height: number;
+  /** CSS width (default 100%). */
+  width?: string;
+  /** Round (e.g. an album cover or avatar) vs. the default 8 px corners. */
+  radius?: string;
+  class?: string;
+}
+
+const { height, width = '100%', radius = '8px', class: className } = Astro.props;
+---
+
+<span
+  aria-hidden="true"
+  class={cn('shimmer loop-anim block shrink-0 motion-safe:animate-shimmer', className)}
+  style={`height: ${height}px; width: ${width}; border-radius: ${radius};`}
+></span>

@@ -1,0 +1,88 @@
+---
+/**
+ * Tag filter chips (mockup `.filters`) as real links, so they work without JS and filter across
+ * every page: `all` → `/blog`, each tag → `/tags/{slug}`. Sorted by post count; the active chip
+ * gets `aria-current="page"`. Reused with an active tag on the tag pages (task 14).
+ */
+import { sortTagChips } from '~/lib/blog-list';
+import { getPublishedPosts, getTagCounts } from '~/lib/content';
+
+interface Props {
+  /** `'all'` on the blog list, or the tag slug on a tag page. */
+  active?: string;
+  class?: string;
+}
+
+const { active = 'all', class: className } = Astro.props;
+const chips = sortTagChips(await getTagCounts());
+const total = (await getPublishedPosts()).length;
+const plural = (n: number) => `${n} post${n === 1 ? '' : 's'}`;
+---
+
+<div class:list={['filters', className]} role="group" aria-label="Filter by tag">
+  <a class="filter-chip" href="/blog" aria-current={active === 'all' ? 'page' : undefined} title={plural(total)}>all</a>
+  {
+    chips.map((chip) => (
+      <a
+        class="filter-chip"
+        href={`/tags/${chip.slug}`}
+        aria-current={active === chip.slug ? 'page' : undefined}
+        title={plural(chip.count)}
+      >
+        {chip.slug}
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .filter-chip {
+    display: inline-block;
+    padding: 5px 11px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.4;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background-color 0.2s;
+  }
+  .filter-chip:hover {
+    border-color: var(--line-strong);
+    color: var(--fg);
+  }
+  .filter-chip:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  /* Blue border/tint marks the active chip; text stays --fg (blue text on --bg is < 4.5:1 in Day). */
+  .filter-chip[aria-current='page'] {
+    border-color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 10%, transparent);
+    color: var(--fg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Chips pop on hover (transform only: no layout shift). */
+    .filter-chip {
+      transition:
+        transform 0.2s var(--ease-spring),
+        border-color 0.2s,
+        color 0.2s,
+        background-color 0.2s;
+    }
+    .filter-chip:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+  }
+</style>
