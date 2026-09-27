@@ -10,6 +10,7 @@
 </div>
 <br>
 <p align="center"><i>Loved the project? Please visit the <a href="https://karhdo.dev">website</a>.</i></p>
+<p align="center"><b>v2</b> (Astro × Bun) runs on <a href="https://karhdo.dev">karhdo.dev</a> from <code>main</code> · <b>v1</b> (Next.js × pnpm) stays on <a href="https://v1.karhdo.dev">v1.karhdo.dev</a> from the <a href="https://github.com/Karhdo/karhdo.dev/tree/v1"><code>v1</code></a> branch.</p>
 <br>
 
 <a href="https://karhdo.dev"><img src="public/static/images/projects/karhdo-blog.png" alt="Karhdo's Blog" /></a>
