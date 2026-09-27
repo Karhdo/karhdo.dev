@@ -47,15 +47,13 @@ export const metadata: Metadata = {
       'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml`,
     },
   },
+  // v1 duplicates karhdo.dev (v2): keep it out of search indexes.
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      index: false,
+      follow: false,
     },
   },
   twitter: {

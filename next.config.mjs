@@ -90,6 +90,11 @@ const baseConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      {
+        // v1 duplicates karhdo.dev (v2): noindex every response, including feeds and sitemaps.
+        source: '/(.*)',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
     ];
   },
   webpack: (config) => {
