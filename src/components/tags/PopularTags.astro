@@ -1,14 +1,12 @@
 ---
 /**
- * Popular-tag cards (port of v1 `components/homepage/PopularTags.tsx` + the `.popular-tags` CSS):
- * brand icon + title on a coloured background, linking to the tag page. v1's brand backgrounds
- * (amber, blue, rose, sky, green) become Tokyonight tones. Cards whose tag has no published posts
- * are hidden, so none links to a 404. Used on `/tags`; reusable by the homepage bento (task 15).
+ * Popular-tag cards (v1 `PopularTags.tsx`) as compact glass rows with a Tokyonight tone per tag.
+ * Tags without published posts are hidden. Used on `/` and `/tags`.
  */
 import BrandIcon from '~/components/ui/BrandIcon.astro';
 import SectionHeader from '~/components/ui/SectionHeader.astro';
 import { POPULAR_TAGS } from '~/config/popular-tags';
-import { getTagCounts } from '~/lib/content';
+import { getPostsByTag, getTagCounts } from '~/lib/content';
 
 interface Props {
   title?: string;
@@ -33,7 +31,13 @@ const TONES: Record<string, string> = {
 };
 
 const counts = await getTagCounts();
-const tags = POPULAR_TAGS.filter((tag) => (counts[tag.slug]?.count ?? 0) > 0);
+const tags = await Promise.all(
+  POPULAR_TAGS.filter((tag) => (counts[tag.slug]?.count ?? 0) > 0).map(async (tag) => {
+    const [latest] = await getPostsByTag(tag.slug);
+    const count = counts[tag.slug]?.count ?? 0;
+    return { ...tag, count, latest: latest?.data.title };
+  })
+);
 ---
 
 {
@@ -41,16 +45,39 @@ const tags = POPULAR_TAGS.filter((tag) => (counts[tag.slug]?.count ?? 0) > 0);
     <section class:list={['flex flex-col gap-5', className]} aria-labelledby="popular-tags-heading">
       <SectionHeader level={2} headingId="popular-tags-heading" title={title} description={description} />
       <ul class="popular-tags m-0 grid list-none gap-3 p-0">
-        {tags.map((tag) => (
-          <li>
+        {tags.map((tag, i) => (
+          <li class="reveal" style={`--i: ${i}`}>
             <a
-              class="popular-tag"
+              class="popular-tag glass"
               href={tag.href}
               style={`--tone: ${TONES[tag.slug] ?? 'var(--blue)'}`}
-              title={`${counts[tag.slug]?.count} post${counts[tag.slug]?.count === 1 ? '' : 's'}`}
+              data-card
+              data-tilt
             >
-              <BrandIcon type={tag.iconType} class="size-6 shrink-0" />
-              <span>{tag.title}</span>
+              <span class="pt-mark" aria-hidden="true">
+                <BrandIcon type={tag.iconType} class="size-20" />
+              </span>
+              <span class="pt-icon" aria-hidden="true">
+                <BrandIcon type={tag.iconType} class="size-[18px]" />
+              </span>
+              <span class="pt-text">
+                <span class="pt-title">{tag.title}</span>
+                <span class="pt-meta">
+                  <span class="pt-hash">#</span>
+                  {tag.slug} · {tag.count} post{tag.count === 1 ? '' : 's'}
+                </span>
+              </span>
+              <span class="pt-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M7 17 17 7M8 7h9v9" />
+                </svg>
+              </span>
+              {tag.latest && (
+                <span class="pt-latest">
+                  <span class="sr-only">Latest: </span>
+                  {tag.latest}
+                </span>
+              )}
             </a>
           </li>
         ))}
@@ -61,42 +88,145 @@ const tags = POPULAR_TAGS.filter((tag) => (counts[tag.slug]?.count ?? 0) > 0);
 
 <style>
   .popular-tags {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   }
   .popular-tag {
-    display: flex;
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    height: 100%;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px 14px;
-    border: 1px solid color-mix(in srgb, var(--tone) 38%, transparent);
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--tone) 16%, var(--surface-solid));
+    column-gap: 11px;
+    overflow: hidden;
+    padding: 11px 12px 10px;
+    border-radius: 14px;
     color: var(--fg);
-    font-weight: 500;
     text-decoration: none;
     transition:
-      border-color 0.2s,
-      background-color 0.2s;
+      border-color 0.25s,
+      background-color 0.25s;
   }
-  .popular-tag:hover {
-    border-color: var(--tone);
-    background: color-mix(in srgb, var(--tone) 24%, var(--surface-solid));
+  .popular-tag::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--tone), color-mix(in srgb, var(--tone) 10%, transparent));
+  }
+  .popular-tag:hover,
+  .popular-tag:focus-visible {
+    border-color: color-mix(in srgb, var(--tone) 55%, transparent);
   }
   .popular-tag:focus-visible {
     outline: 2px solid var(--blue);
     outline-offset: 2px;
   }
 
+  .pt-mark {
+    position: absolute;
+    right: -14px;
+    bottom: -18px;
+    z-index: -1;
+    opacity: 0.08;
+    rotate: -12deg;
+    pointer-events: none;
+  }
+
+  .pt-icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--tone) 32%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--tone) 16%, var(--surface-solid));
+  }
+  .pt-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+  .pt-title {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .pt-meta {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--fg-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pt-hash {
+    color: light-dark(color-mix(in srgb, var(--tone) 60%, var(--fg)), var(--tone));
+  }
+  .pt-arrow {
+    display: grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    color: var(--fg-soft);
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .pt-arrow svg {
+    width: 13px;
+    height: 13px;
+  }
+  .popular-tag:hover .pt-arrow,
+  .popular-tag:focus-visible .pt-arrow {
+    border-color: color-mix(in srgb, var(--tone) 55%, transparent);
+    color: var(--fg);
+  }
+  .pt-latest {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    padding-top: 7px;
+    overflow: hidden;
+    border-top: 1px dashed var(--line-strong);
+    font-size: 13px;
+    color: var(--fg-soft);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .popular-tag {
       transition:
-        transform 0.2s var(--ease-spring),
-        border-color 0.2s,
-        background-color 0.2s;
+        translate 0.3s var(--ease-spring),
+        border-color 0.25s,
+        background-color 0.25s;
     }
     .popular-tag:hover {
-      transform: translateY(-2px);
+      translate: 0 -2px;
+    }
+    .pt-mark {
+      transition:
+        rotate 0.5s var(--ease-spring),
+        scale 0.5s var(--ease-spring),
+        opacity 0.3s;
+    }
+    .popular-tag:hover .pt-mark {
+      opacity: 0.14;
+      rotate: -4deg;
+      scale: 1.08;
+    }
+    .pt-arrow {
+      transition:
+        translate 0.25s var(--ease-spring),
+        color 0.2s,
+        border-color 0.2s;
+    }
+    .popular-tag:hover .pt-arrow {
+      translate: 2px -2px;
     }
   }
 </style>
