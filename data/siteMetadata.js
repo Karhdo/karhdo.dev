@@ -6,7 +6,7 @@ const siteMetadata = {
   description: 'My desire to practice my skills and share my acquired knowledge fuels my endeavors.',
   language: 'en-us',
   theme: 'system',
-  siteUrl: 'https://karhdo.dev',
+  siteUrl: 'https://v1.karhdo.dev',
   analyticsURL: 'https://analytics.karhdo.dev/share/Z3eSINRnbzydz1gK/karhdo.dev',
   siteRepo: 'https://github.com/Karhdo/karhdo.dev',
   siteLogo: '/static/images/avatar.jpg',
