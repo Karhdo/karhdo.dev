@@ -38,3 +38,9 @@ yarn-error.log*
 
 # TypeScript
 tsconfig.tsbuildinfo
+.vercel
+.env*
+!.env.example
+
+# Archived env files (v1)
+/env/
