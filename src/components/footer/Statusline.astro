@@ -82,8 +82,8 @@ const committedRelative = committedAt ? formatRelative(committedAt, builtAt) : n
     font-size: 12.5px;
     font-variant-numeric: tabular-nums;
   }
-  /* Segments. Not segments: the version menu (absolute, anchored to .sl-wrap), <noscript>, and the
-     component <script> Astro renders inline. */
+  /* Segments. Not segments: the version menu (absolute, anchored to .sl-wrap), the noscript
+     fallback and the inline component script. Keep literal tags out of this comment (Vite dep scan). */
   .statusline > :global(:not(.ver-menu, noscript, script)) {
     display: flex;
     align-items: center;
