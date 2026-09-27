@@ -5,6 +5,7 @@ export type NavLink = { readonly href: string; readonly title: string };
 export const HEADER_NAV_LINKS = [
   { href: '/blog', title: 'Blog' },
   { href: '/projects', title: 'Projects' },
+  { href: '/career', title: 'Career' },
   { href: '/about', title: 'About' },
 ] as const satisfies readonly NavLink[];
 
@@ -25,6 +26,7 @@ export const FOOTER_COLUMNS = [
     title: 'Personal',
     links: [
       { href: '/about', title: 'About' },
+      { href: '/career', title: 'Career' },
       { href: '/static/resume.pdf', title: 'Resume' },
       { href: SITE.analyticsURL, title: 'Analytics' },
     ],

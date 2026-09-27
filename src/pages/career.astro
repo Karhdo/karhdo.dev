@@ -1,0 +1,25 @@
+---
+/** /career: stats, year ruler, git graph and CTA, all from `src/config/experiences.ts`. */
+import CareerCta from '~/components/career/CareerCta.astro';
+import CareerStats from '~/components/career/CareerStats.astro';
+import GitGraph from '~/components/career/GitGraph.astro';
+import YearRuler from '~/components/career/YearRuler.astro';
+import SectionHeader from '~/components/ui/SectionHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+const description = "Where I've worked, what I've built there, and the tools I picked up along the way.";
+---
+
+<PageLayout title="Career" description={description}>
+  <div class="flex flex-col gap-10 py-12 sm:py-16">
+    <SectionHeader eyebrow="~/career" title="Career" description={description} />
+    <CareerStats />
+    <YearRuler />
+    <section aria-labelledby="history">
+      <p class="m-0 mb-2 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">git log --graph</p>
+      <h2 id="history" class="m-0 mb-6 font-semibold text-2xl text-fg tracking-[-0.02em] sm:text-3xl">History</h2>
+      <GitGraph />
+    </section>
+    <CareerCta />
+  </div>
+</PageLayout>

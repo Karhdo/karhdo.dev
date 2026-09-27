@@ -1,0 +1,35 @@
+---
+/** /career closing card: Resume download plus email and LinkedIn. */
+import Button from '~/components/ui/Button.astro';
+import Icon from '~/components/ui/Icon.astro';
+import Twemoji from '~/components/ui/Twemoji.astro';
+import { SITE } from '~/config/site';
+---
+
+<section class="cta glass reveal flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7" aria-labelledby="cta-title" data-card>
+  <div>
+    <p class="m-0 font-mono text-[12.5px] text-fg-soft"><span class="cta-prompt">$</span> open ./resume.pdf</p>
+    <h2 id="cta-title" class="m-0 mt-1 font-semibold text-2xl text-fg tracking-[-0.02em]">Want the full picture?</h2>
+    <p class="m-0 mt-1 text-[15px] text-fg-soft">Grab my resume, or say hi by email or on LinkedIn.</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <Button href="/static/resume.pdf" target="_blank" rel="noopener" variant="primary">
+      <span>Resume</span>
+      <Twemoji emoji="page-facing-up" size="base" />
+    </Button>
+    <Button href={`mailto:${SITE.email}`}>
+      <Icon name="Mail" size={17} />
+      <span>Email</span>
+    </Button>
+    <Button href={SITE.linkedin} target="_blank" rel="noopener noreferrer">
+      <Icon name="Linkedin" size={17} />
+      <span>LinkedIn</span>
+    </Button>
+  </div>
+</section>
+
+<style>
+  .cta-prompt {
+    color: light-dark(color-mix(in srgb, var(--green) 60%, var(--fg)), var(--green));
+  }
+</style>

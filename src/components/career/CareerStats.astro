@@ -1,0 +1,50 @@
+---
+/** /career headline stats; integers use the global `[data-count]` count-up. */
+import { EXPERIENCES } from '~/config/experiences';
+import { formatUptime, parseMonthYear } from '~/lib/utils/month-year';
+
+const work = EXPERIENCES.filter((e) => e.kind === 'work');
+const firstJob = work
+  .map((e) => ({ label: e.start, date: parseMonthYear(e.start) }))
+  .filter((e): e is { label: string; date: Date } => e.date !== null)
+  .sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+
+const stats = [
+  {
+    label: 'writing code for a living',
+    value: firstJob ? formatUptime(firstJob.date, new Date()) : '–',
+    from: firstJob?.label,
+  },
+  { label: 'companies', value: work.length },
+  { label: 'products shipped', value: work.reduce((sum, e) => sum + (e.projects?.length ?? 0), 0) },
+  { label: 'technologies', value: new Set(EXPERIENCES.flatMap((e) => e.stack.map((t) => t.name))).size },
+];
+---
+
+<ul class="career-stats m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-4">
+  {
+    stats.map(({ label, value, from }, i) => (
+      <li class="glass rise flex flex-col gap-1 px-5 py-4" style={`--i: ${i}`} data-card>
+        <span
+          class="font-bold text-3xl text-fg tabular-nums tracking-[-0.02em]"
+          {...(from ? { 'data-uptime-from': from } : { 'data-count': String(value) })}
+        >
+          {value}
+        </span>
+        <span class="font-mono text-[12px] text-fg-soft">{label}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<script>
+  import { formatUptime, parseMonthYear } from '~/lib/utils/month-year';
+
+  document.addEventListener('astro:page-load', () => {
+    const now = new Date();
+    for (const el of document.querySelectorAll<HTMLElement>('.career-stats [data-uptime-from]')) {
+      const start = parseMonthYear(el.dataset.uptimeFrom ?? '');
+      if (start) el.textContent = formatUptime(start, now);
+    }
+  });
+</script>

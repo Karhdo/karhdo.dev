@@ -1,0 +1,319 @@
+---
+/**
+ * /career `git log --graph`: work on lane 0, education on lane 1 (merged at graduation). Each commit
+ * opens into its role chapter with the v1 details text and a stack diff.
+ */
+import { Image } from 'astro:assets';
+import SimpleIcon from '~/components/ui/SimpleIcon.astro';
+import Twemoji from '~/components/ui/Twemoji.astro';
+import { EXPERIENCES } from '~/config/experiences';
+import { commitHash, graphRows, roleDuration, stackDiff } from '~/lib/career';
+import { localAsset } from '~/lib/local-assets';
+import { EXPERIENCE_DETAILS } from './experiences';
+
+const now = new Date();
+const diffs = new Map(stackDiff(EXPERIENCES).map((lines, i) => [EXPERIENCES[i]?.event, lines]));
+const rows = graphRows(EXPERIENCES);
+const newestWork = EXPERIENCES.find((e) => e.kind === 'work');
+const branchName = (org: string) =>
+  `education/${org === 'University of Information Technology' ? 'uit' : org.toLowerCase()}`;
+const logoClass = 'size-11 shrink-0 rounded-[10px] border border-line bg-surface-solid object-contain';
+---
+
+<ol class="graph m-0 list-none p-0">
+  {
+    rows.map((row) => {
+      const exp = row.entry;
+      const hash = commitHash(`${row.type}:${exp.org}`);
+      const slug = exp.event.replace('career-', '');
+      const branch = branchName(exp.org);
+      const logoAsset = localAsset(exp.logo);
+      const Details = EXPERIENCE_DETAILS[exp.event];
+      const diff = diffs.get(exp.event) ?? [];
+      const refs =
+        row.type === 'commit' && exp === newestWork ? 'HEAD -> main' : row.type === 'commit' && exp.kind === 'education' ? branch : null;
+      const message =
+        row.type === 'merge'
+          ? `Merge branch '${branch}' into main`
+          : exp.kind === 'education'
+            ? `init: enrol at ${exp.org}`
+            : `feat: join ${exp.org} as ${exp.title}`;
+
+      return (
+        <li class:list={['g-row', row.type]} style={`--tone: var(--${exp.tone})`} id={row.type === 'commit' ? slug : undefined}>
+          <div class="g-gutter" aria-hidden="true">
+            {row.lanes.map((cell, lane) => (
+              <>
+                {cell.up && <span class={`g-line up lane-${lane}`} style={`--lane: ${lane}`} />}
+                {cell.down && <span class={`g-line down lane-${lane}`} style={`--lane: ${lane}`} />}
+                {cell.dot && <span class="g-dot" style={`--lane: ${lane}`} />}
+              </>
+            ))}
+            {row.type === 'merge' && (
+              <svg class="g-merge" viewBox="0 0 44 22" preserveAspectRatio="none">
+                <path d="M33 22 C33 10, 11 12, 11 0" />
+              </svg>
+            )}
+          </div>
+
+          <div class="g-body min-w-0">
+            <p class="g-head m-0 font-mono text-[13px]">
+              <span class="g-hash">{hash}</span>
+              {refs && <span class="g-ref">({refs})</span>}
+              <span class="g-msg">{message}</span>
+              <span class="g-date">{row.type === 'merge' ? exp.end : exp.start}</span>
+            </p>
+
+            {row.type === 'merge' ? (
+              <p class="m-0 mt-1 text-[14px] text-fg-soft">
+                Graduated from {exp.org} <Twemoji emoji="student" size="base" />
+              </p>
+            ) : (
+              <article class="chapter glass reveal mt-3 p-4 sm:p-5" data-card aria-labelledby={`${slug}-org`}>
+                <header class="flex items-start gap-3.5">
+                  {logoAsset ? (
+                    <Image src={logoAsset} alt="" width={44} height={44} densities={[1, 2]} quality={75} class={logoClass} />
+                  ) : (
+                    <img src={exp.logo} alt="" width="44" height="44" loading="lazy" decoding="async" class={logoClass} />
+                  )}
+                  <div class="min-w-0 flex-1">
+                    <h3 id={`${slug}-org`} class="m-0 font-semibold text-[18px] text-fg leading-snug">
+                      <a href={exp.url} target="_blank" rel="noopener noreferrer" class="org-link text-fg no-underline">
+                        {exp.org}
+                      </a>
+                    </h3>
+                    <p class="m-0 mt-0.5 flex items-center gap-1.5 text-[14.5px] text-fg-soft">
+                      <Twemoji emoji={exp.icon} size="base" class="mx-0" />
+                      <span>{exp.title}</span>
+                    </p>
+                  </div>
+                  <div class="hidden flex-none flex-col items-end gap-1 sm:flex">
+                    <span class="dur">{roleDuration(exp, now)}</span>
+                    <span class="font-mono text-[12px] text-fg-soft tabular-nums">
+                      {exp.start} – {exp.end}
+                    </span>
+                  </div>
+                </header>
+                <p class="m-0 mt-2 font-mono text-[12px] text-fg-soft tabular-nums sm:hidden">
+                  {exp.start} – {exp.end} · <span class="dur">{roleDuration(exp, now)}</span>
+                </p>
+
+                <div class="details mt-4 text-[14.5px] text-fg-soft leading-relaxed">
+                  <Details />
+                </div>
+
+                {diff.length > 0 && (
+                  <div class="mt-4">
+                    <p class="m-0 mb-2 font-mono text-[11.5px] text-fg-soft uppercase tracking-[0.08em]">stack diff</p>
+                    <ul class="m-0 flex list-none flex-wrap gap-1.5 p-0">
+                      {diff.map((tool) => (
+                        <li class:list={['tool', tool.added ? 'added' : 'kept']}>
+                          <span class="sign" aria-hidden="true">
+                            {tool.added ? '+' : '·'}
+                          </span>
+                          {tool.icon && <SimpleIcon slug={tool.icon} size={13} />}
+                          <span>{tool.name}</span>
+                          {tool.added ? <span class="sr-only">(new)</span> : <span class="sr-only">(already used)</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </article>
+            )}
+          </div>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .graph {
+    --dot-y: 11px;
+    --lane-w: 22px;
+  }
+  .g-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(2 * var(--lane-w)) minmax(0, 1fr);
+    column-gap: 10px;
+    padding-bottom: 28px;
+    scroll-margin-top: 96px;
+  }
+  .g-row.merge {
+    padding-bottom: 22px;
+  }
+  .g-gutter {
+    position: relative;
+  }
+  .g-line {
+    position: absolute;
+    left: calc(var(--lane) * var(--lane-w) + var(--lane-w) / 2 - 1px);
+    width: 2px;
+    background: color-mix(in srgb, var(--lane-c) 55%, transparent);
+    --lane-c: light-dark(var(--heat-4), var(--blue));
+  }
+  .g-line.lane-1 {
+    --lane-c: var(--yellow);
+  }
+  .g-line.up {
+    top: 0;
+    height: var(--dot-y);
+  }
+  .g-line.down {
+    top: var(--dot-y);
+    bottom: 0;
+    transform-origin: top;
+  }
+  .g-dot {
+    position: absolute;
+    top: calc(var(--dot-y) - 7px);
+    left: calc(var(--lane) * var(--lane-w) + var(--lane-w) / 2 - 7px);
+    width: 14px;
+    height: 14px;
+    border: 3px solid var(--surface-solid);
+    border-radius: 50%;
+    background: var(--tone);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--tone) 60%, transparent),
+      0 0 14px color-mix(in srgb, var(--tone) 55%, transparent);
+  }
+  .merge .g-dot {
+    background: var(--surface-solid);
+    border: 2px solid var(--yellow);
+    box-shadow: none;
+  }
+  .g-merge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(2 * var(--lane-w));
+    height: var(--dot-y);
+    overflow: visible;
+  }
+  .g-merge path {
+    fill: none;
+    stroke: color-mix(in srgb, var(--yellow) 55%, transparent);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .g-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 8px;
+    line-height: 22px;
+    color: var(--fg-soft);
+  }
+  .g-hash {
+    color: light-dark(color-mix(in srgb, var(--yellow) 60%, var(--fg)), var(--yellow));
+  }
+  .g-ref {
+    color: light-dark(color-mix(in srgb, var(--cyan) 60%, var(--fg)), var(--cyan));
+  }
+  .g-msg {
+    color: var(--fg);
+  }
+  .g-date {
+    margin-left: auto;
+    color: var(--fg-soft);
+  }
+
+  .chapter {
+    position: relative;
+    overflow: hidden;
+  }
+  .chapter::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(var(--tone), color-mix(in srgb, var(--tone) 10%, transparent));
+  }
+  .org-link:hover,
+  .org-link:focus-visible {
+    color: var(--blue);
+  }
+  .dur {
+    padding: 1px 8px;
+    border: 1px solid color-mix(in srgb, var(--tone) 40%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tone) 14%, transparent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg);
+  }
+
+  .details :global(ul) {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .details :global(li) {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface-solid) 45%, transparent);
+  }
+  .details :global(strong) {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .details :global(a) {
+    color: var(--blue);
+    text-underline-offset: 4px;
+  }
+
+  .tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px 3px 7px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg-soft);
+  }
+  .tool .sign {
+    font-weight: 700;
+  }
+  .tool.added {
+    border-color: color-mix(in srgb, var(--green) 40%, transparent);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+    color: var(--fg);
+  }
+  .tool.added .sign,
+  .tool.added svg {
+    color: light-dark(color-mix(in srgb, var(--green) 60%, var(--fg)), var(--green));
+  }
+
+  @media (max-width: 520px) {
+    .g-date {
+      margin-left: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .g-line.down {
+        animation-name: lineDraw;
+        animation-duration: auto;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 45%;
+      }
+    }
+  }
+  @keyframes lineDraw {
+    from {
+      scale: 1 0;
+    }
+  }
+</style>
