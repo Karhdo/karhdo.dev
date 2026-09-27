@@ -177,7 +177,7 @@ Two Vercel projects:
 | [karhdo.dev](https://karhdo.dev) (v2) | `karhdo-blog` | `main` (production), other branches (previews) | Git pushes |
 | [v1.karhdo.dev](https://v1.karhdo.dev) (v1) | `karhdo-blog-v1` | the `v1` branch, not Git-linked | by hand: from a `v1` checkout, `vercel link --project karhdo-blog-v1`, then `vercel deploy --prod` |
 
-v1 is a frozen archive with its own env (Next.js/pnpm, `ENABLE_EXPERIMENTAL_COREPACK=1`, which must never be set on `karhdo-blog`: Corepack rejects Bun). Both sites read and write the same `stats` table.
+v1 is a frozen archive with its own env (Next.js/pnpm, `ENABLE_EXPERIMENTAL_COREPACK=1`, which must never be set on `karhdo-blog`: Corepack rejects Bun). v1 is `noindex` and read-only: it shows stats from the shared `stats` table, but only v2 records views and reactions.
 
 `karhdo-blog` settings:
 

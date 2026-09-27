@@ -107,7 +107,7 @@ Personal Claude Code usage, not the Anthropic API. The private repo `Karhdo/toke
 - **Cache headers on on-demand routes**: never `s-maxage` / `stale-while-revalidate` in `Cache-Control` without a browser `max-age`. Use `Cache-Control: public, max-age=0, must-revalidate` + `Vercel-CDN-Cache-Control: max-age=N, stale-while-revalidate=M`. Uncached responses use `no-store`.
 - **Layout measurement** inside cards that can be transformed (rise/tilt): use `clientWidth` / `offsetWidth`, not `getBoundingClientRect`.
 - **Never `drizzle-kit push`/`migrate`/`generate`**; never touch `stats`, `StatsType` or `_prisma_migrations`.
-- **Hosting**: v2 is Vercel project `karhdo-blog` (`main` → karhdo.dev); v1 is the separate project `karhdo-blog-v1` (v1.karhdo.dev, deployed by hand from the `v1` branch). Never set `ENABLE_EXPERIMENTAL_COREPACK` on `karhdo-blog` (Corepack rejects Bun).
+- **Hosting**: v2 is Vercel project `karhdo-blog` (`main` → karhdo.dev); v1 is the separate project `karhdo-blog-v1` (v1.karhdo.dev, deployed by hand from the `v1` branch; `noindex`, stats read-only). Never set `ENABLE_EXPERIMENTAL_COREPACK` on `karhdo-blog` (Corepack rejects Bun).
 - **Deploy**: never `astro build` + `vercel deploy --prebuilt` without `vercel build` (drops `vercel.json` headers, rewrites and redirects). Don't set `bunVersion` in `vercel.json`. Security headers live in `vercel.json`.
 - **Vercel Firewall rate limits** (dashboard, not code): `POST /api/stats` ~30/min per IP, `POST /api/newsletter` ~5 per 60 s per IP. The Origin check only stops browser CSRF.
 - **No `layout:` in MDX frontmatter.**
