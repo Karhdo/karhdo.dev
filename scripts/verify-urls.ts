@@ -50,7 +50,7 @@ const CHECKS: Check[] = [
   // static assets referenced by v1 pages and posts
   ...[
     '/static/resume.pdf',
-    '/static/favicons/tennis-racquet.png',
+    '/static/favicons/favicon.svg',
     '/static/images/avatar.jpg',
     '/static/images/blogs/global-module.png',
     '/static/images/blogs/module-in-nestjs.png',
