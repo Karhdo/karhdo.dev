@@ -23,6 +23,10 @@ export interface Experience {
   event: ExperienceEvent;
   /** `work` sits on the git graph's main lane; `education` on its own branch that merges back. */
   kind: 'work' | 'education';
+  /** Git-graph branch name for education entries (e.g. `education/uit`). */
+  branch?: string;
+  /** Git-graph commit message override. */
+  message?: string;
   /** Tokyonight tone for the dot, ruler bar and accents. */
   tone: PaletteToken;
   /** Named products from the details text. */
@@ -30,7 +34,7 @@ export interface Experience {
   stack: StackTool[];
 }
 
-export type ExperienceEvent = 'career-spartan' | 'career-younetmedia' | 'career-qkit' | 'career-uit';
+export type ExperienceEvent = 'career-spartan' | 'career-msis' | 'career-younetmedia' | 'career-qkit' | 'career-uit';
 
 export const EXPERIENCES: Experience[] = [
   {
@@ -47,7 +51,7 @@ export const EXPERIENCES: Experience[] = [
     projects: [
       { name: 'LoanBud', url: 'https://loanbud.com/' },
       { name: 'Dealops', url: 'https://dealops.com/' },
-      { name: 'Deep Sky', url: 'https://www.deepskyclimate.com/' },
+      { name: 'Deep Sky Climate', url: 'https://www.deepskyclimate.com/' },
     ],
     stack: [
       { name: 'Go', icon: 'go' },
@@ -66,6 +70,32 @@ export const EXPERIENCES: Experience[] = [
       { name: 'Twilio' },
       { name: 'Kubernetes', icon: 'kubernetes' },
       { name: 'Datadog', icon: 'datadog' },
+    ],
+  },
+  {
+    org: 'University of Information Technology',
+    url: 'https://www.uit.edu.vn',
+    logo: '/static/images/experiences/uit-logo.png',
+    start: 'Dec 2024',
+    end: 'Present',
+    title: 'Master of Science in Information Systems',
+    icon: 'student',
+    event: 'career-msis',
+    kind: 'education',
+    branch: 'education/msis',
+    message: 'init: start MSc in Information Systems',
+    tone: 'orange',
+    stack: [
+      { name: 'Python', icon: 'python' },
+      { name: 'PyTorch', icon: 'pytorch' },
+      { name: 'Hugging Face', icon: 'huggingface' },
+      { name: 'Apache Kafka', icon: 'apachekafka' },
+      { name: 'Apache Spark', icon: 'apachespark' },
+      { name: 'Delta Lake' },
+      { name: 'Apache Airflow', icon: 'apacheairflow' },
+      { name: 'AWS SageMaker' },
+      { name: 'Terraform', icon: 'terraform' },
+      { name: 'Streamlit', icon: 'streamlit' },
     ],
   },
   {
@@ -113,6 +143,7 @@ export const EXPERIENCES: Experience[] = [
     icon: 'student',
     event: 'career-uit',
     kind: 'education',
+    branch: 'education/uit',
     tone: 'yellow',
     stack: [{ name: 'C++', icon: 'cplusplus' }],
   },

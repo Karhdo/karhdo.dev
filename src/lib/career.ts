@@ -99,18 +99,26 @@ export function graphRows<T extends Entry>(entries: readonly T[]): GraphRow<T>[]
   }
   rows.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  const spans = [0, 1].map((lane) => {
-    const times = rows.filter((row) => row.lane === lane).map((row) => row.date.getTime());
-    return times.length ? { from: Math.min(...times), to: Math.max(...times) } : null;
-  });
+  // Line segments per lane: main runs from the first job to HEAD; each education branch runs from
+  // its start to its merge, or stays open past the top while it is ongoing.
+  const segments: { lane: number; from: number; to: number }[] = [];
+  const work = rows.filter((row) => row.lane === 0).map((row) => row.date.getTime());
+  if (work.length) segments.push({ lane: 0, from: Math.min(...work), to: Math.max(...work) });
+  for (const entry of entries) {
+    if (entry.kind !== 'education') continue;
+    const end = parseMonthYear(entry.end);
+    segments.push({ lane: 1, from: startDate(entry).getTime(), to: end ? end.getTime() : Number.POSITIVE_INFINITY });
+  }
 
   return rows.map((row) => {
     const t = row.date.getTime();
     const cell = (lane: number): LaneCell => {
-      const span = spans[lane];
-      const dot = row.lane === lane;
-      if (!span) return { up: false, down: false, dot };
-      return { up: span.from <= t && t < span.to, down: span.from < t && t <= span.to, dot };
+      const own = segments.filter((s) => s.lane === lane);
+      return {
+        up: own.some((s) => s.from <= t && t < s.to),
+        down: own.some((s) => s.from < t && t <= s.to),
+        dot: row.lane === lane,
+      };
     };
     return { ...row, lanes: [cell(0), cell(1)] };
   });

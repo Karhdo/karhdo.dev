@@ -1,9 +1,30 @@
 ---
-/** Spartan details: the three client products, newest first. */
+/** Spartan details: the three client products, newest first, each with its logo. */
+import { Image } from 'astro:assets';
+import dealops from '~/assets/career/dealops.png';
+import deepSky from '~/assets/career/deep-sky-climate.png';
+import loanbud from '~/assets/career/loanbud.png';
+
+const logo = { width: 20, height: 20, densities: [1, 2], quality: 75, alt: '', class: 'proj-logo' };
 ---
 
 <ul>
-  <li><strong><a href="https://loanbud.com/" target="_blank" rel="noopener noreferrer">LoanBud</a></strong> – full-service financing platform for small businesses. Shipped features from spec to production across the Hub, CRM and borrower-facing services: real-time <strong>Twilio</strong> video meetings hardened with a circuit breaker and <strong>Redis</strong>-backed distributed rate limiting, CRM workflows and segmentation, lender-document access control, credit-consent re-signing with PDF regeneration, and CSV partner bulk import.</li>
-  <li><strong><a href="https://dealops.com/" target="_blank" rel="noopener noreferrer">Dealops</a></strong> – CPQ software for complex pricing. Built an in-app <strong>AI chat assistant</strong> from scratch (streaming responses, markdown rendering) and worked on the AI pricing assistant. On the Admin Dashboard, built product-catalog management, tiered pricing, approval rules with an additional-logic builder and segment filtering; on quoting, shipped the IC++ pricing model, quote comparison and ramp revenue, in a <strong>React, TypeScript, tRPC and Prisma</strong> <strong>Turborepo</strong> monorepo.</li>
-  <li><strong><a href="https://www.deepskyclimate.com/" target="_blank" rel="noopener noreferrer">Deep Sky</a></strong> – carbon removal project developer. Founding engineer on its IoT data platform, helping set the architecture, conventions and CI/CD from day one. Built the <strong>Go</strong> ingestion service (a custom <strong>AWS Kinesis</strong> consumer with DynamoDB checkpointing, auth, <strong>Datadog</strong> telemetry, <strong>Kubernetes</strong> manifests), <strong>Scala / Apache Spark</strong> batch jobs on AWS EMR following the medallion architecture, and config-driven <strong>Airflow</strong> pipelines that orchestrate them.</li>
+  <li><Image src={loanbud} {...logo} /><strong><a href="https://loanbud.com/" target="_blank" rel="noopener noreferrer">LoanBud</a></strong> – full-service financing platform for small businesses. Shipped features from spec to production across the Hub, CRM and borrower-facing services: real-time <strong>Twilio</strong> video meetings hardened with a circuit breaker and <strong>Redis</strong>-backed distributed rate limiting, CRM workflows and segmentation, lender-document access control, credit-consent re-signing with PDF regeneration, and CSV partner bulk import.</li>
+  <li><Image src={dealops} {...logo} /><strong><a href="https://dealops.com/" target="_blank" rel="noopener noreferrer">Dealops</a></strong> – CPQ software for complex pricing. Built an in-app <strong>AI chat assistant</strong> from scratch (streaming responses, markdown rendering) and worked on the AI pricing assistant. On the Admin Dashboard, built product-catalog management, tiered pricing, approval rules with an additional-logic builder and segment filtering; on quoting, shipped the IC++ pricing model, quote comparison and ramp revenue, in a <strong>React, TypeScript, tRPC and Prisma</strong> <strong>Turborepo</strong> monorepo.</li>
+  <li><Image src={deepSky} {...logo} /><strong><a href="https://www.deepskyclimate.com/" target="_blank" rel="noopener noreferrer">Deep Sky Climate</a></strong> – carbon removal project developer. Founding engineer on its IoT data platform, helping set the architecture, conventions and CI/CD from day one. Built the <strong>Go</strong> ingestion service (a custom <strong>AWS Kinesis</strong> consumer with DynamoDB checkpointing, auth, <strong>Datadog</strong> telemetry, <strong>Kubernetes</strong> manifests), <strong>Scala / Apache Spark</strong> batch jobs on AWS EMR following the medallion architecture, and config-driven <strong>Airflow</strong> pipelines that orchestrate them.</li>
 </ul>
+
+<style>
+  /* Product logos on a light tile, so the black marks stay visible in dark mode. */
+  :global(.proj-logo) {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 7px;
+    padding: 2px;
+    vertical-align: -5px;
+    border-radius: 5px;
+    background: light-dark(var(--surface-solid), var(--fg));
+    object-fit: contain;
+  }
+</style>

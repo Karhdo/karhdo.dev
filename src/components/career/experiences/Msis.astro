@@ -1,0 +1,9 @@
+---
+/** MSc in Information Systems details: the thesis. */
+---
+
+<ul>
+  <li>Master's thesis: <strong>A Real-Time Mental Health State Analysis System Using Vietnamese Social Media Data</strong>, advised by Dr. Đỗ Trọng Hợp and Dr. Lê Thị Mỹ Danh.</li>
+  <li>Collects Vietnamese posts from Reddit, Facebook and Threads, labels them with an LLM, and trains and compares <strong>8 four-class classifiers</strong> (stress, depression, political, neutral); the best so far is <strong>XLM-R</strong> at macro-F1 0.783 on a 20,373-post dataset.</li>
+  <li>Serves them in real time on AWS: <strong>Kafka (MSK)</strong> → <strong>Spark Streaming</strong> on EMR through a medallion <strong>Delta Lake</strong> (Bronze → Silver → Gold) → a <strong>SageMaker</strong> endpoint (XLM-R / PhoBERT) → a Streamlit dashboard, with <strong>Airflow</strong> retraining and the whole stack in <strong>Terraform</strong>. The paper is in progress.</li>
+</ul>

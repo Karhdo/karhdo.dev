@@ -7,6 +7,7 @@ import {
   type SimpleIcon,
   siAntdesign,
   siApacheairflow,
+  siApachekafka,
   siApachespark,
   siAstro,
   siBootstrap,
@@ -20,6 +21,7 @@ import {
   siGithub,
   siGnubash,
   siGo,
+  siHuggingface,
   siJavascript,
   siJquery,
   siJsonwebtokens,
@@ -35,6 +37,8 @@ import {
   siPhp,
   siPostgresql,
   siPrisma,
+  siPython,
+  siPytorch,
   siRabbitmq,
   siRailway,
   siReact,
@@ -43,7 +47,9 @@ import {
   siRemix,
   siScala,
   siSpotify,
+  siStreamlit,
   siTailwindcss,
+  siTerraform,
   siThreedotjs,
   siTrpc,
   siTurborepo,
@@ -104,6 +110,13 @@ export const ICONS = {
   kubernetes: siKubernetes,
   scala: siScala,
   trpc: siTrpc,
+  // /career MSc stack
+  apachekafka: siApachekafka,
+  huggingface: siHuggingface,
+  python: siPython,
+  pytorch: siPytorch,
+  streamlit: siStreamlit,
+  terraform: siTerraform,
 } as const satisfies Record<string, SimpleIcon>;
 
 export type SimpleIconSlug = keyof typeof ICONS;

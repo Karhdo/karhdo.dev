@@ -90,3 +90,22 @@ describe('graphRows', () => {
     expect(cell(4, 1)).toBe('uo-'); // enrolment: nothing below
   });
 });
+
+describe('graphRows: a second, ongoing education branch', () => {
+  const msis = { org: 'MSIS', start: 'Dec 2024', end: 'Present', kind: 'education' as const };
+  const rows = graphRows([spartan, msis, younet, qkit, uit]);
+  const at = (org: string, type = 'commit') => rows.find((r) => r.entry.org === org && r.type === type);
+  const lane1 = (org: string, type = 'commit') => {
+    const c = at(org, type)?.lanes[1];
+    return c ? `${c.up ? 'u' : '-'}${c.dot ? 'o' : '-'}${c.down ? 'd' : '-'}` : '';
+  };
+
+  test('opens at its start and stays open to the top', () => {
+    expect(lane1('MSIS')).toBe('uo-'); // nothing below its start
+    expect(lane1('Spartan')).toBe('u-d'); // passes the newer row, still open
+  });
+  test('does not join the finished UIT branch', () => {
+    expect(lane1('UIT', 'merge')).toBe('-od'); // UIT merged: nothing above
+    expect(lane1('Younet')).toBe('u-d'); // under UIT's merge: UIT's line only
+  });
+});

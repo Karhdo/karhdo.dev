@@ -225,3 +225,7 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 ```
+
+## Product logos on /career
+
+`src/assets/career/{loanbud,dealops,deep-sky-climate}.png` are the site icons published by LoanBud, Dealops and Deep Sky Climate (resized to 96 px). They are trademarks of their owners, used only to identify the products worked on.

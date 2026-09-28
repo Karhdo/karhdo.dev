@@ -15,8 +15,6 @@ const now = new Date();
 const diffs = new Map(stackDiff(EXPERIENCES).map((lines, i) => [EXPERIENCES[i]?.event, lines]));
 const rows = graphRows(EXPERIENCES);
 const newestWork = EXPERIENCES.find((e) => e.kind === 'work');
-const branchName = (org: string) =>
-  `education/${org === 'University of Information Technology' ? 'uit' : org.toLowerCase()}`;
 const logoClass = 'size-11 shrink-0 rounded-[10px] border border-line bg-surface-solid object-contain';
 ---
 
@@ -24,9 +22,9 @@ const logoClass = 'size-11 shrink-0 rounded-[10px] border border-line bg-surface
   {
     rows.map((row) => {
       const exp = row.entry;
-      const hash = commitHash(`${row.type}:${exp.org}`);
+      const hash = commitHash(`${row.type}:${exp.org}:${exp.start}`);
       const slug = exp.event.replace('career-', '');
-      const branch = branchName(exp.org);
+      const branch = exp.branch ?? 'education';
       const logoAsset = localAsset(exp.logo);
       const Details = EXPERIENCE_DETAILS[exp.event];
       const diff = diffs.get(exp.event) ?? [];
@@ -36,7 +34,7 @@ const logoClass = 'size-11 shrink-0 rounded-[10px] border border-line bg-surface
         row.type === 'merge'
           ? `Merge branch '${branch}' into main`
           : exp.kind === 'education'
-            ? `init: enrol at ${exp.org}`
+            ? (exp.message ?? `init: enrol at ${exp.org}`)
             : `feat: join ${exp.org} as ${exp.title}`;
 
       return (
