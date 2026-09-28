@@ -62,7 +62,7 @@ export const POPULAR_TAGS = [
   },
   {
     href: '/tags/database',
-    iconType: 'Mongodb',
+    iconType: 'Postgres',
     slug: 'database',
     title: 'Database',
   },
