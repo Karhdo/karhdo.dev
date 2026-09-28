@@ -37,7 +37,7 @@ v2 is a rebuild of the v1 Next.js site, which lives on the [`v1`](https://github
 - Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (personal Claude Code usage), Daily stack marquee, selected projects, popular tags.
 - `/about`: a `whoami` terminal card (live local time and uptime) above the author story.
 - `/career`: stats, a year ruler, the career as a `git log --graph` with role chapters and per-role stack diffs.
-- Site-wide snowfall (`react-snowfall`, persists across page navigations, off under reduced motion) over a frost-tinted tilted grid.
+- Site-wide snowfall (vanilla canvas at 30 fps, fewer flakes on phones, persists across page navigations, paused in hidden tabs and during transitions, off under reduced motion) over a frost-tinted tilted grid.
 - Blog with tag chips, pagination, per-tag pages and RSS feeds (`/feed.xml`, `/tags/{tag}/feed.xml`), sitemap and robots.
 - Post pages: sticky TOC with scrollspy, reading progress, code blocks with filename tabs, language badge, copy and line markers, callouts and GitHub alerts, image zoom, Twemoji, views and reactions, Giscus comments, newsletter signup (Buttondown).
 - Flash-free light/dark/system theme on a `data-theme` attribute, view transitions, reduced-motion aware animations.

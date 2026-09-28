@@ -36,10 +36,9 @@ CI (`.github/workflows/ci.yml`) runs `bun install --frozen-lockfile`, `bunx biom
 
 ### Islands policy
 
-Interactivity is vanilla `<script>` modules by default: header, theme toggle, mobile nav, statusline, version switcher, TOC scrollspy, reading progress, image zoom, typed bios, views and reactions, Spotify, GitHub activity, Blog stats, Token burn and newsletter form. React 19 is used only for:
+Interactivity is vanilla `<script>` modules by default: header, theme toggle, mobile nav, statusline, version switcher, TOC scrollspy, reading progress, image zoom, typed bios, views and reactions, Spotify, GitHub activity, Blog stats, Token burn, newsletter form and snowfall (`Snowfall.astro` + `snowfall/engine.ts`: canvas at 30 fps, persisted across navigations). React 19 is used only for:
 
 - `src/components/islands/Comments.tsx` (Giscus, `client:visible`);
-- `src/components/islands/Snowfall.tsx` (`react-snowfall`, as in v1; `client:idle`, mounted once in BaseLayout with `transition:persist` so it survives navigations, gated by `SITE.snowfall`; renders nothing under reduced motion; colour from the `--snow-c` token);
 - the ⌘K palette: not an island. `search/CommandPaletteLoader.astro` dynamic-imports `mount-palette.tsx` + `CommandPalette.tsx` (cmdk) and `/pagefind/pagefind.js` on first open, so pages ship no React until then.
 
 ### Content

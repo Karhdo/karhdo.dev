@@ -1,9 +1,162 @@
 ---
-/** Snowfall island, persisted across navigations. `SITE.snowfall: false` renders nothing. */
-import SnowfallIsland from '~/components/islands/Snowfall';
+/**
+ * Site-wide snowfall: one fixed canvas behind the page (z-index -1), kept across navigations with
+ * `transition:persist`. Vanilla canvas, 30 fps, fewer flakes on phones; paused in hidden tabs and
+ * during page transitions; off under reduced motion. `SITE.snowfall: false` renders nothing;
+ * `'december'` only animates in the visitor's December.
+ */
 import { SITE } from '~/config/site';
 
 const mode = SITE.snowfall;
 ---
 
-{mode !== false && <SnowfallIsland client:idle transition:persist="snowfall" december={mode === 'december'} />}
+{
+  mode !== false && (
+    <canvas
+      class="snowfall"
+      aria-hidden="true"
+      data-snowfall={mode === 'december' ? 'december' : 'on'}
+      transition:persist="snowfall"
+    />
+  )
+}
+
+<style>
+  .snowfall {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  import { createFlake, type Flake, flakeCount, stepFlake } from './snowfall/engine';
+
+  const FRAME_MS = 1000 / 30;
+  const FRAME_60 = 1000 / 60;
+
+  let canvas: HTMLCanvasElement | null = null;
+  let ctx: CanvasRenderingContext2D | null = null;
+  let flakes: Flake[] = [];
+  let width = 0;
+  let height = 0;
+  let color = '';
+  let raf = 0;
+  let last = 0;
+  let inTransition = false;
+  let observer: MutationObserver | undefined;
+  const motion = matchMedia('(prefers-reduced-motion: no-preference)');
+  const scheme = matchMedia('(prefers-color-scheme: dark)');
+
+  const readColor = () => {
+    color = getComputedStyle(document.documentElement).getPropertyValue('--snow-c').trim();
+  };
+
+  // Lets glass cards show the snow (animations.css); re-applied because each navigation resets <html>.
+  const flag = () => {
+    if (canvas) document.documentElement.dataset.snow = 'on';
+  };
+
+  function resize() {
+    if (!canvas) return;
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
+    const count = flakeCount(width);
+    if (flakes.length > count) flakes.length = count;
+    while (flakes.length < count) flakes.push(createFlake(width, height));
+  }
+
+  function frame(now: number) {
+    raf = requestAnimationFrame(frame);
+    const elapsed = now - last;
+    if (elapsed < FRAME_MS - 1) return;
+    last = now;
+    if (!ctx) return;
+    // Cap a long gap (e.g. after a stall) so flakes never jump across the screen.
+    const frames = Math.min(elapsed, 250) / FRAME_60;
+    ctx.clearRect(0, 0, width, height);
+    ctx.beginPath();
+    for (const f of flakes) {
+      stepFlake(f, width, height, frames);
+      ctx.moveTo(f.x, f.y);
+      ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+    }
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  function play() {
+    if (raf || !ctx || document.hidden || inTransition) return;
+    last = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function pause() {
+    cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  const onVisibility = () => (document.hidden ? pause() : play());
+  const onResize = () => resize();
+  const onBeforeNav = () => {
+    inTransition = true;
+    pause();
+  };
+  const onPageLoad = () => {
+    inTransition = false;
+    // The canvas is persisted, so it is only gone when the new page has none: then clean up.
+    if (canvas && !canvas.isConnected) stop();
+    else play();
+  };
+
+  function start(el: HTMLCanvasElement) {
+    canvas = el;
+    ctx = el.getContext('2d');
+    readColor();
+    resize();
+    flag();
+    window.addEventListener('resize', onResize, { passive: true });
+    document.addEventListener('visibilitychange', onVisibility);
+    document.addEventListener('astro:before-preparation', onBeforeNav);
+    document.addEventListener('astro:after-swap', flag);
+    document.addEventListener('astro:page-load', onPageLoad);
+    document.addEventListener('theme-change', readColor);
+    scheme.addEventListener('change', readColor);
+    observer = new MutationObserver(readColor);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    play();
+  }
+
+  function stop() {
+    pause();
+    window.removeEventListener('resize', onResize);
+    document.removeEventListener('visibilitychange', onVisibility);
+    document.removeEventListener('astro:before-preparation', onBeforeNav);
+    document.removeEventListener('astro:after-swap', flag);
+    document.removeEventListener('astro:page-load', onPageLoad);
+    document.removeEventListener('theme-change', readColor);
+    scheme.removeEventListener('change', readColor);
+    observer?.disconnect();
+    ctx?.clearRect(0, 0, width, height);
+    delete document.documentElement.dataset.snow;
+    canvas = null;
+    ctx = null;
+    flakes = [];
+  }
+
+  function init() {
+    if (canvas) return; // already running on the persisted canvas
+    const el = document.querySelector<HTMLCanvasElement>('canvas[data-snowfall]');
+    if (!el || !motion.matches) return;
+    if (el.dataset.snowfall === 'december' && new Date().getMonth() !== 11) return;
+    start(el);
+  }
+
+  motion.addEventListener('change', () => (motion.matches ? init() : stop()));
+  document.addEventListener('astro:page-load', init);
+</script>
