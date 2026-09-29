@@ -4,11 +4,13 @@
  * answers `303 /newsletter?status=…&from=/blog/…`; this on-demand page shows the outcome, a link back
  * to `from` (validated same-site path), and the form again when the sign-up did not go through.
  * With JS the form never navigates here. Not indexed, and excluded from the sitemap in `astro.config.mjs`.
+ * Like `NewsletterCard`, the form is hidden in production until `BUTTONDOWN_API_KEY` is set.
  */
 import NewsletterForm from '~/components/blog/NewsletterForm.astro';
 import Button from '~/components/ui/Button.astro';
 import PageLayout from '~/layouts/PageLayout.astro';
 import { NEWSLETTER_MESSAGES, OK_STATUSES, parseStatus, safeReturnPath } from '~/lib/newsletter/handler';
+import { buttondown } from '~/lib/services/buttondown';
 
 export const prerender = false;
 
@@ -17,8 +19,19 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 const status = parseStatus(Astro.url.searchParams.get('status'));
 const from = safeReturnPath(Astro.url.searchParams.get('from'));
 const ok = status !== undefined && OK_STATUSES.has(status);
-const heading = ok ? 'Thanks for subscribing' : status ? "That didn't work" : 'Subscribe to the newsletter';
-const message = status ? NEWSLETTER_MESSAGES[status] : 'Get new posts on web development and tooling in your inbox.';
+const open = buttondown !== null || import.meta.env.DEV;
+const heading = !open
+  ? 'Newsletter'
+  : ok
+    ? 'Thanks for subscribing'
+    : status
+      ? "That didn't work"
+      : 'Subscribe to the newsletter';
+const message = !open
+  ? "The newsletter isn't open for sign-ups yet."
+  : status
+    ? NEWSLETTER_MESSAGES[status]
+    : 'Get new posts on web development and tooling in your inbox.';
 const backLabel = from === '/' ? 'Back to homepage' : 'Back to the post';
 ---
 
@@ -30,7 +43,7 @@ const backLabel = from === '/' ? 'Back to homepage' : 'Back to the post';
       {/* One live region per page: on error the retry form below brings its own `role="status"`. */}
       <p class="m-0 mt-3 text-fg" role={ok ? 'status' : undefined}>{message}</p>
       {
-        !ok && (
+        open && !ok && (
           <div class="mt-6">
             <NewsletterForm from={from} />
           </div>
