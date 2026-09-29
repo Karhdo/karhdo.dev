@@ -133,7 +133,13 @@ The `NEXT_PUBLIC_` prefix is kept only to avoid renaming Vercel variables. These
 
 The card shows personal Claude Code usage. Claude Code's built-in **OpenTelemetry** export sends token and cost metrics every 60 s to `POST /api/otel/v1/metrics`, which adds them per day (Asia/Ho_Chi_Minh) and model into the `token_burn_daily` table. No background job or commits.
 
-On each machine, add to `~/.claude/settings.json` (the key is `TOKEN_BURN_INGEST_KEY`):
+On each machine, run the setup script (it asks for `TOKEN_BURN_INGEST_KEY`, backs up and merges `~/.claude/settings.json`, then checks the key):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Karhdo/karhdo.dev/main/scripts/setup-token-burn-telemetry.sh | bash
+```
+
+It adds this to `~/.claude/settings.json`:
 
 ```json
 {
@@ -150,6 +156,7 @@ On each machine, add to `~/.claude/settings.json` (the key is `TOKEN_BURN_INGEST
 
 - Only `claude_code.token.usage` and `claude_code.cost.usage` are stored, as daily totals; sessions, users and other attributes are dropped. Cost is Claude Code's estimate at API prices.
 - History before 2026-09-29 was imported once from ccusage (`scripts/import-token-burn-history.ts`).
+- Vercel Firewall rule "Rate limit OTel ingest": `POST /api/otel/v1/metrics` at 120 requests / 60 s per IP (429 above).
 - Verify: `curl -s https://karhdo.dev/api/token-burn` returns `"available": true`.
 
 ### Regenerating the Spotify refresh token

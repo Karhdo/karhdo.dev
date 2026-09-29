@@ -109,7 +109,7 @@ Personal Claude Code usage via Claude Code's OpenTelemetry export: `POST /api/ot
 - **Never `drizzle-kit push`/`migrate`/`generate`**; never touch `stats`, `StatsType` or `_prisma_migrations`.
 - **Hosting**: v2 is Vercel project `karhdo-blog` (`main` → karhdo.dev); v1 is the separate project `karhdo-blog-v1` (v1.karhdo.dev, deployed by hand from the `v1` branch; `noindex`, stats read-only). Never set `ENABLE_EXPERIMENTAL_COREPACK` on `karhdo-blog` (Corepack rejects Bun).
 - **Deploy**: never `astro build` + `vercel deploy --prebuilt` without `vercel build` (drops `vercel.json` headers, rewrites and redirects). Don't set `bunVersion` in `vercel.json`. Security headers live in `vercel.json`.
-- **Vercel Firewall rate limits** (dashboard, not code): `POST /api/stats` ~30/min per IP, `POST /api/newsletter` ~5 per 60 s per IP. The Origin check only stops browser CSRF.
+- **Vercel Firewall rate limits** (dashboard / `vercel firewall`, not code): live: `POST /api/otel/v1/metrics` 120/60 s per IP ("Rate limit OTel ingest"). Recommended, not set yet: `POST /api/stats` ~30/min per IP, `POST /api/newsletter` ~5 per 60 s per IP. The Origin check only stops browser CSRF.
 - **No `layout:` in MDX frontmatter.**
 
 - **View transitions and glass:** never give a `.glass` ancestor a permanent `view-transition-name` (`transition:name` / `transition:animate` / `transition:persist`); it becomes a backdrop root and kills the blur. `page` is named only while `html[data-astro-transition]` is set.
