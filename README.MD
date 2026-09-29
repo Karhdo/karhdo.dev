@@ -156,7 +156,7 @@ It adds this to `~/.claude/settings.json`:
 
 - Only `claude_code.token.usage` and `claude_code.cost.usage` are stored, as daily totals; sessions, users and other attributes are dropped. Cost is Claude Code's estimate at API prices.
 - History before 2026-09-29 was imported once from ccusage (`scripts/import-token-burn-history.ts`).
-- Vercel Firewall rule "Rate limit OTel ingest": `POST /api/otel/v1/metrics` at 120 requests / 60 s per IP (429 above).
+- The ingest is protected by its key; it has no firewall rule (the Hobby plan allows only one rate-limit rule, used for `POST /api/stats`).
 - Verify: `curl -s https://karhdo.dev/api/token-burn` returns `"available": true`.
 
 ### Regenerating the Spotify refresh token
@@ -211,9 +211,7 @@ Rules:
 
 - **Never deploy with `astro build` + `vercel deploy --prebuilt` without `vercel build`.** `@astrojs/vercel` doesn't merge `vercel.json` into the build output; the platform does that in `vercel build` and Git deploys. Skipping it drops the security headers, the `/stats/*` Umami rewrite and the redirects.
 - Security headers (CSP, HSTS, …) live in `vercel.json`, since static files never pass through a function.
-- Add these **Vercel Firewall** rate-limit rules (Firewall → Configure → New rule → Rate limit, keyed by IP, action 429). The Origin check only stops browser CSRF; scripted clients can forge `Origin`.
-  - `POST /api/stats`: about 30 requests per minute per IP.
-  - `POST /api/newsletter`: a few requests per minute per IP (for example 5 / 60 s).
+- **Vercel Firewall** rule "Rate limit stats writes" (live): `POST /api/stats` at 30 requests / 60 s per IP, 429 above. The Origin check only stops browser CSRF; scripted clients can forge `Origin`. The Hobby plan allows only this one rate-limit rule, so `POST /api/newsletter` (~5 / 60 s) needs a paid plan.
 - Buttondown uses double opt-in, since the form never sends `type: "regular"`.
 - Dependabot (`.github/dependabot.yml`, Bun ecosystem) reads its config only from the default branch (`main`), so it takes effect once v2 is merged into `main`.
 
