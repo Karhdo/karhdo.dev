@@ -15,7 +15,6 @@ const summary = fixture as unknown as Summary;
 // 2026-09-27 12:00 in Ho Chi Minh (UTC+7).
 const now = new Date('2026-09-27T05:00:00Z');
 const silent = { error: () => {} };
-const ok = (body: unknown) => async () => new Response(JSON.stringify(body), { status: 200 });
 
 describe('modelLabel', () => {
   test('drops the claude- prefix and a date suffix', () => {
@@ -55,47 +54,27 @@ describe('buildTokenBurn', () => {
 });
 
 describe('tokenBurnResponse', () => {
-  test('missing url or token → not-configured, no fetch', async () => {
-    let called = false;
-    const fetch = async () => {
-      called = true;
-      return new Response('{}');
-    };
-    const res = await tokenBurnResponse({ url: undefined, token: 't', fetch, log: silent });
+  test('no storage → not-configured', async () => {
+    const res = await tokenBurnResponse({ load: async () => null, log: silent });
     expect(res.body).toEqual({ available: false, reason: 'not-configured' });
-    expect(called).toBe(false);
   });
 
-  test('success → data with CDN cache headers', async () => {
-    const res = await tokenBurnResponse({ url: 'https://x', token: 't', fetch: ok(summary), now, log: silent });
+  test('success → data with a 60 s CDN cache', async () => {
+    const res = await tokenBurnResponse({ load: async () => summary, now, log: silent });
     expect(res.body.available).toBe(true);
     expect(res.headers['Cache-Control']).toBe('public, max-age=0, must-revalidate');
-    expect(res.headers['Vercel-CDN-Cache-Control']).toContain('max-age=600');
+    expect(res.headers['Vercel-CDN-Cache-Control']).toContain('max-age=60');
   });
 
-  test('sends the token and asks for the raw file', async () => {
-    let seen: RequestInit | undefined;
-    const fetch = async (_: string, init?: RequestInit) => {
-      seen = init;
-      return new Response(JSON.stringify(summary));
-    };
-    await tokenBurnResponse({ url: 'https://x', token: 'secret', fetch, now, log: silent });
-    const headers = seen?.headers as Record<string, string>;
-    expect(headers.Authorization).toBe('Bearer secret');
-    expect(headers.Accept).toBe('application/vnd.github.raw+json');
-  });
-
-  test('HTTP error, bad JSON or a network failure → upstream, never throws', async () => {
-    for (const fetch of [
-      async () => new Response('nope', { status: 404 }),
-      ok({ nope: true }),
-      async () => {
-        throw new TypeError('fetch failed');
+  test('a failing store → upstream, never throws', async () => {
+    const res = await tokenBurnResponse({
+      load: async () => {
+        throw new Error('connection refused');
       },
-    ]) {
-      const res = await tokenBurnResponse({ url: 'https://x', token: 't', fetch, now, log: silent });
-      expect(res.body).toEqual({ available: false, reason: 'upstream' });
-    }
+      now,
+      log: silent,
+    });
+    expect(res.body).toEqual({ available: false, reason: 'upstream' });
   });
 });
 

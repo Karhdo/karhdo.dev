@@ -53,7 +53,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 ### Configuration and env
 
 - Site data in `src/config/` (`site.ts`: metadata, `snowfall`, `versions`, `stack`; `navigation.ts`, `projects.ts`, `experiences.ts` (also drives /career via `src/lib/career.ts`), `popular-tags.ts`).
-- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `TOKEN_BURN_SUMMARY_URL`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
+- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `BUTTONDOWN_API_KEY`, `TOKEN_BURN_INGEST_KEY`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
 - `bun test` can't resolve `astro:*` virtual modules, so logic lives in pure modules (e.g. `src/lib/spotify/client.ts`) and thin `src/lib/services/*.ts` wrappers bind them to `astro:env`.
 
 ### Database (Drizzle on Neon)
@@ -74,6 +74,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 | GET    | `/api/github?repo=owner/name` | Repo data + last commit (v1 parity)                                                             |
 | GET    | `/api/github/activity`        | 46-week contributions, streak, public repos                                                     |
 | GET    | `/api/token-burn`             | Claude Code usage (today, 14 ICT days, month, all-time, model split); `{available:false}` on failure |
+| POST   | `/api/otel/v1/metrics`        | Claude Code OpenTelemetry ingest (bearer key) → `token_burn_daily`                                |
 | POST   | `/api/newsletter`             | Buttondown subscribe (double opt-in)                                                            |
 
 Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/[...slug].png`, `/og/default.png`, `/static/giscus/[theme].css`, sitemap (`@astrojs/sitemap`; `/sitemap.xml` redirects to `/sitemap-index.xml`).
@@ -87,7 +88,7 @@ Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/
 
 ### Token burn
 
-Personal Claude Code usage, not the Anthropic API. The private repo `Karhdo/token-burn` runs ccusage hourly on the owner's Mac (launchd) and pushes `public/summary.json` (daily tokens, cost and per-model totals in `Asia/Ho_Chi_Minh` days). `src/lib/token-burn.ts` fetches it server-side through the GitHub Contents API (`TOKEN_BURN_SUMMARY_URL` + `GITHUB_API_TOKEN`) and builds today, 14 days, month, all-time and the month's model split. Cost is an API-price estimate.
+Personal Claude Code usage via Claude Code's OpenTelemetry export: `POST /api/otel/v1/metrics` (bearer `TOKEN_BURN_INGEST_KEY`, OTLP/HTTP JSON, delta temporality only) → `src/lib/token-burn-otlp.ts` (parse) + `token-burn-ingest.ts` (handler) → atomic per-day/per-model upsert into `token_burn_daily` (`src/lib/db/token-burn.ts`). `GET /api/token-burn` reads that table through `buildTokenBurn`. Days are Asia/Ho_Chi_Minh; cost is an API-price estimate. The per-machine `~/.claude/settings.json` snippet is in the README.
 
 ### Styling and theming
 

@@ -120,7 +120,7 @@ All variables are declared in the `astro:env` schema (`astro.config.mjs`) and ar
 | `SPOTIFY_CLIENT_SECRET`            | server secret | Production, Preview          | Now playing                                                          |
 | `SPOTIFY_REFRESH_TOKEN`            | server secret | Production, Preview          | Now playing ([regenerate](#regenerating-the-spotify-refresh-token))  |
 | `BUTTONDOWN_API_KEY`               | server secret | Production, Preview          | Newsletter signup. Read at build too: adding it later needs a redeploy |
-| `TOKEN_BURN_SUMMARY_URL`           | server secret | Production, Preview          | Token burn card ([setup](#token-burn-claude-code-usage))              |
+| `TOKEN_BURN_INGEST_KEY`            | server secret | **Production only**          | Token burn ingest key ([setup](#token-burn-claude-code-usage))         |
 | `NEXT_PUBLIC_GISCUS_REPO`          | server public | Production, Preview          | Giscus comments                                                      |
 | `NEXT_PUBLIC_GISCUS_REPOSITORY_ID` | server public | Production, Preview          | Giscus comments                                                      |
 | `NEXT_PUBLIC_GISCUS_CATEGORY`      | server public | Production, Preview          | Giscus comments                                                      |
@@ -131,10 +131,25 @@ The `NEXT_PUBLIC_` prefix is kept only to avoid renaming Vercel variables. These
 
 ### Token burn (Claude Code usage)
 
-The card shows personal Claude Code usage, collected by the private repo [`Karhdo/token-burn`](https://github.com/Karhdo/token-burn): an hourly launchd job runs [ccusage](https://github.com/ryoppippi/ccusage) on the Mac and pushes `public/summary.json` (totals only, days in `Asia/Ho_Chi_Minh`). The site reads that file server-side with `GITHUB_API_TOKEN`, which needs read access to the repo.
+The card shows personal Claude Code usage. Claude Code's built-in **OpenTelemetry** export sends token and cost metrics every 60 s to `POST /api/otel/v1/metrics`, which adds them per day (Asia/Ho_Chi_Minh) and model into the `token_burn_daily` table. No background job or commits.
 
-- `TOKEN_BURN_SUMMARY_URL=https://api.github.com/repos/Karhdo/token-burn/contents/public/summary.json`
-- Cost is an estimate at API prices (subscription usage isn't billed per token).
+On each machine, add to `~/.claude/settings.json` (the key is `TOKEN_BURN_INGEST_KEY`):
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/json",
+    "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT": "https://karhdo.dev/api/otel/v1/metrics",
+    "OTEL_EXPORTER_OTLP_METRICS_HEADERS": "Authorization=Bearer <TOKEN_BURN_INGEST_KEY>",
+    "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE": "delta"
+  }
+}
+```
+
+- Only `claude_code.token.usage` and `claude_code.cost.usage` are stored, as daily totals; sessions, users and other attributes are dropped. Cost is Claude Code's estimate at API prices.
+- History before 2026-09-29 was imported once from ccusage (`scripts/import-token-burn-history.ts`).
 - Verify: `curl -s https://karhdo.dev/api/token-burn` returns `"available": true`.
 
 ### Regenerating the Spotify refresh token

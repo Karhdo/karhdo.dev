@@ -1,7 +1,7 @@
 /**
- * Token burn card data: personal Claude Code usage from the private `Karhdo/token-burn` repo's
- * `public/summary.json` (built by ccusage, days in Asia/Ho_Chi_Minh), read server-side via the GitHub
- * Contents API. Pure apart from the injected `fetch`, so `bun test` covers it with a fixture.
+ * Token burn card data: personal Claude Code usage (days in Asia/Ho_Chi_Minh), stored per day and
+ * model in `token_burn_daily` from Claude Code's OpenTelemetry export. Pure apart from the injected
+ * loader, so `bun test` covers it with a fixture.
  */
 import { addDays, todayIn } from '~/lib/github-activity';
 
@@ -10,9 +10,7 @@ export { barHeights, countParts, formatTokens, formatUsd } from './token-burn-fo
 export const DAYS = 14;
 export const MAX_MODELS = 3;
 export const TIME_ZONE = 'Asia/Ho_Chi_Minh';
-export const UPSTREAM_TIMEOUT_MS = 6000;
 
-type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 export type Logger = { error: (...args: unknown[]) => void };
 
 type Totals = { tokens?: number; cost?: number };
@@ -96,53 +94,36 @@ export function buildTokenBurn(summary: Summary, now: Date = new Date()): TokenB
   };
 }
 
-/** Browsers always revalidate; only Vercel's CDN caches (the summary changes at most hourly). */
+/** Browsers always revalidate; only Vercel's CDN caches (usage arrives about once a minute). */
 const BROWSER_CACHE = 'public, max-age=0, must-revalidate';
 export const HEADERS_OK: Readonly<Record<string, string>> = {
   'Cache-Control': BROWSER_CACHE,
-  'Vercel-CDN-Cache-Control': 'max-age=600, stale-while-revalidate=3600',
+  'Vercel-CDN-Cache-Control': 'max-age=60, stale-while-revalidate=300',
 };
 export const HEADERS_UNAVAILABLE: Readonly<Record<string, string>> = {
   'Cache-Control': BROWSER_CACHE,
-  'Vercel-CDN-Cache-Control': 'max-age=120, stale-while-revalidate=120',
+  'Vercel-CDN-Cache-Control': 'max-age=60, stale-while-revalidate=120',
 };
 
-/** `GET /api/token-burn` body + headers. Never throws; failures are logged without the token or body. */
+/**
+ * `GET /api/token-burn` body + headers. `load` returns `null` when storage is not configured.
+ * Never throws; failures are logged without details from the store.
+ */
 export async function tokenBurnResponse({
-  url,
-  token,
-  fetch,
+  load,
   now,
   log = console,
 }: {
-  url: string | undefined;
-  token: string | undefined;
-  fetch: FetchLike;
+  load: () => Promise<Summary | null>;
   now?: Date;
   log?: Logger;
 }): Promise<{ body: TokenBurnResponse; headers: Record<string, string> }> {
-  if (!url || !token) {
-    return { body: { available: false, reason: 'not-configured' }, headers: { ...HEADERS_UNAVAILABLE } };
-  }
   try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github.raw+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'karhdo.dev/2 (+https://karhdo.dev)',
-      },
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-    });
-    if (!res.ok) {
-      await res.body?.cancel();
-      throw new Error(`http ${res.status}`);
-    }
-    const summary = (await res.json()) as Summary;
-    if (!Array.isArray(summary?.daily)) throw new Error('parse: no daily[]');
+    const summary = await load();
+    if (!summary) return { body: { available: false, reason: 'not-configured' }, headers: { ...HEADERS_UNAVAILABLE } };
     return { body: buildTokenBurn(summary, now), headers: { ...HEADERS_OK } };
   } catch (error) {
-    log.error(`[token-burn] upstream unavailable (${error instanceof Error ? error.message : 'unknown'})`);
+    log.error(`[token-burn] unavailable (${error instanceof Error ? error.name : 'unknown'})`);
     return { body: { available: false, reason: 'upstream' }, headers: { ...HEADERS_UNAVAILABLE } };
   }
 }
