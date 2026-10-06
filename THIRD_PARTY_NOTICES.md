@@ -229,3 +229,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 ## Product logos on /career
 
 `src/assets/career/{loanbud,dealops,deep-sky-climate}.png` are the site icons published by LoanBud, Dealops and Deep Sky Climate (resized to 96 px). They are trademarks of their owners, used only to identify the products worked on.
+
+## Product screenshots on /projects
+
+`src/assets/projects/{deep-sky-climate,dealops}.png` are screenshots of the public home pages of deepskyclimate.com and dealops.com (taken 2026-10-06, resized to 1440 px). Their content and marks belong to their owners; they are shown only to identify the products worked on.

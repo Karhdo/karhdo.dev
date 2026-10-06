@@ -29,8 +29,6 @@ const MAX_DISPLAY = 5;
 const posts = await getPublishedPosts();
 const [latest] = posts;
 const selected = PROJECTS.filter((project) => project.selected);
-const featured = selected.find((project) => project.featured);
-const framed = selected.filter((project) => project !== featured);
 const siteRepo = SITE.siteRepo.replace('https://github.com/', '');
 ---
 
@@ -61,12 +59,11 @@ const siteRepo = SITE.siteRepo.replace('https://github.com/', '');
         linkLabel={`All ${PROJECTS.length} projects →`}
       />
       <ProjectGrid>
-        {featured && <ProjectCard project={featured} variant="featured" />}
         {
-          framed.map((project) => (
+          selected.map((project) => (
             <ProjectCard
               project={project}
-              variant="framed"
+              variant={project.featured ? 'featured' : 'framed'}
               stars={project.repo === siteRepo ? BUILD_INFO.stars : undefined}
             />
           ))

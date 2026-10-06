@@ -1,4 +1,6 @@
 import type { ImageMetadata } from 'astro';
+import dealops from '~/assets/projects/dealops.png';
+import deepSkyClimate from '~/assets/projects/deep-sky-climate.png';
 import ecomHeat from '~/assets/projects/ecom-heat.png';
 import karhdoBlog from '~/assets/projects/karhdo-blog.png';
 import military7aBidding from '~/assets/projects/military-7a-bidding.png';
@@ -22,12 +24,38 @@ export type Project = {
   org?: string;
   tagline?: string;
   featured?: boolean;
-  /** Shown in the homepage "Selected projects" block (task 15). */
+  /** Shown in the homepage "Selected projects" block (task 15), in this list's order. */
   selected?: boolean;
   facts?: [Fact, Fact, Fact];
 };
 
 export const PROJECTS: Project[] = [
+  {
+    type: 'work',
+    title: 'Deep Sky Climate',
+    description:
+      'IoT data platform for a carbon removal project developer. Founding engineer: Go ingestion from AWS Kinesis, Spark batch jobs on EMR and the Airflow pipelines that run them.',
+    image: deepSkyClimate,
+    imageAlt: 'Deep Sky home page: "Deep Sky Alpha: Now Operational" over the Alberta carbon removal site at sunrise',
+    frameLabel: 'deepskyclimate.com',
+    url: 'https://www.deepskyclimate.com/?ref=karhdo.dev',
+    org: 'Spartan',
+    selected: true,
+    builtWith: ['Go', 'Scala', 'Apache Spark', 'Airflow', 'Kubernetes'],
+  },
+  {
+    type: 'work',
+    title: 'Dealops',
+    description:
+      'Agentic CPQ for complex pricing. Built the in-app AI chat assistant, admin pricing tools (catalog, tiered pricing, approval rules) and quoting features.',
+    image: dealops,
+    imageAlt: 'Dealops home page: "Your CPQ should grow your revenue. Now it does." with agent chat bubbles',
+    frameLabel: 'dealops.com',
+    url: 'https://dealops.com/?ref=karhdo.dev',
+    org: 'Spartan',
+    selected: true,
+    builtWith: ['React', 'TypeScript', 'tRPC', 'Prisma', 'Turborepo'],
+  },
   {
     type: 'work',
     title: 'EcomHeat',

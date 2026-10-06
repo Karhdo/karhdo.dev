@@ -37,6 +37,14 @@ const TECH: Record<string, { slug: SimpleIconSlug; tone: ChipTone }> = {
   javascript: { slug: 'javascript', tone: 'text-yellow' },
   jquery: { slug: 'jquery', tone: 'text-blue' },
   threejs: { slug: 'threedotjs', tone: 'text-fg' },
+  go: { slug: 'go', tone: 'text-cyan' },
+  scala: { slug: 'scala', tone: 'text-red' },
+  apachespark: { slug: 'apachespark', tone: 'text-orange' },
+  airflow: { slug: 'apacheairflow', tone: 'text-teal' },
+  kubernetes: { slug: 'kubernetes', tone: 'text-blue' },
+  trpc: { slug: 'trpc', tone: 'text-blue' },
+  prisma: { slug: 'prisma', tone: 'text-fg' },
+  turborepo: { slug: 'turborepo', tone: 'text-red' },
 };
 
 export function techIcon(label: string): { slug: SimpleIconSlug; tone: ChipTone } | undefined {
