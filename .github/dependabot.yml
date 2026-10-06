@@ -11,15 +11,18 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
+    # At most two PRs a week: Astro framework updates on their own, everything else together.
     groups:
       astro:
         patterns:
           - "astro"
           - "@astrojs/*"
-      react:
+      minor-and-patch:
         patterns:
-          - "react*"
-          - "@types/react*"
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
