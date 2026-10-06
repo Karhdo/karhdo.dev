@@ -13,6 +13,8 @@ export interface SpotifyNowPlayingData {
   progressMs?: number;
   /** Track / episode length (Spotify `item.duration_ms`). */
   durationMs?: number;
+  /** Set only for the last played track (nothing is playing): when it was played (ISO 8601). */
+  playedAt?: string;
   /** Server time (epoch ms) of the Spotify read; lets the client correct for CDN caching. */
   fetchedAt?: number;
 }

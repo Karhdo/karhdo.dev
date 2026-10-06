@@ -34,7 +34,7 @@ v2 is a rebuild of the v1 Next.js site, which lives on the [`v1`](https://github
 
 ## Features
 
-- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (personal Claude Code usage), Daily stack marquee, selected projects, popular tags.
+- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress, or the last played track), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (personal Claude Code usage), Daily stack marquee, selected projects, popular tags.
 - `/about`: a `whoami` terminal card (live local time and uptime) above the author story.
 - `/career`: stats, a year ruler, the career as a `git log --graph` with role chapters and per-role stack diffs.
 - Site-wide snowfall (vanilla canvas at 30 fps, fewer flakes on phones, persists across page navigations, paused in hidden tabs and during transitions, off under reduced motion) over a frost-tinted tilted grid.
@@ -167,7 +167,7 @@ If the Now playing card stays empty, check the token endpoint's error: `invalid_
 2. Open this URL in a browser while signed in to the Spotify account to show, and approve:
 
    ```text
-   https://accounts.spotify.com/authorize?client_id=<CLIENT_ID>&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8888%2Fcallback&scope=user-read-currently-playing%20user-read-playback-state
+   https://accounts.spotify.com/authorize?client_id=<CLIENT_ID>&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8888%2Fcallback&scope=user-read-currently-playing%20user-read-playback-state%20user-read-recently-played
    ```
 
 3. The browser lands on `http://127.0.0.1:8888/callback?code=…` (the page itself fails to load; that's fine). Copy the `code` value; it expires after a few minutes.
@@ -181,7 +181,7 @@ If the Now playing card stays empty, check the token endpoint's error: `invalid_
    ```
 
 5. Put the returned `refresh_token` in `SPOTIFY_REFRESH_TOKEN` (Vercel Production and Preview, and `.env` locally), then redeploy.
-6. Verify: play something and `curl -s https://karhdo.dev/api/spotify` shows `"isPlaying": true`.
+6. Verify: play something and `curl -s https://karhdo.dev/api/spotify` shows `"isPlaying": true`; with nothing playing it shows the last track with `"playedAt"` (needs the `user-read-recently-played` scope; without it the card says "Not playing").
 
 ## Database
 

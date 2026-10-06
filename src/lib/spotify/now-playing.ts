@@ -90,21 +90,39 @@ export function toNowPlaying(status: number, body: unknown, fetchedAt = Date.now
     };
   }
 
+  return { isPlaying: data.is_playing === true, ...trackFields(item, title), ...timing };
+}
+
+type Track = NonNullable<CurrentlyPlaying['item']>;
+
+function trackFields(item: Track, title: string) {
   const images = item.album?.images;
   const artist = (item.artists ?? [])
     .map((a) => str(a.name))
     .filter(Boolean)
     .join(', ');
   return {
-    isPlaying: data.is_playing === true,
     title,
     artist: artist || undefined,
     album: str(item.album?.name),
     albumImageUrl: pickAlbumImage(images),
     albumImageSrcset: albumSrcset(images),
-    songUrl,
-    ...timing,
+    songUrl: str(item.external_urls?.spotify),
   };
+}
+
+/**
+ * The last played track (`/me/player/recently-played?limit=1`), shown when nothing is playing.
+ * Not playing, no timing; `playedAt` marks it as history. Errors (e.g. 403 without the
+ * `user-read-recently-played` scope) or an empty history are "not playing".
+ */
+export function toRecentlyPlayed(status: number, body: unknown, fetchedAt = Date.now()): SpotifyNowPlayingData {
+  if (status !== 200 || !body || typeof body !== 'object') return NOT_PLAYING;
+  const entry = (body as { items?: { track?: Track; played_at?: unknown }[] }).items?.[0];
+  const title = str(entry?.track?.name);
+  const playedAt = str(entry?.played_at);
+  if (!entry?.track || !title || !playedAt || Number.isNaN(Date.parse(playedAt))) return NOT_PLAYING;
+  return { isPlaying: false, ...trackFields(entry.track, title), playedAt, fetchedAt };
 }
 
 /** `m:ss` (or `h:mm:ss` from one hour), floored to whole seconds. */

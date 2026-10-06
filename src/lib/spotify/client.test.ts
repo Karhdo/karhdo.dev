@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { AUTH_BACKOFF_MS, createSpotifyClient, SPOTIFY_NOW_PLAYING_API, SPOTIFY_TOKEN_API } from './client';
+import {
+  AUTH_BACKOFF_MS,
+  createSpotifyClient,
+  SPOTIFY_NOW_PLAYING_API,
+  SPOTIFY_RECENTLY_PLAYED_API,
+  SPOTIFY_TOKEN_API,
+} from './client';
 
 const CREDS = { clientId: 'id', clientSecret: 'secret', refreshToken: 'refresh' };
 
@@ -64,6 +70,16 @@ describe('createSpotifyClient', () => {
     const spotify = fakeSpotify();
     const client = createSpotifyClient(CREDS, { fetch: spotify.fetchImpl });
     await Promise.all([client?.nowPlaying(), client?.nowPlaying(), client?.nowPlaying()]);
+    expect(spotify.tokenCalls()).toBe(1);
+  });
+
+  test('recently-played asks for the last track and shares the cached token', async () => {
+    const spotify = fakeSpotify();
+    const client = createSpotifyClient(CREDS, { fetch: spotify.fetchImpl });
+    await client?.nowPlaying();
+    await client?.recentlyPlayed();
+    expect(spotify.calls.at(-1)?.url).toBe(`${SPOTIFY_RECENTLY_PLAYED_API}?limit=1`);
+    expect(new Headers(spotify.calls.at(-1)?.init?.headers).get('authorization')).toBe('Bearer tok1');
     expect(spotify.tokenCalls()).toBe(1);
   });
 

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import ad from './__fixtures__/ad.json';
 import episode from './__fixtures__/episode.json';
+import recent from './__fixtures__/recently-played.json';
 import track from './__fixtures__/track.json';
 import {
   albumSrcset,
@@ -10,6 +11,7 @@ import {
   positionAt,
   SPOTIFY_CACHE_HEADERS,
   toNowPlaying,
+  toRecentlyPlayed,
 } from './now-playing';
 
 const AT = 1_790_000_000_500;
@@ -79,6 +81,32 @@ describe('toNowPlaying', () => {
     const data = toNowPlaying(200, odd, AT);
     expect(data.progressMs).toBeUndefined();
     expect(data.durationMs).toBeUndefined();
+  });
+});
+
+describe('toRecentlyPlayed', () => {
+  test('the last track maps to a not-playing payload with playedAt and no timing', () => {
+    expect(toRecentlyPlayed(200, recent, AT)).toEqual({
+      isPlaying: false,
+      title: 'Midnight City',
+      artist: 'M83',
+      album: "Hurry Up, We're Dreaming",
+      albumImageUrl: 'https://i.scdn.co/image/ab67616d00004851fff2cb485c36a6d8f639bdba',
+      albumImageSrcset:
+        'https://i.scdn.co/image/ab67616d00004851fff2cb485c36a6d8f639bdba 64w, https://i.scdn.co/image/ab67616d00001e02fff2cb485c36a6d8f639bdba 300w, https://i.scdn.co/image/ab67616d0000b273fff2cb485c36a6d8f639bdba 640w',
+      songUrl: 'https://open.spotify.com/track/1eyzqe2QqGZUmfcPZtrIyt',
+      playedAt: '2026-10-06T14:05:12.345Z',
+      fetchedAt: AT,
+    });
+  });
+
+  test('errors (403 without the scope), empty history and junk are "not playing"', () => {
+    expect(toRecentlyPlayed(403, recent)).toEqual({ isPlaying: false });
+    expect(toRecentlyPlayed(200, { items: [] })).toEqual({ isPlaying: false });
+    expect(toRecentlyPlayed(200, null)).toEqual({ isPlaying: false });
+    expect(toRecentlyPlayed(200, { items: [{ ...recent.items[0], played_at: 'never' }] })).toEqual({
+      isPlaying: false,
+    });
   });
 });
 

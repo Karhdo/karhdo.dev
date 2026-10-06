@@ -4,7 +4,8 @@
  * like the task-18 stats): the card fetches `GET /api/spotify` once it scrolls into view, then every
  * 30 s while it is on screen and the tab is visible. The progress bar and `m:ss` times are interpolated
  * every second from `progressMs` (corrected for the CDN cache age) while playing, on screen and with
- * motion allowed; under reduced motion they only change on each poll. The equaliser bars animate only
+ * motion allowed; under reduced motion they only change on each poll. When nothing is playing, the API
+ * sends the last played track (`playedAt`): "Last played", artist · relative time, no progress. The equaliser bars animate only
  * while playing and with motion allowed. Skeleton, playing, paused and offline states share one fixed
  * layout inside the reserved `CARD_MIN_HEIGHT.spotify`, so nothing shifts. `transition:persist` keeps
  * the last state across view-transition navigations back to the homepage.
@@ -143,6 +144,7 @@ const { class: className, style } = Astro.props;
 
 <script>
   import { formatTime, NOT_PLAYING, payloadAgeMs, positionAt } from '~/lib/spotify/now-playing';
+  import { formatRelative } from '~/lib/utils/relative-time';
   import type { SpotifyNowPlayingData } from '~/types/spotify';
 
   const POLL_MS = 30_000;
@@ -297,7 +299,7 @@ const { class: className, style } = Astro.props;
       }
 
       el.bars.toggleAttribute('data-on', data.isPlaying);
-      el.label.textContent = data.isPlaying ? 'Now playing' : 'Paused';
+      el.label.textContent = data.isPlaying ? 'Now playing' : data.playedAt ? 'Last played' : 'Paused';
       el.offline.hidden = true;
       if (data.albumImageUrl) {
         if (el.img.getAttribute('src') !== data.albumImageUrl) {
@@ -313,9 +315,13 @@ const { class: className, style } = Astro.props;
       }
       const sub = [data.artist, data.album].filter(Boolean).join(' · ');
       this.#setTitle(data.title, data.songUrl, sub ? `${data.title} — ${sub}` : data.title);
-      el.sub.textContent = sub || 'Spotify';
+      // The last played track trades the album for when it was played.
+      const when = data.playedAt ? formatRelative(data.playedAt) : null;
+      el.sub.textContent = when ? [data.artist, when].filter(Boolean).join(' · ') : sub || 'Spotify';
       const hasTiming = data.durationMs !== undefined && data.durationMs > 0;
       el.progress.style.visibility = hasTiming ? '' : 'hidden';
+      // No progress for the last played track: drop the row so the two lines centre on the cover.
+      el.progress.hidden = Boolean(data.playedAt);
       el.dur.textContent = formatTime(data.durationMs ?? 0);
       this.#renderPosition(false);
     }

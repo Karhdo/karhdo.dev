@@ -5,6 +5,8 @@
  */
 export const SPOTIFY_TOKEN_API = 'https://accounts.spotify.com/api/token';
 export const SPOTIFY_NOW_PLAYING_API = 'https://api.spotify.com/v1/me/player/currently-playing';
+/** Needs the `user-read-recently-played` scope; without it Spotify answers 403. */
+export const SPOTIFY_RECENTLY_PLAYED_API = 'https://api.spotify.com/v1/me/player/recently-played';
 
 export const UPSTREAM_TIMEOUT_MS = 5000;
 /** Refresh this long before Spotify's own expiry. */
@@ -26,6 +28,8 @@ export interface SpotifyClientDeps {
 export interface SpotifyClient {
   /** The raw currently-playing response (status + body read by the caller). */
   nowPlaying(): Promise<Response>;
+  /** The raw recently-played response, limited to the last track. */
+  recentlyPlayed(): Promise<Response>;
 }
 
 export class SpotifyAuthError extends Error {
@@ -75,23 +79,32 @@ export function createSpotifyClient(creds: SpotifyCredentials, deps: SpotifyClie
     return pending;
   }
 
-  async function currentlyPlaying(token: string): Promise<Response> {
-    const url = new URL(SPOTIFY_NOW_PLAYING_API);
-    url.searchParams.set('additional_types', 'track,episode');
+  function get(url: URL, token: string): Promise<Response> {
     return doFetch(url, {
       headers: { Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
   }
 
+  async function withToken(url: URL): Promise<Response> {
+    const response = await get(url, await accessToken());
+    if (response.status !== 401) return response;
+    // Token revoked or expired early: refresh once and retry.
+    await response.body?.cancel();
+    cached = undefined;
+    return get(url, await accessToken());
+  }
+
   return {
-    async nowPlaying() {
-      const response = await currentlyPlaying(await accessToken());
-      if (response.status !== 401) return response;
-      // Token revoked or expired early: refresh once and retry.
-      await response.body?.cancel();
-      cached = undefined;
-      return currentlyPlaying(await accessToken());
+    nowPlaying() {
+      const url = new URL(SPOTIFY_NOW_PLAYING_API);
+      url.searchParams.set('additional_types', 'track,episode');
+      return withToken(url);
+    },
+    recentlyPlayed() {
+      const url = new URL(SPOTIFY_RECENTLY_PLAYED_API);
+      url.searchParams.set('limit', '1');
+      return withToken(url);
     },
   };
 }

@@ -70,7 +70,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 | GET    | `/api/stats?type=blog&slug=…` | Views + reactions of a post (zeros if no row)                                                   |
 | POST   | `/api/stats`                  | Atomic delta upsert (`views: 1`, reactions 1..5); Origin allowlist; v1 absolute payloads → 400  |
 | GET    | `/api/stats/summary`          | Totals, reactions, 30-day series from `stats_daily`, most-read post                             |
-| GET    | `/api/spotify`                | Now playing with progress                                                                       |
+| GET    | `/api/spotify`                | Now playing with progress, else the last played track (`playedAt`)                             |
 | GET    | `/api/github?repo=owner/name` | Repo data + last commit (v1 parity)                                                             |
 | GET    | `/api/github/activity`        | 46-week contributions, streak, public repos                                                     |
 | GET    | `/api/token-burn`             | Claude Code usage (today, 14 ICT days, month, all-time, model split); `{available:false}` on failure |
