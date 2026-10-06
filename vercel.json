@@ -3,6 +3,7 @@
   "framework": "astro",
   "installCommand": "bun install --frozen-lockfile",
   "buildCommand": "bun run build",
+  "github": { "silent": true },
   "rewrites": [
     {
       "source": "/stats/:match*",
