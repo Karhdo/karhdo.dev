@@ -133,7 +133,7 @@ export function buildOgTree(input: OgCardInput, assets: OgAssets): OgNode {
         src: assets.avatar,
         width: 64,
         height: 64,
-        style: { borderRadius: 999, border: `3px solid ${c.blue}` },
+        style: { boxSizing: 'border-box', borderRadius: 999, border: `3px solid ${c.blue}` },
       },
     },
     el('div', { display: 'flex', flexDirection: 'column', gap: 2 }, [
@@ -165,6 +165,8 @@ export function buildOgTree(input: OgCardInput, assets: OgAssets): OgNode {
           justifyContent: 'space-between',
           width: '100%',
           height: '100%',
+          // Newer Satori follows the browser default (content-box), which pushed the author row off the card.
+          boxSizing: 'border-box',
           padding: '60px 72px 64px',
         },
         [top, middle, bottom]
