@@ -59,11 +59,13 @@ export function computeDelta(current: number, previous: number): Delta | null {
 export function buildSeries(daily: readonly DailyPoint[], today: string): DailyPoint[] {
   if (daily.length === 0) return [];
   const windowStart = addDays(today, -(WINDOW_DAYS - 1));
+  // biome-ignore lint/complexity/useMathMinMax: comparing ISO date strings, not numbers.
   const first = daily.reduce((min, point) => (point.date < min ? point.date : min), daily[0]?.date ?? today);
   if (first > today) return [];
   const byDate = new Map<string, number>();
   for (const point of daily) byDate.set(point.date, (byDate.get(point.date) ?? 0) + point.views);
   const series: DailyPoint[] = [];
+  // biome-ignore lint/complexity/useMathMinMax: comparing ISO date strings, not numbers.
   for (let date = first > windowStart ? first : windowStart; date <= today; date = addDays(date, 1)) {
     series.push({ date, views: byDate.get(date) ?? 0 });
   }
@@ -92,6 +94,7 @@ export function buildSummary({
     .filter((point) => point.date >= previousStart && point.date < windowStart)
     .reduce((sum, point) => sum + point.views, 0);
   const post = mostRead && mostRead.views > 0 ? posts.find((p) => p.slug === mostRead.slug) : undefined;
+  // biome-ignore lint/complexity/useMathMinMax: comparing ISO date strings, not numbers.
   const since = daily.length > 0 ? daily.reduce((min, p) => (p.date < min ? p.date : min), today) : null;
   const { loves, applauses, ideas, bullseye } = totals;
 

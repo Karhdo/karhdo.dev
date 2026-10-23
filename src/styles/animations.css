@@ -472,11 +472,9 @@ html:not([data-astro-transition]) [data-astro-transition-persist][data-astro-tra
   }
 
   /* Page slide/fade on ClientRouter navigations (Astro's own CSS drops it under reduced motion). */
-  /* biome-ignore lint/correctness/noUnknownTypeSelector: `page` is a view-transition name, not a type. */
   ::view-transition-old(page) {
     animation: 0.22s var(--ease-out) both pageOut;
   }
-  /* biome-ignore lint/correctness/noUnknownTypeSelector: `page` is a view-transition name, not a type. */
   ::view-transition-new(page) {
     animation: 0.34s var(--ease-out) both pageIn;
   }
