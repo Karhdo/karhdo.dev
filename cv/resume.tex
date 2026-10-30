@@ -18,6 +18,7 @@
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{tabularx}
+\usepackage{needspace}
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{accent}{HTML}{2E7DE9} % Tokyonight Day blue
@@ -88,51 +89,57 @@ and tests that cover failure modes, not just the happy path.
 \role{Spartan}{Software Engineer}{Mar 2025 -- Present}{Engineer embedded in US client product teams}
 
 \project{LoanBud}{small-business financing platform}{Jan 2026 -- Oct 2026}
-\stack{Kotlin, Micronaut, Java, Spring Boot, PostgreSQL, Redis, AWS SQS, React, TypeScript, TanStack, Terraform, Kubernetes}
+\stack{Kotlin, Micronaut, Java, Spring Boot, PostgreSQL, Redis, AWS SQS, React, TypeScript, Terraform}
 \begin{itemize}
-  \item Rebuilt the Hub-to-CRM data sync on a \textbf{transactional outbox}: Postgres triggers, \texttt{FOR UPDATE SKIP LOCKED}
-        claims, exponential backoff computed in SQL and a horizontally scaled sync worker, replacing a polling job
-        that silently dropped failed syncs. Added version-guarded upserts so out-of-order writes can't overwrite newer data.
-  \item Built a \textbf{Meta Lead Ads ingestion pipeline} (signed webhook $\rightarrow$ SQS $\rightarrow$ Graph API) that is
-        idempotent under duplicate delivery and recovers crashed consumers through leases; verified end to end on live traffic.
-  \item Rebuilt the \textbf{CRM segment builder} across backend and frontend: application data exposed as typed,
-        fail-closed JSONB segment fields, and a schema-driven filter UI validated by zod generated at runtime
-        (two 7-PR stacks, $\sim$16k lines, dark-launched behind feature flags).
-  \item Designed the \textbf{marketing attribution} model (write-once first-touch snapshots, insert-only touch history,
-        legacy backfill) and the \textbf{Objective Context} API with a versioned snapshot contract for other services.
-  \item Shipped \textbf{Twilio video meetings} with Google and Microsoft calendar sync and signed public join links,
-        hardened with a Resilience4j circuit breaker, room quotas and Redisson-backed distributed rate limiting.
-  \item Owned a rewrite of the legacy PHP core service in \textbf{Kotlin} ($\sim$326 commits, +153k lines): behaviour-parity
-        re-implementation, domain-manager split, a database-to-database migration, and the Terraform and secrets work.
-  \item Also: per-field contact audit log, workflow auto-resume and safe editing of running workflows, credit-consent
-        re-signing with PDF regeneration, partner CSV bulk import, and team tooling (Docker Compose, seed data, test split).
+  \item Rebuilt the Hub-to-CRM data sync on a \textbf{transactional outbox} (Postgres triggers, \texttt{SKIP LOCKED} claims,
+        a horizontally scaled sync worker, version-guarded upserts), replacing a polling job that silently dropped failed syncs.
+  \item Built an idempotent \textbf{Meta Lead Ads} pipeline (webhook $\rightarrow$ SQS $\rightarrow$ Graph API) and a
+        schema-driven CRM segment builder over JSONB that fails closed; added marketing attribution and a per-field audit log.
+  \item Shipped \textbf{Twilio video meetings} with calendar sync, hardened with a circuit breaker, room quotas and
+        Redis-backed distributed rate limiting.
+  \item Owned a rewrite of the legacy PHP core service in \textbf{Kotlin} ($\sim$326 commits, +153k lines).
 \end{itemize}
 
-\project{Dealops}{CPQ software for complex pricing}{Jul 2025 -- Jan 2026}
-\stack{React, TypeScript, tRPC, Prisma, Tailwind CSS, Turborepo}
+\project{Dealops}{CPQ software for complex pricing; $\sim$465 commits in six months}{Jul 2025 -- Jan 2026}
+\stack{React, TypeScript, tRPC, Prisma, Ant Design, Tailwind CSS, Turborepo}
 \begin{itemize}
-  \item Built an in-app \textbf{AI chat assistant} from scratch (streaming responses, markdown rendering) and added
-        segment filtering to the AI pricing assistant.
-  \item Admin Dashboard: product-catalog management with tiered pricing, approval rules with an additional-logic
-        builder, affinity-rule-aware product selection and segment filtering across the terms library.
-  \item Quoting: the IC++ pricing model with 3-decimal payment-method fees, quote comparison, ramp revenue and an
-        approval nudge flow ($\sim$465 commits).
+  \item \textbf{AI features}: built an in-app \textbf{AI chat assistant} from scratch (chat widget, its own AI chat client,
+        streaming responses, markdown rendering), and shipped fixes and segment-based product filtering for the
+        AI pricing assistant.
+  \item \textbf{Admin Dashboard V2}: set up the new admin layout and built the product catalog (add/edit forms, clone and
+        clone-and-save, tiered-pricing charts in drawers), product discount rules, and a terms library with segment filtering.
+  \item \textbf{Approval rules}: refactored term approval rules to support direct-entry and selection types, with currency,
+        percentage, date and tierable rule editors, a normalised tier setup and an \textbf{additional-logic builder} for
+        compound conditions; made product selection respect affinity rules.
+  \item \textbf{Opportunity page V2}: quote groups, create and clone quote flows, a quote proposals page with archive and
+        restore, the submit-for-approval flow with approval nudges, activity history and recent opportunities.
+  \item \textbf{Pricing quotes}: the \textbf{IC++ pricing model} with 3-decimal payment-method fees, ramp revenue logic and the
+        ramp editor, side-by-side quote comparison, and single-quote slide generation with editable details.
 \end{itemize}
 
-\project{Deep Sky Climate}{carbon removal project developer}{Mar 2025 -- Jul 2025}
-\stack{Go, Scala, Apache Spark, Apache Airflow, AWS Kinesis, EMR, DynamoDB, Kubernetes, Datadog}
+\project{Deep Sky Climate}{IoT data platform for a carbon removal project developer}{Mar 2025 -- Jul 2025}
+\stack{Go, Scala, Apache Spark, Apache Airflow, Python, AWS Kinesis, EMR, DynamoDB, SQS, S3, Kubernetes, Datadog}
 \begin{itemize}
-  \item \textbf{Founding engineer} on the IoT data platform: set the architecture, code conventions and CI/CD for three services.
-  \item Go ingestion service: a custom \textbf{AWS Kinesis} consumer for Sparkplug B sensor telemetry with DynamoDB
-        checkpointing and sharding, JWT/RBAC/OAuth auth, Datadog metrics, traces and profiling, and Kubernetes manifests.
-  \item \textbf{Scala / Spark} batch jobs on EMR following the medallion architecture (ingestion, gold aggregations, dedup,
-        customer egress), orchestrated by config-driven \textbf{Airflow} DAGs.
+  \item \textbf{Founding engineer}: helped set the architecture, code conventions and CI/CD from day one for three services
+        that take sensor data from real-time ingestion to analytics-ready datasets.
+  \item \textbf{Real-time ingestion (Go)}: wrote a custom \textbf{AWS Kinesis consumer} for Sparkplug B sensor telemetry
+        (birth and data messages) with DynamoDB checkpointing, consumer groups and shard handling, plus SQS integration.
+  \item \textbf{Platform API (Go)}: an auth layer with JWT access and refresh tokens, RBAC, Google OAuth, email verification and
+        password recovery; device, room, facility and manual-log domains; a reusable retry package and DB migrations, with
+        tests across the controller, manager and repository layers.
+  \item \textbf{Batch processing (Scala / Spark on EMR)}: jobs following the medallion architecture for ingestion, gold-layer aggregations,
+        master dataset and dedup, product and metric runners, customer data egress and data migration, plus a
+        carbon-registry integration and shared Spark, JDBC and S3-delivery utilities, each with tests.
+  \item \textbf{Orchestration (Airflow)}: config-driven hourly and daily DAGs that launch the Spark jobs on EMR, backed by a
+        config model for products (15-minute and 1-hour aggregations), gold layers, customers and providers, and a tested EMR client.
+  \item \textbf{Operations}: Datadog metrics, traces and profiling, and Kubernetes manifests for dev and prod.
 \end{itemize}
 \vspace{2pt}
 {\small Also at Spartan: built and ran an internal Auth \& Security lecture series (OIDC, service-to-service auth,
 XSS/CSRF with live attack sandboxes); buddy for new engineers and interns.}
 
 \vspace{6pt}
+\needspace{9\baselineskip} % keep the role header with its first bullets
 \role{YouNet Media}{Software Engineer}{Mar 2022 -- Mar 2025}{Social listening and e-commerce analytics}
 \begin{itemize}
   \item \textbf{EcomHeat} (cross-channel e-commerce analytics): APIs that export 1M+ rows to Google Sheets, cutting manual
