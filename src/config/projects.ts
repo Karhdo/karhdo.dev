@@ -25,7 +25,7 @@ export type Project = {
   org?: string;
   tagline?: string;
   featured?: boolean;
-  /** Shown in the homepage "Selected projects" block (task 15), in this list's order. */
+  /** Shown in the homepage "Selected projects" block (task 15), in this list's order; the first one is the wide card. */
   selected?: boolean;
   facts?: [Fact, Fact, Fact];
 };
@@ -136,7 +136,6 @@ export const PROJECTS: Project[] = [
     frameLabel: 'github.com/Karhdo/geometry-simulation',
     repo: 'Karhdo/geometry-simulation',
     tagline: '3D on the web',
-    selected: true,
     builtWith: ['Javascript', 'Jquery', 'ThreeJS'],
   },
 ];
