@@ -45,6 +45,8 @@ const TECH: Record<string, { slug: SimpleIconSlug; tone: ChipTone }> = {
   trpc: { slug: 'trpc', tone: 'text-blue' },
   prisma: { slug: 'prisma', tone: 'text-fg' },
   turborepo: { slug: 'turborepo', tone: 'text-red' },
+  kotlin: { slug: 'kotlin', tone: 'text-purple' },
+  springboot: { slug: 'springboot', tone: 'text-green' },
 };
 
 export function techIcon(label: string): { slug: SimpleIconSlug; tone: ChipTone } | undefined {

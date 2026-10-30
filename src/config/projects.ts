@@ -3,6 +3,7 @@ import dealops from '~/assets/projects/dealops.png';
 import deepSkyClimate from '~/assets/projects/deep-sky-climate.png';
 import ecomHeat from '~/assets/projects/ecom-heat.png';
 import karhdoBlog from '~/assets/projects/karhdo-blog.png';
+import loanbud from '~/assets/projects/loanbud.png';
 import military7aBidding from '~/assets/projects/military-7a-bidding.png';
 import simulateGeometry from '~/assets/projects/simulate-geometry.png';
 import websiteSellingFood from '~/assets/projects/website-selling-food.png';
@@ -24,7 +25,7 @@ export type Project = {
   org?: string;
   tagline?: string;
   featured?: boolean;
-  /** Shown in the homepage "Selected projects" block (task 15), in this list's order. */
+  /** Shown in the homepage "Selected projects" block (task 15), in this list's order; the first one is the wide card. */
   selected?: boolean;
   facts?: [Fact, Fact, Fact];
 };
@@ -40,8 +41,27 @@ export const PROJECTS: Project[] = [
     frameLabel: 'deepskyclimate.com',
     url: 'https://www.deepskyclimate.com/?ref=karhdo.dev',
     org: 'Spartan',
+    featured: true,
     selected: true,
+    facts: [
+      { value: 'Founding', label: 'engineer, day one' },
+      { value: 'Real-time', label: 'IoT ingestion' },
+      { value: '3 services', label: 'Go, Spark, Airflow' },
+    ],
     builtWith: ['Go', 'Scala', 'Apache Spark', 'Airflow', 'Kubernetes'],
+  },
+  {
+    type: 'work',
+    title: 'LoanBud',
+    description:
+      'Financing marketplace that helps small businesses secure SBA loans. Built the Hub-to-CRM sync on a transactional outbox, Meta Lead Ads ingestion, a segment builder and Twilio video meetings.',
+    image: loanbud,
+    imageAlt: 'LoanBud home page: "The Better Way to SBA" over a bakery owner reviewing loan paperwork',
+    frameLabel: 'loanbud.com',
+    url: 'https://loanbud.com/?ref=karhdo.dev',
+    org: 'Spartan',
+    selected: true,
+    builtWith: ['Kotlin', 'Spring Boot', 'PostgreSQL', 'React', 'AWS SQS'],
   },
   {
     type: 'work',
@@ -116,7 +136,6 @@ export const PROJECTS: Project[] = [
     frameLabel: 'github.com/Karhdo/geometry-simulation',
     repo: 'Karhdo/geometry-simulation',
     tagline: '3D on the web',
-    selected: true,
     builtWith: ['Javascript', 'Jquery', 'ThreeJS'],
   },
 ];

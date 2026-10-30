@@ -18,6 +18,7 @@ bun test                    # unit tests (*.test.ts next to pure modules)
 bun run check               # astro check + biome check .
 bunx biome check --write    # fix lint + formatting
 bun run lint:palette        # fail on colour literals in src/ outside the Tokyonight token files
+bun run cv:build            # cv/resume.tex → public/static/resume.pdf (Tectonic; commit both)
 bun run db:pull             # drizzle-kit pull (introspection only; set POSTGRES_URL_DIRECT first)
 ```
 
@@ -84,6 +85,7 @@ Prerendered endpoints: `/feed.xml`, `/tags/[tag]/feed.xml`, `/robots.txt`, `/og/
 - **OG images**: `src/pages/og/[...slug].png.ts` renders Satori trees (`src/lib/og/`) with Outfit to PNG via `@resvg/resvg-js` (kept external in Vite). Posts use `/og/{id}.png` unless frontmatter `images` is set; other pages use `/og/default.png`.
 - **Pagefind**: `astro-pagefind` (last integration) indexes only `<article data-pagefind-body>` into `.vercel/output/static/pagefind/`.
 - **Footer build info**: `scripts/build-info.mjs`, called from `astro.config.mjs`, resolves GitHub stars, commit sha/date and branch (Vercel env → git → GitHub REST) and injects them as `__BUILD_INFO__` via Vite `define`. Failures hide the segment; they never fail the build. Relative time and the HCMC clock are computed in the browser.
+- **Resume**: `cv/resume.tex` is the source of `public/static/resume.pdf` (nav → Resume). `bun run cv:build` compiles it with Tectonic (from PATH, else a pinned download) and overwrites the PDF; commit both. Not part of `astro build`. Editing rules: `.claude/skills/update-cv/SKILL.md`.
 - **Dev pages**: `src/integrations/dev-pages.ts` injects `/dev/*` from `src/dev-pages/` only under `astro dev`, so they never reach the build, sitemap or Pagefind.
 
 ### Token burn
