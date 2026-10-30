@@ -1,0 +1,128 @@
+---
+title: 'Ten Months at LoanBud: What I Built and What It Taught Me'
+date: '2026-10-30'
+lastmod: '2026-10-30'
+tags: ['career', 'backend', 'system-design']
+draft: true
+summary: 'A look back at my ten months on LoanBud, a small-business financing platform: a transactional outbox, an idempotent lead pipeline, a schema-driven segment builder, resilient video meetings and a rewrite I had to pause.'
+---
+
+## Introduction
+
+From January to October 2026 I worked on [LoanBud](https://loanbud.com/), a financing platform for small businesses, as an engineer at [Spartan](https://hirespartan.io/). I'm moving to a new project now, so before the details fade I want to write down what I built, the problems behind each piece, and what I'd keep doing.
+
+It was a wide ten months. I touched around ten repositories in four languages: **Kotlin** (Micronaut, Exposed) for the CRM, **Java** (Spring Boot, Liquibase) for the lending Hub and its workers, **TypeScript** (React, TanStack Query and Form, zod) for the frontends, and **Terraform** for the infrastructure. In git terms that's about 1,300 commits, but the features below matter more than the count.
+
+<Callout type="note" title="A note on details">
+  This is a client codebase, so I keep names, numbers and internals generic. The code snippets are simplified sketches of the ideas, not the production code.
+</Callout>
+
+## 1. Moving data sync onto a transactional outbox
+
+The lending Hub and the CRM need the same picture of companies, contacts and applications. The original sync was a job that polled every couple of minutes for rows with a newer `updated_at`. It worked until a sync failed: nobody retried the row, and the CRM drifted out of date without any error.
+
+I replaced it with a **transactional outbox**. The interesting decision was where to write the outbox rows. Several services write the shared database, so an outbox written by the application would miss changes made by the others. I used **Postgres triggers** instead: every insert or update queues a row in the same transaction as the change.
+
+```sql
+-- Simplified: one pending row per entity, however many times it changes.
+CREATE UNIQUE INDEX outbox_one_pending
+  ON sync_outbox (entity_type, entity_id)
+  WHERE status = 'PENDING';
+
+-- Workers claim batches without blocking each other.
+SELECT id, entity_type, entity_id
+FROM sync_outbox
+WHERE status = 'PENDING' AND next_attempt_at <= now()
+ORDER BY id
+LIMIT 100
+FOR UPDATE SKIP LOCKED;
+```
+
+- The **partial unique index** merges repeated changes to the same entity into one pending row, so the worker isn't swamped by noisy updates.
+- **`FOR UPDATE SKIP LOCKED`** lets several workers drain the outbox in parallel without picking the same rows.
+- Retries use **exponential backoff computed in SQL**, and 4xx responses count as permanent failures, so a bad payload doesn't retry forever.
+
+The first version ran inside the existing job scheduler, which runs as a single instance across the cluster. A month later I moved it into its own **horizontally scaled worker service**. Each phase (claim, call the CRM, mark the result) runs in its own short transaction, so a slow CRM call never holds a lock. A row's `updated_at` acts as an ownership token, so a worker that wakes up late can't overwrite another worker's result. I also exported metrics that tell *paused* apart from *stuck*, so the alerts mean something.
+
+On the receiving side I added **version-guarded upserts**. With several pods delivering events, an older event can arrive after a newer one, so the update only applies if its version is newer, checked atomically in SQL:
+
+```sql
+UPDATE contacts
+SET name = :name, version = :version
+WHERE id = :id AND version < :version;
+```
+
+Everything shipped behind a feature flag, so we could switch from the poller to the outbox and switch back if needed.
+
+## 2. Ingesting Meta Lead Ads exactly once
+
+Marketing ran lead-form campaigns on Facebook and Instagram, and those leads had to land in the CRM quickly and only once. Meta delivers webhooks at least once, and a webhook only carries the lead ID; the answers have to be fetched from the Graph API.
+
+The pipeline looks like this: **verified webhook → SQS → consumer → Graph API → stored lead**.
+
+- The webhook handler only checks the signature (in constant time) and publishes to SQS, so it's fast and never loses an event.
+- The consumer **claims the lead row before any network call**. A duplicate delivery finds the row already claimed and stops, so we never fetch the same lead twice.
+- If a consumer crashes mid-claim, a **lease**, sized to the SQS visibility timeout, lets another consumer take the lead over later. Terminal states are guarded so a late retry can't undo a finished lead.
+- New lead forms are registered automatically the first time they appear, and the answers are stored as raw JSON and shown on the contact page, write-once.
+
+I shipped it as a stack of five small PRs and tested it end to end against real Meta traffic before switching it on. A later change added an admin replay that recovers leads from the stored payloads after Meta changed a form's layout. Keeping the raw payload made that possible.
+
+## 3. A segment builder over JSONB
+
+CRM segments ("all contacts whose application is in underwriting and whose loan amount is over X") used to filter only on CRM fields. Sales wanted to filter on lending data from the Hub too, and much of that data lives in **untyped JSONB**.
+
+On the backend I built a **field catalog**: each Hub field is described once (path, type, allowed operators) and the query builder compiles it into typed SQL extraction.
+
+- **One malformed row can't break a query.** Extraction is defensive, so a string where a number should be makes that row not match instead of failing the whole segment.
+- **Field keys come from the catalog only**, never from user input, which closes off SQL injection through field names.
+- **Stored queries fail closed.** If a saved segment no longer validates against the catalog, it matches no one instead of everyone. For a list that drives emails, an empty segment is a much safer failure than one that matches every contact.
+- Retired fields still resolve for old segments, and segments re-evaluate when the Hub data they depend on changes.
+
+On the frontend I rebuilt the filter builder to be **schema-driven**. The UI reads the same runtime schema of about 140 fields to group them, label them and offer only the valid operators. Validation is a **zod schema generated from that schema at runtime**, so the Save button and the live preview share one definition of "valid". The main component went from 917 lines to 132, spread across focused parts, and the builder is now reused by Tasks.
+
+Backend and frontend each shipped as a **stack of seven PRs**, about 16k lines in total, and most of it was merged with the feature switched off. Only one PR changed behaviour.
+
+## 4. Attribution and objective context: write-once facts
+
+Two later features shared one idea: some facts should never be overwritten.
+
+- **Marketing attribution.** Each contact gets a **write-once first-touch snapshot** (where they first came from), an **insert-only history** of every later touch, and a last-touch snapshot written in the same transaction as the touch. Legacy data was mapped onto the new model through a single mapping table, used by both the backfill and new inserts, so old and new contacts can't be categorised differently.
+- **Objective context.** This records a customer's stated objective, the outcome they want, its impact and "why now". Every value keeps its provenance and moves through *proposed → current → superseded/rejected* instead of being edited in place. I built the API, authorisation, audit rows and a **versioned snapshot endpoint** that other services can depend on, plus the UI on the contact, company and Hub pages, with a readable change timeline.
+
+## 5. Video meetings that degrade gracefully
+
+Early in the year I built video meetings into the CRM with **Twilio**: Google and Microsoft calendar sync over OAuth, ICS invites, and signed public join links so guests can join without an account.
+
+Most of the work went into production hardening, because a third-party video API is exactly what fails at the worst moment:
+
+- a **Resilience4j circuit breaker** around Twilio, so an outage fails fast instead of piling up threads;
+- **hourly, daily and concurrent room quotas** to cap cost;
+- **per-user token-bucket rate limiting**, moved onto **Redis (Redisson)** so the limit holds across instances;
+- error classification (transient or permanent), health checks and structured logs.
+
+After launch I went back and removed the N+1 queries in the meetings API.
+
+## 6. The rewrite I had to pause
+
+I also owned a rewrite of the legacy **PHP core service in Kotlin**: about 326 commits and +153k lines covering spec, build, deploy and infrastructure. I re-implemented the business logic to behave the same as before, then cleaned it up. I split a large `BusinessManager` into per-domain managers, built the external APIs, and moved data between two databases.
+
+Re-checking the old behaviour instead of copying it found bugs the PHP code had been hiding, such as missing transaction boundaries and case-sensitive email lookups. The rewrite was paused halfway when the team moved to more urgent work. I was disappointed, but it taught me the most this year: planning my own work, reporting to leadership every week, and migrating data safely between databases.
+
+## 7. The smaller things
+
+Not everything was a headline feature. Some of the work I'm happiest with is small:
+
+- a **per-field audit log** for contacts, written atomically with each change and recording whether a user, a service or the system made it, plus a test that fails if a new field isn't audited;
+- workflow **auto-resume** on a schedule under a distributed lock, and **safe editing of running workflows** so contacts don't fall out when a step is removed;
+- **read-after-write from the primary** wherever a replica's lag would show users a "not found" for something they just created;
+- credit-consent **re-signing with PDF regeneration** after commit, partner **CSV bulk import** with per-row errors, and lender-document access control;
+- team tooling: Docker Compose, `make seed` with demo data, and separate unit and integration test targets.
+
+## What I'm taking with me
+
+- **Fail closed.** Segments, feature flags and stored queries: when something is invalid, the safe default is to do less, not more.
+- **Make writes idempotent first, then add retries.** The outbox, the lead pipeline and the version guards all start from "this will be delivered twice".
+- **Stacked PRs and dark launches.** Seven small PRs behind a flag are easier to review than one huge PR, and much easier to roll back.
+- **Write down what you learn each time you switch context.** I moved between many services, and the notes I kept made each new one faster to pick up.
+
+Thanks to the LoanBud and Spartan teams for ten busy months. On to the next one. <Twemoji emoji="party-popper" />

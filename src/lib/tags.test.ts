@@ -19,23 +19,23 @@ function loadPosts() {
     });
 }
 
+/** The posts v1 shipped; v2 must keep them (and their tags), and may add more. */
+const V1_SLUGS = [
+  'exploring-module-in-nestjs',
+  'how-to-prevent-overbooking-in-sql-with-multiple-methods',
+  'problems-when-the-application-develops',
+];
+
 describe('countTags', () => {
-  test('equals v1 app/tag-data.json', () => {
-    const counts = countTags(loadPosts());
+  test('equals v1 app/tag-data.json for the v1 posts', () => {
+    const counts = countTags(loadPosts().filter((post) => V1_SLUGS.includes(post.id)));
     const flat = Object.fromEntries(Object.entries(counts).map(([slug, { count }]) => [slug, count]));
     expect(flat).toEqual(v1TagData);
   });
 
-  test('entry ids equal the v1 slugs', () => {
-    expect(
-      loadPosts()
-        .map((post) => post.id)
-        .sort()
-    ).toEqual([
-      'exploring-module-in-nestjs',
-      'how-to-prevent-overbooking-in-sql-with-multiple-methods',
-      'problems-when-the-application-develops',
-    ]);
+  test('every v1 slug is still an entry id', () => {
+    const ids = loadPosts().map((post) => post.id);
+    expect(ids).toEqual(expect.arrayContaining(V1_SLUGS));
   });
 
   test('skips drafts unless includeDrafts', () => {
