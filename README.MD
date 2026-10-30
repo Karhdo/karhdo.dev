@@ -94,6 +94,7 @@ Then put the same `POSTGRES_URL` in `.env`. SSL is turned off automatically for 
 ├── drizzle.config.ts         # introspection only (never push/migrate)
 ├── db/manual-migrations/     # reviewed, additive SQL run by hand with psql
 ├── scripts/                  # build-info.mjs (footer facts), lint-palette.ts, convert-tmtheme.ts
+├── cv/resume.tex             # resume source → public/static/resume.pdf (bun run cv:build)
 ├── public/static/            # favicons, images, resume.pdf, vendored Twemoji SVGs
 └── src/
     ├── pages/                # routes; api/*, projects.astro and newsletter.astro are on-demand, the rest is prerendered

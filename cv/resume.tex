@@ -1,0 +1,182 @@
+% Resume of Do Trong Khanh, served at https://karhdo.dev/static/resume.pdf.
+%
+% This file is the source of truth. Build it with `bun run cv:build` (Tectonic / XeTeX), which
+% writes public/static/resume.pdf. Commit both files together.
+%
+% Editing rules (for humans and agents) live in .claude/skills/update-cv/SKILL.md. In short:
+%   - Content only goes between the macros below; don't restyle per entry.
+%   - Reverse-chronological order. Keep dates in sync with src/config/experiences.ts.
+%   - Public document: no client-internal names, ticket IDs, people, incidents or security details.
+%   - Escape LaTeX specials in text: \& \% \# \_ \$ and use -- for date ranges.
+
+\documentclass[10pt]{article}
+
+\usepackage[a4paper, margin=0.55in, top=0.5in, bottom=0.5in]{geometry}
+\usepackage{fontspec}
+\usepackage[default]{sourcesanspro}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{accent}{HTML}{2E7DE9} % Tokyonight Day blue
+\definecolor{soft}{HTML}{4C5578}   % Tokyonight Day fg-soft
+
+\hypersetup{
+  pdftitle={Do Trong Khanh - Resume},
+  pdfauthor={Do Trong Khanh},
+  pdfsubject={Software Engineer},
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\tabcolsep}{0pt}
+\linespread{1.04}
+
+% Section heading: small caps label with a thin accent rule.
+\titleformat{\section}{\large\bfseries\color{accent}\scshape}{}{0pt}{}[\vspace{-6pt}{\color{accent}\rule{\linewidth}{0.5pt}}]
+\titlespacing*{\section}{0pt}{9pt}{5pt}
+
+\setlist[itemize]{leftmargin=1.1em, itemsep=1.5pt, parsep=0pt, topsep=2pt, label={\color{soft}\textbullet}}
+
+% \role{Company}{Title}{Dates}{Location or note}
+\newcommand{\role}[4]{%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    \textbf{\large #1} \,{\color{soft}|}\, #2 & \textbf{#3} \\
+    \multicolumn{2}{@{}l}{\small\color{soft}#4} \\
+  \end{tabularx}\par\vspace{2pt}}
+
+% \project{Name}{One-line description}{Dates}
+\newcommand{\project}[3]{%
+  \vspace{3pt}%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    \textbf{#1} {\color{soft}-- #2} & {\small\color{soft}#3} \\
+  \end{tabularx}\par}
+
+% \stack{comma-separated tools}
+\newcommand{\stack}[1]{{\small\color{soft}\textit{#1}}\par}
+
+% \skill{Label}{items}
+\newcommand{\skill}[2]{\textbf{#1:} #2\par\vspace{1.5pt}}
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------- HEADER
+\begin{center}
+  {\fontsize{22}{24}\selectfont\bfseries DO TRONG KHANH}\par\vspace{3pt}
+  {\large\color{accent} Software Engineer}\par\vspace{4pt}
+  {\small
+    +84 947 590 572 \,·\,
+    \href{mailto:dotrongkhanh.dev@gmail.com}{dotrongkhanh.dev@gmail.com} \,·\,
+    \href{https://karhdo.dev}{karhdo.dev} \,·\,
+    \href{https://github.com/Karhdo}{github.com/Karhdo} \,·\,
+    \href{https://www.linkedin.com/in/karhdo}{linkedin.com/in/karhdo}\\[1pt]
+    {\color{soft}Ho Chi Minh City, Vietnam}}
+\end{center}
+
+\vspace{2pt}
+Software engineer with 5+ years of experience building backend-heavy products: Kotlin and Spring Boot
+services, Go and Spark data pipelines, NestJS platforms and React frontends. I take features from spec to
+production (design, build, deploy and monitoring), with a focus on data integrity, resilient integrations
+and tests that cover failure modes, not just the happy path.
+
+%------------------------------------------------------------------------------------- EXPERIENCE
+\section{Experience}
+
+\role{Spartan}{Software Engineer}{Mar 2025 -- Present}{Engineer embedded in US client product teams}
+
+\project{LoanBud}{small-business financing platform}{Jan 2026 -- Oct 2026}
+\stack{Kotlin, Micronaut, Java, Spring Boot, PostgreSQL, Redis, AWS SQS, React, TypeScript, TanStack, Terraform, Kubernetes}
+\begin{itemize}
+  \item Rebuilt the Hub-to-CRM data sync on a \textbf{transactional outbox}: Postgres triggers, \texttt{FOR UPDATE SKIP LOCKED}
+        claims, exponential backoff computed in SQL and a horizontally scaled sync worker, replacing a polling job
+        that silently dropped failed syncs. Added version-guarded upserts so out-of-order writes can't overwrite newer data.
+  \item Built a \textbf{Meta Lead Ads ingestion pipeline} (signed webhook $\rightarrow$ SQS $\rightarrow$ Graph API) that is
+        idempotent under duplicate delivery and recovers crashed consumers through leases; verified end to end on live traffic.
+  \item Rebuilt the \textbf{CRM segment builder} across backend and frontend: application data exposed as typed,
+        fail-closed JSONB segment fields, and a schema-driven filter UI validated by zod generated at runtime
+        (two 7-PR stacks, $\sim$16k lines, dark-launched behind feature flags).
+  \item Designed the \textbf{marketing attribution} model (write-once first-touch snapshots, insert-only touch history,
+        legacy backfill) and the \textbf{Objective Context} API with a versioned snapshot contract for other services.
+  \item Shipped \textbf{Twilio video meetings} with Google and Microsoft calendar sync and signed public join links,
+        hardened with a Resilience4j circuit breaker, room quotas and Redisson-backed distributed rate limiting.
+  \item Owned a rewrite of the legacy PHP core service in \textbf{Kotlin} ($\sim$326 commits, +153k lines): behaviour-parity
+        re-implementation, domain-manager split, a database-to-database migration, and the Terraform and secrets work.
+  \item Also: per-field contact audit log, workflow auto-resume and safe editing of running workflows, credit-consent
+        re-signing with PDF regeneration, partner CSV bulk import, and team tooling (Docker Compose, seed data, test split).
+\end{itemize}
+
+\project{Dealops}{CPQ software for complex pricing}{Jul 2025 -- Jan 2026}
+\stack{React, TypeScript, tRPC, Prisma, Tailwind CSS, Turborepo}
+\begin{itemize}
+  \item Built an in-app \textbf{AI chat assistant} from scratch (streaming responses, markdown rendering) and added
+        segment filtering to the AI pricing assistant.
+  \item Admin Dashboard: product-catalog management with tiered pricing, approval rules with an additional-logic
+        builder, affinity-rule-aware product selection and segment filtering across the terms library.
+  \item Quoting: the IC++ pricing model with 3-decimal payment-method fees, quote comparison, ramp revenue and an
+        approval nudge flow ($\sim$465 commits).
+\end{itemize}
+
+\project{Deep Sky Climate}{carbon removal project developer}{Mar 2025 -- Jul 2025}
+\stack{Go, Scala, Apache Spark, Apache Airflow, AWS Kinesis, EMR, DynamoDB, Kubernetes, Datadog}
+\begin{itemize}
+  \item \textbf{Founding engineer} on the IoT data platform: set the architecture, code conventions and CI/CD for three services.
+  \item Go ingestion service: a custom \textbf{AWS Kinesis} consumer for Sparkplug B sensor telemetry with DynamoDB
+        checkpointing and sharding, JWT/RBAC/OAuth auth, Datadog metrics, traces and profiling, and Kubernetes manifests.
+  \item \textbf{Scala / Spark} batch jobs on EMR following the medallion architecture (ingestion, gold aggregations, dedup,
+        customer egress), orchestrated by config-driven \textbf{Airflow} DAGs.
+\end{itemize}
+\vspace{2pt}
+{\small Also at Spartan: built and ran an internal Auth \& Security lecture series (OIDC, service-to-service auth,
+XSS/CSRF with live attack sandboxes); buddy for new engineers and interns.}
+
+\vspace{6pt}
+\role{YouNet Media}{Software Engineer}{Mar 2022 -- Mar 2025}{Social listening and e-commerce analytics}
+\begin{itemize}
+  \item \textbf{EcomHeat} (cross-channel e-commerce analytics): APIs that export 1M+ rows to Google Sheets, cutting manual
+        work by 90\%; price-history monitoring with daily alerts and SKU management; Airflow and BigQuery jobs for brand
+        metrics; a NestJS monorepo and Highcharts dashboards.
+  \item \textbf{AppCore}: designed core NestJS packages (Database, Cache, Redis and Config modules) published to npm and used
+        across 3+ projects; caching cut load times by $\sim$40\%.
+  \item \textbf{Lucene Search Service}: pre-filtered records with Apache Lucene before indexing into Solr, reducing query load.
+\end{itemize}
+
+\vspace{6pt}
+\role{QKIT Software}{Backend Developer}{Jan 2021 -- Dec 2022}{Outsourcing software company}
+\begin{itemize}
+  \item \textbf{Military 7A Bidding}: designed the PostgreSQL schema and backend from scratch for tracking medical-supply
+        bidding packages, with JWT authentication, role-based access and Swagger API docs.
+  \item \textbf{QKIT Admin}: CMS for website content, blogs, clients and recruitment (NestJS, PostgreSQL, Prisma).
+\end{itemize}
+
+%----------------------------------------------------------------------------------------- SKILLS
+\section{Skills}
+\skill{Languages}{TypeScript, JavaScript, Kotlin, Java, Go, Scala, Python, SQL, C++}
+\skill{Backend}{Node.js, NestJS, Micronaut, Spring Boot, tRPC, REST, GraphQL, RabbitMQ}
+\skill{Data}{PostgreSQL, MySQL, MongoDB, Redis, DynamoDB, Apache Spark, Kafka, Airflow, Delta Lake}
+\skill{Frontend}{React, TanStack Query and Form, zod, Tailwind CSS, Ant Design, Astro}
+\skill{Cloud \& ops}{AWS (SQS, Kinesis, EMR, S3, SageMaker), Docker, Kubernetes, Terraform, Datadog, GitHub Actions}
+\skill{Practices}{transactional outbox, idempotent consumers, circuit breakers, rate limiting, feature-flagged releases,
+  stacked PRs, AI-assisted development}
+
+%-------------------------------------------------------------------------------------- EDUCATION
+\section{Education}
+\begin{tabularx}{\linewidth}{@{}X r@{}}
+  \textbf{MSc in Information Systems} \,{\color{soft}|}\, University of Information Technology, VNU-HCM & \textbf{Dec 2024 -- Present} \\
+\end{tabularx}\par
+{\small Thesis: a real-time mental-health state analysis system on Vietnamese social media (Kafka, Spark Streaming,
+Delta Lake, SageMaker); best model XLM-R at macro-F1 0.783.}\par\vspace{4pt}
+\begin{tabularx}{\linewidth}{@{}X r@{}}
+  \textbf{BSc in Computer Science} \,{\color{soft}|}\, University of Information Technology, VNU-HCM & \textbf{Aug 2019 -- Jun 2023} \\
+\end{tabularx}\par
+{\small GPA 8.5/10.}
+
+%--------------------------------------------------------------------------------------- PROJECTS
+\section{Projects \& Certificates}
+\skill{\href{https://karhdo.dev}{karhdo.dev}}{personal blog and portfolio: Astro, Bun, Tailwind CSS, Drizzle on Neon Postgres, Vercel; this resume is built from LaTeX in the same repo.}
+\skill{Karhdo's Core}{backend server packages for NestJS, published on npm.}
+\skill{TOEIC}{750/990.}
+
+\end{document}
