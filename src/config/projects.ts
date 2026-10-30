@@ -33,25 +33,6 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     type: 'work',
-    title: 'LoanBud',
-    description:
-      'Financing marketplace and advisory platform that helps small businesses secure SBA and conventional loans. Shipped features across the lending Hub and the CRM: Hub-to-CRM sync on a transactional outbox, Meta Lead Ads ingestion, a segment builder, marketing attribution and Twilio video meetings.',
-    image: loanbud,
-    imageAlt: 'LoanBud home page: "The Better Way to SBA" over a bakery owner reviewing loan paperwork',
-    frameLabel: 'loanbud.com',
-    url: 'https://loanbud.com/?ref=karhdo.dev',
-    org: 'Spartan',
-    featured: true,
-    selected: true,
-    facts: [
-      { value: '1,300+', label: 'commits shipped' },
-      { value: 'Hub + CRM', label: 'lending & marketing' },
-      { value: 'Fullstack', label: 'my role' },
-    ],
-    builtWith: ['Kotlin', 'Spring Boot', 'PostgreSQL', 'React', 'AWS SQS'],
-  },
-  {
-    type: 'work',
     title: 'Deep Sky Climate',
     description:
       'IoT data platform for a carbon removal project developer. Founding engineer: Go ingestion from AWS Kinesis, Spark batch jobs on EMR and the Airflow pipelines that run them.',
@@ -60,8 +41,27 @@ export const PROJECTS: Project[] = [
     frameLabel: 'deepskyclimate.com',
     url: 'https://www.deepskyclimate.com/?ref=karhdo.dev',
     org: 'Spartan',
+    featured: true,
     selected: true,
+    facts: [
+      { value: 'Founding', label: 'engineer, day one' },
+      { value: 'Real-time', label: 'IoT ingestion' },
+      { value: '3 services', label: 'Go, Spark, Airflow' },
+    ],
     builtWith: ['Go', 'Scala', 'Apache Spark', 'Airflow', 'Kubernetes'],
+  },
+  {
+    type: 'work',
+    title: 'LoanBud',
+    description:
+      'Financing marketplace that helps small businesses secure SBA loans. Built the Hub-to-CRM sync on a transactional outbox, Meta Lead Ads ingestion, a segment builder and Twilio video meetings.',
+    image: loanbud,
+    imageAlt: 'LoanBud home page: "The Better Way to SBA" over a bakery owner reviewing loan paperwork',
+    frameLabel: 'loanbud.com',
+    url: 'https://loanbud.com/?ref=karhdo.dev',
+    org: 'Spartan',
+    selected: true,
+    builtWith: ['Kotlin', 'Spring Boot', 'PostgreSQL', 'React', 'AWS SQS'],
   },
   {
     type: 'work',
