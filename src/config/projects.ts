@@ -3,6 +3,7 @@ import dealops from '~/assets/projects/dealops.png';
 import deepSkyClimate from '~/assets/projects/deep-sky-climate.png';
 import ecomHeat from '~/assets/projects/ecom-heat.png';
 import karhdoBlog from '~/assets/projects/karhdo-blog.png';
+import loanbud from '~/assets/projects/loanbud.png';
 import military7aBidding from '~/assets/projects/military-7a-bidding.png';
 import simulateGeometry from '~/assets/projects/simulate-geometry.png';
 import websiteSellingFood from '~/assets/projects/website-selling-food.png';
@@ -30,6 +31,25 @@ export type Project = {
 };
 
 export const PROJECTS: Project[] = [
+  {
+    type: 'work',
+    title: 'LoanBud',
+    description:
+      'Financing marketplace and advisory platform that helps small businesses secure SBA and conventional loans. Shipped features across the lending Hub and the CRM: Hub-to-CRM sync on a transactional outbox, Meta Lead Ads ingestion, a segment builder, marketing attribution and Twilio video meetings.',
+    image: loanbud,
+    imageAlt: 'LoanBud home page: "The Better Way to SBA" over a bakery owner reviewing loan paperwork',
+    frameLabel: 'loanbud.com',
+    url: 'https://loanbud.com/?ref=karhdo.dev',
+    org: 'Spartan',
+    featured: true,
+    selected: true,
+    facts: [
+      { value: '1,300+', label: 'commits shipped' },
+      { value: 'Hub + CRM', label: 'lending & marketing' },
+      { value: 'Fullstack', label: 'my role' },
+    ],
+    builtWith: ['Kotlin', 'Spring Boot', 'PostgreSQL', 'React', 'AWS SQS'],
+  },
   {
     type: 'work',
     title: 'Deep Sky Climate',
