@@ -28,12 +28,12 @@ const others = items.filter((v) => !v.isCurrent);
   aria-haspopup="menu"
   aria-expanded="false"
   aria-controls="ver-menu"
-  title="Switch site version"
+  title={`${buildBranch}: switch site version`}
   data-ver-button
   hidden
 >
   <Icon name="GitBranch" size={13} />
-  {buildBranch}
+  <span class="sl-branch-name">{buildBranch}</span>
   <span class="sr-only">(switch site version)</span>
   <Icon name="ChevronUp" size={12} strokeWidth={2.5} class="chev" />
 </button>
@@ -79,6 +79,12 @@ const others = items.filter((v) => !v.isCurrent);
   .sl-branch:hover,
   .sl-branch[aria-expanded='true'] {
     background: color-mix(in srgb, var(--sl-green, var(--green)) 10%, transparent);
+  }
+  /* Preview builds carry long branch names: cap them so the statusline stays on one row. */
+  .sl-branch-name {
+    max-width: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .sl-branch :global(.chev) {
     color: var(--faint);
