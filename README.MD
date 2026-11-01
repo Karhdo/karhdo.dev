@@ -120,6 +120,7 @@ All variables are declared in the `astro:env` schema (`astro.config.mjs`) and ar
 | `SPOTIFY_CLIENT_ID`                | server secret | Production, Preview          | Now playing                                                          |
 | `SPOTIFY_CLIENT_SECRET`            | server secret | Production, Preview          | Now playing                                                          |
 | `SPOTIFY_REFRESH_TOKEN`            | server secret | Production, Preview          | Now playing ([regenerate](#regenerating-the-spotify-refresh-token))  |
+| `LASTFM_API_KEY`                   | server secret | Production, Preview          | Now playing via Last.fm; takes over from Spotify ([setup](#now-playing-via-lastfm)) |
 | `BUTTONDOWN_API_KEY`               | server secret | Production, Preview          | Newsletter signup. Read at build too: adding it later needs a redeploy |
 | `TOKEN_BURN_INGEST_KEY`            | server secret | **Production only**          | Token burn ingest key ([setup](#token-burn-claude-code-usage))         |
 | `NEXT_PUBLIC_GISCUS_REPO`          | server public | Production, Preview          | Giscus comments                                                      |
@@ -127,6 +128,7 @@ All variables are declared in the `astro:env` schema (`astro.config.mjs`) and ar
 | `NEXT_PUBLIC_GISCUS_CATEGORY`      | server public | Production, Preview          | Giscus comments                                                      |
 | `NEXT_PUBLIC_GISCUS_CATEGORY_ID`   | server public | Production, Preview          | Giscus comments                                                      |
 | `UMAMI_WEBSITE_ID`                 | server public | Production, Preview          | Umami analytics (script proxied through `/stats/*`)                  |
+| `LASTFM_USERNAME`                  | server public | Production, Preview          | Now playing via Last.fm (the account Spotify scrobbles to)           |
 
 The `NEXT_PUBLIC_` prefix is kept only to avoid renaming Vercel variables. These values are read on the server and rendered into pages; no variable uses `context: 'client'`. `POSTGRES_URL_DIRECT` (the Neon direct host) is a local-only tooling variable for `bun run db:pull` and manual migrations; the app never reads it. Vercel's system variables (`VERCEL_GIT_COMMIT_SHA`, `VERCEL_GIT_COMMIT_REF`, `VERCEL_URL`, `VERCEL_BRANCH_URL`) must stay exposed.
 
@@ -159,6 +161,16 @@ It adds this to `~/.claude/settings.json`:
 - History before 2026-09-29 was imported once from ccusage (`scripts/import-token-burn-history.ts`).
 - The ingest is protected by its key; it has no firewall rule (the Hobby plan allows only one rate-limit rule, used for `POST /api/stats`).
 - Verify: `curl -s https://karhdo.dev/api/token-burn` returns `"available": true`.
+
+### Now playing via Last.fm
+
+Spotify's Web API only answers when the **owner of the developer app has Premium**; otherwise every call returns `403 Active premium subscription required for the owner of the app`. Last.fm works on Spotify Free, from any device:
+
+1. Create a free [Last.fm](https://www.last.fm/join) account, then in Last.fm **Settings → Applications** connect **Spotify Scrobbling**. Play a song and check it shows on your Last.fm profile.
+2. Create an API account at [last.fm/api/account/create](https://www.last.fm/api/account/create) (only the name and description are needed) and copy the **API key** (the shared secret isn't used).
+3. Set `LASTFM_API_KEY` and `LASTFM_USERNAME` in Vercel (Production and Preview) and in `.env`, then redeploy.
+
+When both are set, `/api/spotify` reads `user.getRecentTracks` instead of Spotify (same response shape), so the card shows the playing track or the last scrobble. Last.fm reports no playback position, so there is no progress bar. Unset both to go back to the Spotify Web API.
 
 ### Regenerating the Spotify refresh token
 
