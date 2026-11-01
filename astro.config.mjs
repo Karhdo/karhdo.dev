@@ -90,6 +90,7 @@ export default defineConfig({
       SPOTIFY_CLIENT_ID: secret(),
       SPOTIFY_CLIENT_SECRET: secret(),
       SPOTIFY_REFRESH_TOKEN: secret(),
+      LASTFM_API_KEY: secret(),
       BUTTONDOWN_API_KEY: secret(),
       TOKEN_BURN_INGEST_KEY: secret(),
       // Public values, read only on the server (v1 names kept, no renames)
@@ -98,6 +99,7 @@ export default defineConfig({
       NEXT_PUBLIC_GISCUS_CATEGORY: serverPublic(),
       NEXT_PUBLIC_GISCUS_CATEGORY_ID: serverPublic(),
       UMAMI_WEBSITE_ID: serverPublic(),
+      LASTFM_USERNAME: serverPublic(),
     },
     validateSecrets: false,
   },

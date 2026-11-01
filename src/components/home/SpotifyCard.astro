@@ -320,8 +320,8 @@ const { class: className, style } = Astro.props;
       el.sub.textContent = when ? [data.artist, when].filter(Boolean).join(' · ') : sub || 'Spotify';
       const hasTiming = data.durationMs !== undefined && data.durationMs > 0;
       el.progress.style.visibility = hasTiming ? '' : 'hidden';
-      // No progress for the last played track: drop the row so the two lines centre on the cover.
-      el.progress.hidden = Boolean(data.playedAt);
+      // No progress for the last played track, or without a length (Last.fm): drop the row so the two lines centre on the cover.
+      el.progress.hidden = Boolean(data.playedAt) || !hasTiming;
       el.dur.textContent = formatTime(data.durationMs ?? 0);
       this.#renderPosition(false);
     }

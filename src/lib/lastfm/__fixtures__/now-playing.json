@@ -1,0 +1,32 @@
+{
+  "recenttracks": {
+    "track": [
+      {
+        "artist": { "mbid": "", "#text": "M83" },
+        "streamable": "0",
+        "image": [
+          { "size": "small", "#text": "https://lastfm.freetls.fastly.net/i/u/34s/abc123.jpg" },
+          { "size": "medium", "#text": "https://lastfm.freetls.fastly.net/i/u/64s/abc123.jpg" },
+          { "size": "large", "#text": "https://lastfm.freetls.fastly.net/i/u/174s/abc123.jpg" },
+          { "size": "extralarge", "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/abc123.jpg" }
+        ],
+        "mbid": "",
+        "album": { "mbid": "", "#text": "Hurry Up, We're Dreaming" },
+        "name": "Midnight City",
+        "@attr": { "nowplaying": "true" },
+        "url": "https://www.last.fm/music/M83/_/Midnight+City"
+      },
+      {
+        "artist": { "mbid": "", "#text": "Tame Impala" },
+        "streamable": "0",
+        "image": [{ "size": "small", "#text": "https://lastfm.freetls.fastly.net/i/u/34s/def456.jpg" }],
+        "mbid": "",
+        "album": { "mbid": "", "#text": "Currents" },
+        "name": "Let It Happen",
+        "url": "https://www.last.fm/music/Tame+Impala/_/Let+It+Happen",
+        "date": { "uts": "1790000000", "#text": "16 Sep 2026, 08:53" }
+      }
+    ],
+    "@attr": { "user": "karhdo", "totalPages": "1200", "page": "1", "perPage": "1", "total": "1200" }
+  }
+}
