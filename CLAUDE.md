@@ -54,8 +54,8 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 ### Configuration and env
 
 - Site data in `src/config/` (`site.ts`: metadata, `snowfall`, `versions`, `stack`; `navigation.ts`, `projects.ts`, `experiences.ts` (also drives /career via `src/lib/career.ts`), `popular-tags.ts`).
-- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `LASTFM_API_KEY`, `BUTTONDOWN_API_KEY`, `TOKEN_BURN_INGEST_KEY`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`, `LASTFM_USERNAME`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
-- `bun test` can't resolve `astro:*` virtual modules, so logic lives in pure modules (e.g. `src/lib/spotify/client.ts`) and thin `src/lib/services/*.ts` wrappers bind them to `astro:env`.
+- Env goes through **`astro:env`** (schema in `astro.config.mjs`); import from `astro:env/server`. The v1 names are kept on purpose (no Vercel renames): secrets `POSTGRES_URL`, `GITHUB_API_TOKEN`, `LASTFM_API_KEY`, `BUTTONDOWN_API_KEY`, `TOKEN_BURN_INGEST_KEY`; server-public `NEXT_PUBLIC_GISCUS_REPO`, `NEXT_PUBLIC_GISCUS_REPOSITORY_ID`, `NEXT_PUBLIC_GISCUS_CATEGORY`, `NEXT_PUBLIC_GISCUS_CATEGORY_ID`, `UMAMI_WEBSITE_ID`, `LASTFM_USERNAME`. All optional: the site must build and run with none set, and each feature degrades to an empty state. Public values are read in prerendered components and passed as props; nothing uses `context: 'client'`.
+- `bun test` can't resolve `astro:*` virtual modules, so logic lives in pure modules (e.g. `src/lib/lastfm/recent-tracks.ts`) and thin `src/lib/services/*.ts` wrappers bind them to `astro:env`.
 
 ### Database (Drizzle on Neon)
 
@@ -71,7 +71,7 @@ Interactivity is vanilla `<script>` modules by default: header, theme toggle, mo
 | GET    | `/api/stats?type=blog&slug=…` | Views + reactions of a post (zeros if no row)                                                   |
 | POST   | `/api/stats`                  | Atomic delta upsert (`views: 1`, reactions 1..5); Origin allowlist; v1 absolute payloads → 400  |
 | GET    | `/api/stats/summary`          | Totals, reactions, 30-day series from `stats_daily`, most-read post                             |
-| GET    | `/api/spotify`                | Now playing with progress, else the last played track (`playedAt`). Reads Last.fm `user.getRecentTracks` (no progress) when `LASTFM_API_KEY` + `LASTFM_USERNAME` are set, since Spotify's Web API needs Premium on the app owner |
+| GET    | `/api/spotify`                | Now playing, else the last played track (`playedAt`), from Last.fm `user.getRecentTracks` (Spotify scrobbles to Last.fm; Spotify's Web API needs Premium). No progress |
 | GET    | `/api/github?repo=owner/name` | Repo data + last commit (v1 parity)                                                             |
 | GET    | `/api/github/activity`        | 46-week contributions, streak, public repos                                                     |
 | GET    | `/api/token-burn`             | Claude Code usage (today, 14 ICT days, month, all-time, model split); `{available:false}` on failure |

@@ -87,9 +87,6 @@ export default defineConfig({
       // Server secrets
       POSTGRES_URL: envField.string({ context: 'server', access: 'secret', optional: true, url: true }),
       GITHUB_API_TOKEN: secret(),
-      SPOTIFY_CLIENT_ID: secret(),
-      SPOTIFY_CLIENT_SECRET: secret(),
-      SPOTIFY_REFRESH_TOKEN: secret(),
       LASTFM_API_KEY: secret(),
       BUTTONDOWN_API_KEY: secret(),
       TOKEN_BURN_INGEST_KEY: secret(),

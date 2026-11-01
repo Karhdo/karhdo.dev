@@ -34,7 +34,7 @@ v2 is a rebuild of the v1 Next.js site, which lives on the [`v1`](https://github
 
 ## Features
 
-- Bento homepage: intro with typed bios, latest post, Spotify now playing (with progress, or the last played track), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (personal Claude Code usage), Daily stack marquee, selected projects, popular tags.
+- Bento homepage: intro with typed bios, latest post, Spotify now playing via Last.fm (or the last played track), GitHub activity heatmap (with a contribution-eating snake), blog stats with a 30-day views chart, **Token burn** (personal Claude Code usage), Daily stack marquee, selected projects, popular tags.
 - `/about`: a `whoami` terminal card (live local time and uptime) above the author story.
 - `/career`: stats, a year ruler, the career as a `git log --graph` with role chapters and per-role stack diffs.
 - Site-wide snowfall (vanilla canvas at 30 fps, fewer flakes on phones, persists across page navigations, paused in hidden tabs and during transitions, off under reduced motion) over a frost-tinted tilted grid.
@@ -117,10 +117,7 @@ All variables are declared in the `astro:env` schema (`astro.config.mjs`) and ar
 | ---------------------------------- | ------------- | ---------------------------- | -------------------------------------------------------------------- |
 | `POSTGRES_URL`                     | server secret | Production, Preview          | Views, reactions, blog stats (Neon `-pooler` host)                   |
 | `GITHUB_API_TOKEN`                 | server secret | Production, Preview          | `/projects`, `/api/github`, activity card, footer stars at build     |
-| `SPOTIFY_CLIENT_ID`                | server secret | Production, Preview          | Now playing                                                          |
-| `SPOTIFY_CLIENT_SECRET`            | server secret | Production, Preview          | Now playing                                                          |
-| `SPOTIFY_REFRESH_TOKEN`            | server secret | Production, Preview          | Now playing ([regenerate](#regenerating-the-spotify-refresh-token))  |
-| `LASTFM_API_KEY`                   | server secret | Production, Preview          | Now playing via Last.fm; takes over from Spotify ([setup](#now-playing-via-lastfm)) |
+| `LASTFM_API_KEY`                   | server secret | Production, Preview          | Now playing ([setup](#now-playing-via-lastfm))                       |
 | `BUTTONDOWN_API_KEY`               | server secret | Production, Preview          | Newsletter signup. Read at build too: adding it later needs a redeploy |
 | `TOKEN_BURN_INGEST_KEY`            | server secret | **Production only**          | Token burn ingest key ([setup](#token-burn-claude-code-usage))         |
 | `NEXT_PUBLIC_GISCUS_REPO`          | server public | Production, Preview          | Giscus comments                                                      |
@@ -164,37 +161,13 @@ It adds this to `~/.claude/settings.json`:
 
 ### Now playing via Last.fm
 
-Spotify's Web API only answers when the **owner of the developer app has Premium**; otherwise every call returns `403 Active premium subscription required for the owner of the app`. Last.fm works on Spotify Free, from any device:
+The card shows my Spotify listening through Last.fm. Spotify's own Web API only answers when the **owner of the developer app has Premium** (otherwise `403 Active premium subscription required for the owner of the app`), so the site no longer calls it. Last.fm works on Spotify Free, from any device:
 
-1. Create a free [Last.fm](https://www.last.fm/join) account, then in Last.fm **Settings → Applications** connect **Spotify Scrobbling**. Play a song and check it shows on your Last.fm profile.
+1. Create a free [Last.fm](https://www.last.fm/join) account, then in Last.fm **Settings → Applications** connect **Spotify Scrobbling**. Play a song and check it shows on your Last.fm profile. The connection expires after 180 days: reconnect it there, or the card stalls on an old "Last played" track.
 2. Create an API account at [last.fm/api/account/create](https://www.last.fm/api/account/create) (only the name and description are needed) and copy the **API key** (the shared secret isn't used).
 3. Set `LASTFM_API_KEY` and `LASTFM_USERNAME` in Vercel (Production and Preview) and in `.env`, then redeploy.
 
-When both are set, `/api/spotify` reads `user.getRecentTracks` instead of Spotify (same response shape), so the card shows the playing track or the last scrobble. Last.fm reports no playback position, so there is no progress bar. Unset both to go back to the Spotify Web API.
-
-### Regenerating the Spotify refresh token
-
-If the Now playing card stays empty, check the token endpoint's error: `invalid_client` means the client id/secret pair is wrong (secret rotated or app deleted: copy the current secret from the dashboard), `invalid_grant` means the refresh token is revoked or expired: regenerate it as below. With the app's client id and secret from the [Spotify developer dashboard](https://developer.spotify.com/dashboard):
-
-1. In the app settings, add the redirect URI `http://127.0.0.1:8888/callback` (Spotify only accepts loopback IPs, not `localhost`).
-2. Open this URL in a browser while signed in to the Spotify account to show, and approve:
-
-   ```text
-   https://accounts.spotify.com/authorize?client_id=<CLIENT_ID>&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8888%2Fcallback&scope=user-read-currently-playing%20user-read-playback-state%20user-read-recently-played
-   ```
-
-3. The browser lands on `http://127.0.0.1:8888/callback?code=…` (the page itself fails to load; that's fine). Copy the `code` value; it expires after a few minutes.
-4. Exchange it for tokens:
-
-   ```bash
-   curl -s https://accounts.spotify.com/api/token \
-     -H "Authorization: Basic $(printf '%s:%s' "$SPOTIFY_CLIENT_ID" "$SPOTIFY_CLIENT_SECRET" | base64)" \
-     -d grant_type=authorization_code -d code=<CODE> \
-     -d redirect_uri=http://127.0.0.1:8888/callback
-   ```
-
-5. Put the returned `refresh_token` in `SPOTIFY_REFRESH_TOKEN` (Vercel Production and Preview, and `.env` locally), then redeploy.
-6. Verify: play something and `curl -s https://karhdo.dev/api/spotify` shows `"isPlaying": true`; with nothing playing it shows the last track with `"playedAt"` (needs the `user-read-recently-played` scope; without it the card says "Not playing").
+`/api/spotify` (the v1 URL) reads `user.getRecentTracks` and returns the playing track, or the last scrobble with `playedAt`. Last.fm reports no playback position, so there is no progress bar. Without the two variables the card shows "Not playing". Verify: play something and `curl -s https://karhdo.dev/api/spotify` shows `"isPlaying": true`.
 
 ## Database
 

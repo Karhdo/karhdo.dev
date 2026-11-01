@@ -1,13 +1,12 @@
 ---
 /**
  * Bento "Now playing" card (mockup `.c-spotify`, task 19). A plain module script (no React island,
- * like the task-18 stats): the card fetches `GET /api/spotify` once it scrolls into view, then every
- * 30 s while it is on screen and the tab is visible. The progress bar and `m:ss` times are interpolated
- * every second from `progressMs` (corrected for the CDN cache age) while playing, on screen and with
- * motion allowed; under reduced motion they only change on each poll. When nothing is playing, the API
- * sends the last played track (`playedAt`): "Last played", artist · relative time, no progress. The equaliser bars animate only
- * while playing and with motion allowed. Skeleton, playing, paused and offline states share one fixed
- * layout inside the reserved `CARD_MIN_HEIGHT.spotify`, so nothing shifts. `transition:persist` keeps
+ * like the task-18 stats): the card fetches `GET /api/spotify` (Last.fm scrobbles of my Spotify
+ * listening) once it scrolls into view, then every 30 s while it is on screen and the tab is visible.
+ * Playing: "Now playing", artist · album. Otherwise the API sends the last played track (`playedAt`):
+ * "Last played", artist · relative time. Last.fm has no playback position, so there is no progress bar.
+ * The equaliser bars animate only while playing and with motion allowed. Skeleton, playing, last-played
+ * and offline states share one fixed layout inside the reserved `CARD_MIN_HEIGHT.spotify`, so nothing shifts. `transition:persist` keeps
  * the last state across view-transition navigations back to the homepage.
  * The grid span, `.rise` and `--i` come from `index.astro` through `class` / `style`.
  */
@@ -45,7 +44,6 @@ const { class: className, style } = Astro.props;
       <div class="flex flex-1 flex-col gap-2">
         <CardSkeleton height={14} width="70%" />
         <CardSkeleton height={12} width="50%" />
-        <CardSkeleton height={4} radius="4px" />
       </div>
     </div>
   </div>
@@ -74,15 +72,6 @@ const { class: className, style } = Astro.props;
         {/* A `<span>` until there is a song URL; the script swaps in an `<a>` (never an `<a>` without `href`). */}
         <span class="truncate font-semibold text-fg leading-[1.25] no-underline" data-sp-title></span>
         <p class="m-0 truncate text-fg-soft text-sm" data-sp-sub></p>
-        <div class="mt-1.5" data-sp-progress>
-          <div class="h-1 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
-            <span class="sp-bar block h-full rounded-[4px] bg-spotify" data-sp-bar></span>
-          </div>
-          <p class="m-0 mt-0.5 flex justify-between font-mono text-[11px] text-fg-soft tabular-nums">
-            <span><span class="sr-only">Elapsed </span><span data-sp-pos>0:00</span></span>
-            <span><span class="sr-only">of </span><span data-sp-dur>0:00</span></span>
-          </p>
-        </div>
       </div>
     </div>
   </div>
@@ -120,10 +109,6 @@ const { class: className, style } = Astro.props;
     .sp-bars[data-on] i:nth-child(4) {
       animation-name: music-bar-4;
     }
-    /* The 1 s ticks glide instead of stepping. */
-    .sp-bar {
-      transition: transform 1s linear;
-    }
   }
   /* Mockup `.cover`: the placeholder when there is no album art. */
   .sp-cover {
@@ -136,24 +121,16 @@ const { class: className, style } = Astro.props;
     border-radius: 50%;
     background: var(--surface-solid);
   }
-  .sp-bar {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
 </style>
 
 <script>
-  import { formatTime, NOT_PLAYING, payloadAgeMs, positionAt } from '~/lib/spotify/now-playing';
+  import { NOT_PLAYING } from '~/lib/now-playing';
   import { formatRelative } from '~/lib/utils/relative-time';
-  import type { SpotifyNowPlayingData } from '~/types/spotify';
+  import type { NowPlayingData } from '~/types/now-playing';
 
   const POLL_MS = 30_000;
-  /** Attributes that belong only on the `<a>` form of the Spotify title. */
+  /** Attributes that belong only on the `<a>` form of the title. */
   const LINK_ATTRS = ['href', 'title', 'target', 'rel', 'data-umami-event'];
-  const TICK_MS = 1000;
-
-  const motionQuery = matchMedia('(prefers-reduced-motion: no-preference)');
-  const motionAllowed = () => motionQuery.matches;
 
   class NowPlayingCard {
     readonly #root: HTMLElement;
@@ -167,26 +144,14 @@ const { class: className, style } = Astro.props;
       img: HTMLImageElement;
       title: HTMLElement;
       sub: HTMLElement;
-      progress: HTMLElement;
-      bar: HTMLElement;
-      pos: HTMLElement;
-      dur: HTMLElement;
     };
-    #data: SpotifyNowPlayingData | undefined;
-    /** `performance.now()` at the moment the payload's `progressMs` was true. */
-    #origin = 0;
+    #data: NowPlayingData | undefined;
     #lastFetch = Number.NEGATIVE_INFINITY;
     #inflight = false;
     #inView = false;
     #poll: ReturnType<typeof setTimeout> | undefined;
-    #tick: ReturnType<typeof setInterval> | undefined;
     #io: IntersectionObserver | undefined;
     readonly #onVisibility = () => this.#sync();
-    /** Reduced motion toggled mid-session: start/stop the 1 s ticks at once. */
-    readonly #onMotion = () => {
-      this.#syncTick();
-      this.#renderPosition(false);
-    };
 
     constructor(root: HTMLElement) {
       this.#root = root;
@@ -201,10 +166,6 @@ const { class: className, style } = Astro.props;
         img: q<HTMLImageElement>('img'),
         title: q('title'),
         sub: q('sub'),
-        progress: q('progress'),
-        bar: q('bar'),
-        pos: q('pos'),
-        dur: q('dur'),
       };
       this.#el.img.addEventListener('error', () => {
         this.#el.img.hidden = true;
@@ -219,14 +180,12 @@ const { class: className, style } = Astro.props;
       });
       this.#io.observe(this.#root);
       document.addEventListener('visibilitychange', this.#onVisibility);
-      motionQuery.addEventListener('change', this.#onMotion);
     }
 
     pause() {
       this.#io?.disconnect();
       this.#inView = false;
       document.removeEventListener('visibilitychange', this.#onVisibility);
-      motionQuery.removeEventListener('change', this.#onMotion);
       this.#sync();
     }
 
@@ -236,12 +195,10 @@ const { class: className, style } = Astro.props;
       if (!active) {
         clearTimeout(this.#poll);
         this.#poll = undefined;
-        this.#stopTick();
         return;
       }
       if (performance.now() - this.#lastFetch >= POLL_MS) void this.#fetch();
       else if (this.#poll === undefined) this.#schedule(POLL_MS - (performance.now() - this.#lastFetch));
-      this.#syncTick();
     }
 
     #schedule(delay: number) {
@@ -261,10 +218,7 @@ const { class: className, style } = Astro.props;
         // copy still answers most polls.
         const response = await fetch('/api/spotify', { cache: 'no-cache', signal: AbortSignal.timeout(8000) });
         if (!response.ok) throw new Error(String(response.status));
-        const data = (await response.json()) as SpotifyNowPlayingData;
-        const age = payloadAgeMs(response.headers.get('age'), data.fetchedAt, Date.now());
-        this.#data = data;
-        this.#origin = performance.now() - age;
+        this.#data = (await response.json()) as NowPlayingData;
       } catch {
         this.#data ??= NOT_PLAYING; // keep the last good state on a transient error
       } finally {
@@ -272,10 +226,9 @@ const { class: className, style } = Astro.props;
       }
       this.#render();
       if (this.#inView && document.visibilityState === 'visible') this.#schedule(POLL_MS);
-      this.#syncTick();
     }
 
-    #hasTrack(data: SpotifyNowPlayingData | undefined): data is SpotifyNowPlayingData & { title: string } {
+    #hasTrack(data: NowPlayingData | undefined): data is NowPlayingData & { title: string } {
       return Boolean(data?.title);
     }
 
@@ -294,12 +247,11 @@ const { class: className, style } = Astro.props;
         el.offline.hidden = false;
         this.#setTitle('Not playing');
         el.sub.textContent = 'Offline · Spotify';
-        el.progress.style.visibility = 'hidden';
         return;
       }
 
       el.bars.toggleAttribute('data-on', data.isPlaying);
-      el.label.textContent = data.isPlaying ? 'Now playing' : data.playedAt ? 'Last played' : 'Paused';
+      el.label.textContent = data.isPlaying ? 'Now playing' : 'Last played';
       el.offline.hidden = true;
       if (data.albumImageUrl) {
         if (el.img.getAttribute('src') !== data.albumImageUrl) {
@@ -318,12 +270,6 @@ const { class: className, style } = Astro.props;
       // The last played track trades the album for when it was played.
       const when = data.playedAt ? formatRelative(data.playedAt) : null;
       el.sub.textContent = when ? [data.artist, when].filter(Boolean).join(' · ') : sub || 'Spotify';
-      const hasTiming = data.durationMs !== undefined && data.durationMs > 0;
-      el.progress.style.visibility = hasTiming ? '' : 'hidden';
-      // No progress for the last played track, or without a length (Last.fm): drop the row so the two lines centre on the cover.
-      el.progress.hidden = Boolean(data.playedAt) || !hasTiming;
-      el.dur.textContent = formatTime(data.durationMs ?? 0);
-      this.#renderPosition(false);
     }
 
     /** The title is a link only when there is a song URL (Lighthouse `crawlable-anchors`). */
@@ -350,40 +296,6 @@ const { class: className, style } = Astro.props;
       if (tooltip) title.title = tooltip;
       else title.removeAttribute('title');
       title.textContent = text;
-    }
-
-    #renderPosition(animate: boolean) {
-      const data = this.#data;
-      if (!data?.durationMs) return;
-      // Called on each poll, and every second only while ticking (never under reduced motion).
-      const at = positionAt(data, performance.now() - this.#origin);
-      const bar = this.#el.bar;
-      // A new payload jumps (no glide); ticks glide under the motion-safe transition.
-      if (!animate) bar.style.transitionDuration = '0s';
-      bar.style.transform = `scaleX(${(at / data.durationMs).toFixed(4)})`;
-      if (!animate) {
-        void bar.offsetWidth;
-        bar.style.transitionDuration = '';
-      }
-      this.#el.pos.textContent = formatTime(at);
-      if (at >= data.durationMs) this.#stopTick();
-    }
-
-    #syncTick() {
-      const data = this.#data;
-      const run =
-        this.#inView &&
-        document.visibilityState === 'visible' &&
-        motionAllowed() &&
-        data?.isPlaying === true &&
-        Boolean(data.durationMs);
-      if (!run) return this.#stopTick();
-      this.#tick ??= setInterval(() => this.#renderPosition(true), TICK_MS);
-    }
-
-    #stopTick() {
-      clearInterval(this.#tick);
-      this.#tick = undefined;
     }
   }
 
