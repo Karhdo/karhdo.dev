@@ -1,12 +1,15 @@
 /**
  * Last.fm source for the Now playing card. Spotify's Web API only answers when the app owner has
- * Premium, so with Spotify connected to Last.fm (scrobbling works on the Free plan) the card reads
- * `user.getRecentTracks` instead. Maps it to the same `/api/spotify` payload. Pure (no `astro:*`).
+ * Premium, so Spotify scrobbles to Last.fm (works on the Free plan) and the card reads
+ * `user.getRecentTracks`, mapped to the `/api/spotify` payload. Pure (no `astro:*`).
  */
-import type { SpotifyNowPlayingData } from '~/types/spotify';
-import { NOT_PLAYING } from '../spotify/now-playing';
+import { NOT_PLAYING } from '~/lib/now-playing';
+import type { NowPlayingData } from '~/types/now-playing';
 
 export const LASTFM_API = 'https://ws.audioscrobbler.com/2.0/';
+
+/** Timeout for the Last.fm call, well inside the function's budget. */
+export const UPSTREAM_TIMEOUT_MS = 5000;
 
 /** Last.fm's grey star, served when a track has no artwork. */
 const PLACEHOLDER_IMAGE = '2a96cbd8b46e442fc41c2b86b821562f';
@@ -66,7 +69,7 @@ function images(track: LastfmTrack): { url: string; width: number }[] {
  * history or a malformed body are "not playing". Last.fm reports no position or length, so the
  * payload has no timing and the card hides its progress row.
  */
-export function toLastfmNowPlaying(status: number, body: unknown, fetchedAt = Date.now()): SpotifyNowPlayingData {
+export function toLastfmNowPlaying(status: number, body: unknown, fetchedAt = Date.now()): NowPlayingData {
   if (status !== 200 || !body || typeof body !== 'object') return NOT_PLAYING;
   const raw = (body as { recenttracks?: { track?: unknown } }).recenttracks?.track;
   const tracks = (Array.isArray(raw) ? raw : raw ? [raw] : []) as LastfmTrack[];
